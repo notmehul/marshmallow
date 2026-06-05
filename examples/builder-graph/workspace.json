@@ -1,0 +1,18 @@
+{
+  "backup_records": [],
+  "graph_nodes": [
+    "examples/builder-graph/graph/ask-before-platform.md",
+    "examples/builder-graph/graph/avoid-decorative-glass.md",
+    "examples/builder-graph/graph/helper-not-dashboard.md",
+    "examples/builder-graph/graph/prefer-inspectable-systems.md",
+    "examples/builder-graph/graph/warm-interface-reference.md"
+  ],
+  "overlay_paths": {},
+  "schema_version": 1,
+  "source_paths": [
+    "examples/builder-graph/sources/like-warm-interface.md",
+    "examples/builder-graph/sources/made-local-first-tool.md",
+    "examples/builder-graph/sources/reject-glass-dashboard.md"
+  ],
+  "tuned_skills": {}
+}
