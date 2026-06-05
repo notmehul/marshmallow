@@ -1,0 +1,9 @@
+{
+  "name": "marshmallow",
+  "description": "Build a local personal alignment layer for Claude Code with source-backed projections and reviewable skill overlays.",
+  "version": "0.3.0",
+  "author": {
+    "name": "Marshmallow"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "marshmallow",
+  "description": "Local-first personal alignment tools for giving Claude Code source-backed builder judgment from the first prompt.",
+  "owner": {
+    "name": "Marshmallow contributors"
+  },
+  "plugins": [
+    {
+      "name": "marshmallow",
+      "source": "./",
+      "description": "Build a local personal alignment layer for Claude Code with source-backed projections and reviewable skill overlays.",
+      "version": "0.3.0"
+    }
+  ]
+}
