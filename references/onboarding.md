@@ -70,8 +70,8 @@ corpus-shaped. Do not force a starter taxonomy.
 Run:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" doctor
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" scan-skills --project "$PWD"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" doctor
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" scan-skills --project "$PWD"
 ```
 
 Surface 3-5 emerging patterns in plain language. Recommend only
@@ -87,7 +87,7 @@ focused question.
 Preview the user-level Claude Code adapter:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter preview
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter preview
 ```
 
 Explain that the adapter adds one replaceable import block to
@@ -100,7 +100,7 @@ the adapter and named skill files in one explicit approval request. If the user
 wants only the adapter, ask for approval before applying:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter apply
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter apply
 ```
 
 ## 8. Propose Skill Updates
@@ -115,7 +115,7 @@ checklists, or tax workflows unless the user explicitly asks.
 For each chosen target:
 
 1. draft a pending overlay using [overlay-template](overlay-template.md)
-2. run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay preview --skill "<skill-path>" --overlay "<overlay-path>"`
+2. run `"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay preview --skill "<skill-path>" --overlay "<overlay-path>"`
 3. summarize the proposed changes
 4. show the diff
 5. ask for explicit approval

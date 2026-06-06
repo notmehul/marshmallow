@@ -20,6 +20,18 @@ small marker block that imports or points at `~/.marshmallow/runtime.md`:
 The runtime file tells the agent to search `~/.marshmallow/graph/` with `rg` or
 `grep` and load only the smallest relevant graph nodes for the current task.
 
+## Plugin Command Boundary
+
+Claude Code skills call the single executable CLI at
+`${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py`. The skill frontmatter allowlists
+that exact Bash prefix, plus `rg` and the file tools needed to stage user
+approved material.
+
+Do not route plugin skills through `python3 ${CLAUDE_PLUGIN_ROOT}/...` or broad
+`Bash(python3:*)` permissions. Direct executable calls keep the harness
+permission surface narrow and avoid auto-mode treating the workflow as arbitrary
+third-party Python.
+
 ## Workspace
 
 `~/.marshmallow/` contains plain files:

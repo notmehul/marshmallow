@@ -32,7 +32,7 @@ All of these must pass — they run in CI:
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m compileall -q scripts tests
-python3 scripts/marshmallow.py doctor --workspace examples/builder-graph --json
+scripts/marshmallow.py doctor --workspace examples/builder-graph --json
 claude plugin validate . --strict   # if you have the Claude Code CLI
 ```
 
