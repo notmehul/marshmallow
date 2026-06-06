@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
-"""Skill overlay parsing and marker-block transformations."""
+"""Skill overlay parsing, marker-block transforms, and rollback."""
 
 from __future__ import annotations
 
 import difflib
+import json
 import re
 from pathlib import Path
+from typing import Any
 
-from marshmallow_workspace import MarshmallowError, timestamp
+from marshmallow_workspace import (
+    MarshmallowError,
+    atomic_write,
+    ensure_workspace,
+    sha256_bytes,
+    sha256_file,
+    timestamp,
+    write_record,
+)
 from safety import validate_generated_guidance
 
 REQUIRED_OVERLAY_HEADINGS = {
@@ -51,13 +61,18 @@ def skill_id(path: Path) -> str:
     return normalized
 
 
-def backup_path(root: Path, target: Path) -> Path:
-    base = root / "backups" / timestamp() / skill_id(target) / "SKILL.md"
+def refuse_plugin_cache(path: Path) -> None:
+    if "plugins" in path.parts and "cache" in path.parts:
+        raise MarshmallowError("Refusing to create or update a plugin cache skill")
+
+
+def skill_record_dir(root: Path, target: Path) -> Path:
+    base = root / "backups" / "skills" / skill_id(target) / timestamp()
     if not base.exists():
         return base
     counter = 2
     while True:
-        candidate = base.parent.parent / f"{base.parent.name}-{counter}" / "SKILL.md"
+        candidate = base.with_name(f"{base.name}-{counter}")
         if not candidate.exists():
             return candidate
         counter += 1
@@ -107,4 +122,303 @@ def unified_diff(target: Path, original: str, updated: str) -> str:
             fromfile=str(target),
             tofile=str(target),
         )
+    )
+
+
+def default_aligned_copy(source: Path) -> Path:
+    generated_name = f"{skill_id(source)}-marshmallow"
+    return source.parent.parent / generated_name / "SKILL.md"
+
+
+def overlay_store_path(root: Path, target: Path) -> Path:
+    return root / "overlays" / f"{skill_id(target)}.md"
+
+
+def read_text_bytes(path: Path) -> tuple[bytes, str]:
+    data = path.read_bytes() if path.exists() else b""
+    return data, data.decode("utf-8")
+
+
+def apply_overlay(
+    workspace_root: Path,
+    skill: Path,
+    overlay: Path,
+    approve: bool,
+    aligned_copy: bool = False,
+    target: Path | None = None,
+) -> tuple[int, str]:
+    workspace_root = ensure_workspace(workspace_root)
+    source = normalize_skill_file(skill)
+    if not source.exists():
+        raise MarshmallowError(f"Skill does not exist: {source}")
+    validate_overlay(overlay)
+
+    destination = normalize_skill_file(target) if target else (default_aligned_copy(source) if aligned_copy else source)
+    refuse_plugin_cache(destination)
+    if destination.exists() and not is_writable(destination):
+        return 2, json.dumps(
+            {
+                "status": "read-only",
+                "skill": str(destination),
+                "choices": [
+                    "Apply to a writable aligned copy.",
+                    "Change filesystem permissions and retry.",
+                    "Skip this skill and keep the adapter-only runtime.",
+                ],
+            },
+            indent=2,
+        )
+    if not destination.exists() and destination == source:
+        raise MarshmallowError(f"Skill does not exist: {destination}")
+
+    created_copy = not destination.exists()
+    overlay_store = overlay_store_path(workspace_root, destination)
+    overlay_bytes = overlay.read_bytes()
+    overlay_before_bytes, overlay_before = read_text_bytes(overlay_store)
+
+    if created_copy:
+        source_text = source.read_text(encoding="utf-8")
+        before_bytes = b""
+        before = ""
+        base_text = ensure_generated_skill_name(source_text, skill_id(destination))
+    else:
+        before_bytes, before = read_text_bytes(destination)
+        base_text = before
+
+    updated = apply_marker(base_text, overlay_store)
+    diff = unified_diff(destination, before, updated)
+    diff += unified_diff(overlay_store, overlay_before, overlay_bytes.decode("utf-8"))
+    if not approve:
+        return 0, diff or json.dumps({"status": "unchanged", "target": str(destination)}, indent=2)
+
+    if before == updated and overlay_before_bytes == overlay_bytes:
+        return 0, json.dumps({"status": "unchanged", "target": str(destination)}, indent=2)
+
+    record_dir = skill_record_dir(workspace_root, destination)
+    backup: Path | None = None
+    overlay_backup: Path | None = None
+    if destination.exists():
+        backup = record_dir / "SKILL.md"
+        atomic_write(backup, before_bytes)
+    if overlay_store.exists():
+        overlay_backup = record_dir / "overlay.md"
+        atomic_write(overlay_backup, overlay_before_bytes)
+
+    record: dict[str, Any] = {
+        "timestamp": timestamp(),
+        "action": "overlay-apply",
+        "source_skill": str(source.resolve()),
+        "target_skill": str(destination.resolve()),
+        "overlay_path": str(overlay_store.resolve()),
+        "backup_path": str(backup.resolve()) if backup else None,
+        "overlay_backup_path": str(overlay_backup.resolve()) if overlay_backup else None,
+        "created_copy": created_copy,
+        "original_hash": sha256_bytes(before_bytes),
+        "planned_hash": sha256_bytes(updated.encode("utf-8")),
+        "overlay_original_hash": sha256_bytes(overlay_before_bytes),
+        "overlay_planned_hash": sha256_bytes(overlay_bytes),
+    }
+    write_record(record_dir / "record.json", record)
+    atomic_write(overlay_store, overlay_bytes)
+    try:
+        atomic_write(destination, updated)
+    except OSError:
+        if overlay_backup:
+            atomic_write(overlay_store, overlay_backup.read_bytes())
+        else:
+            overlay_store.unlink(missing_ok=True)
+        raise
+    record["applied_hash"] = sha256_file(destination)
+    record["overlay_applied_hash"] = sha256_file(overlay_store)
+    write_record(record_dir / "record.json", record)
+    return 0, json.dumps(
+        {
+            "status": "applied",
+            "target": str(destination),
+            "overlay": str(overlay_store),
+            "backup": str(backup) if backup else None,
+            "record": str(record_dir / "record.json"),
+            "created_copy": created_copy,
+        },
+        indent=2,
+    )
+
+
+def find_latest_record(workspace_root: Path, target: Path) -> tuple[Path, dict[str, Any]]:
+    target_resolved = str(normalize_skill_file(target).resolve())
+    records: list[tuple[Path, dict[str, Any]]] = []
+    for path in sorted((workspace_root / "backups" / "skills").glob("*/**/record.json")):
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if record.get("target_skill") == target_resolved and record.get("action") == "overlay-apply":
+            records.append((path, record))
+    if not records:
+        raise MarshmallowError(f"No overlay backup record found for {target_resolved}")
+    return records[-1]
+
+
+def rollback_overlay(workspace_root: Path, skill: Path, approve: bool, force: bool = False) -> tuple[int, str]:
+    workspace_root = ensure_workspace(workspace_root)
+    destination = normalize_skill_file(skill)
+    record_path, record = find_latest_record(workspace_root, destination)
+    overlay_path = Path(str(record["overlay_path"]))
+    backup_path = Path(str(record["backup_path"])) if record.get("backup_path") else None
+    overlay_backup_path = Path(str(record["overlay_backup_path"])) if record.get("overlay_backup_path") else None
+    created_copy = bool(record.get("created_copy"))
+
+    actions = {
+        "status": "preview",
+        "record": str(record_path),
+        "target": str(destination),
+        "created_copy": created_copy,
+        "will_delete_target": created_copy,
+        "will_restore_target": bool(backup_path),
+        "will_delete_overlay": overlay_backup_path is None,
+        "will_restore_overlay": overlay_backup_path is not None,
+    }
+    if not approve:
+        return 0, json.dumps(actions, indent=2)
+
+    if destination.exists() and record.get("applied_hash") and not force:
+        current_hash = sha256_file(destination)
+        if current_hash != record["applied_hash"]:
+            raise MarshmallowError(
+                f"{destination}: current hash differs from backup record; use --force only after reviewing manually"
+            )
+
+    if created_copy:
+        destination.unlink(missing_ok=True)
+        try:
+            destination.parent.rmdir()
+        except OSError:
+            pass
+    elif backup_path and backup_path.exists():
+        atomic_write(destination, backup_path.read_bytes())
+    else:
+        raise MarshmallowError(f"Missing target backup for rollback: {record_path}")
+
+    if overlay_backup_path and overlay_backup_path.exists():
+        atomic_write(overlay_path, overlay_backup_path.read_bytes())
+    else:
+        overlay_path.unlink(missing_ok=True)
+
+    rollback_record = dict(record)
+    rollback_record["action"] = "overlay-rollback"
+    rollback_record["rolled_back_at"] = timestamp()
+    write_record(record_path.with_name("rollback.json"), rollback_record)
+    actions["status"] = "rolled-back"
+    return 0, json.dumps(actions, indent=2)
+
+
+def default_starter_target(name: str) -> Path:
+    return Path.home() / ".claude" / "skills" / name / "SKILL.md"
+
+
+def starter_text(name: str, overlay_store: Path) -> str:
+    return f"""---
+name: {name}
+description: Apply Marshmallow personal alignment to judgment-sensitive builder work.
+---
+
+# Marshmallow Aligned Builder
+
+Use this skill for product, design, architecture, writing, planning, and review work where personal judgment should change useful defaults.
+
+Preserve correctness, project instructions, and the user's current request. Use Marshmallow only to adapt taste, quality bars, anti-patterns, and decision rules.
+
+{alignment_block(overlay_store)}
+"""
+
+
+def create_starter_skill(
+    workspace_root: Path,
+    name: str,
+    overlay: Path,
+    approve: bool,
+    target: Path | None = None,
+) -> tuple[int, str]:
+    if not ID_PATTERN.match(name):
+        raise MarshmallowError(f"Starter skill name must use lowercase hyphen-case: {name!r}")
+    workspace_root = ensure_workspace(workspace_root)
+    validate_overlay(overlay)
+    destination = normalize_skill_file(target or default_starter_target(name))
+    refuse_plugin_cache(destination)
+    if destination.exists() and not is_writable(destination):
+        return 2, json.dumps(
+            {
+                "status": "read-only",
+                "skill": str(destination),
+                "choices": [
+                    "Provide a writable starter skill path.",
+                    "Choose a different starter skill name.",
+                    "Skip the starter skill and use the persistent adapter only.",
+                ],
+            },
+            indent=2,
+        )
+
+    overlay_store = overlay_store_path(workspace_root, destination)
+    before_bytes, before = read_text_bytes(destination)
+    overlay_bytes = overlay.read_bytes()
+    overlay_before_bytes, overlay_before = read_text_bytes(overlay_store)
+    created_copy = not destination.exists()
+    updated = starter_text(name, overlay_store) if created_copy else apply_marker(before, overlay_store)
+    diff = unified_diff(destination, before, updated)
+    diff += unified_diff(overlay_store, overlay_before, overlay_bytes.decode("utf-8"))
+    if not approve:
+        return 0, diff or json.dumps({"status": "unchanged", "target": str(destination)}, indent=2)
+
+    if before == updated and overlay_before_bytes == overlay_bytes:
+        return 0, json.dumps({"status": "unchanged", "target": str(destination)}, indent=2)
+
+    record_dir = skill_record_dir(workspace_root, destination)
+    backup: Path | None = None
+    overlay_backup: Path | None = None
+    if destination.exists():
+        backup = record_dir / "SKILL.md"
+        atomic_write(backup, before_bytes)
+    if overlay_store.exists():
+        overlay_backup = record_dir / "overlay.md"
+        atomic_write(overlay_backup, overlay_before_bytes)
+
+    record: dict[str, Any] = {
+        "timestamp": timestamp(),
+        "action": "overlay-apply",
+        "source_skill": str(destination.resolve()),
+        "target_skill": str(destination.resolve()),
+        "overlay_path": str(overlay_store.resolve()),
+        "backup_path": str(backup.resolve()) if backup else None,
+        "overlay_backup_path": str(overlay_backup.resolve()) if overlay_backup else None,
+        "created_copy": created_copy,
+        "starter": True,
+        "original_hash": sha256_bytes(before_bytes),
+        "planned_hash": sha256_bytes(updated.encode("utf-8")),
+        "overlay_original_hash": sha256_bytes(overlay_before_bytes),
+        "overlay_planned_hash": sha256_bytes(overlay_bytes),
+    }
+    write_record(record_dir / "record.json", record)
+    atomic_write(overlay_store, overlay_bytes)
+    try:
+        atomic_write(destination, updated)
+    except OSError:
+        if overlay_backup:
+            atomic_write(overlay_store, overlay_backup.read_bytes())
+        else:
+            overlay_store.unlink(missing_ok=True)
+        raise
+    record["applied_hash"] = sha256_file(destination)
+    record["overlay_applied_hash"] = sha256_file(overlay_store)
+    write_record(record_dir / "record.json", record)
+    return 0, json.dumps(
+        {
+            "status": "applied",
+            "target": str(destination),
+            "overlay": str(overlay_store),
+            "backup": str(backup) if backup else None,
+            "record": str(record_dir / "record.json"),
+            "created_copy": created_copy,
+        },
+        indent=2,
     )

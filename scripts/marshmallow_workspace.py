@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Workspace persistence primitives for the Marshmallow plugin."""
+"""Workspace primitives for the Marshmallow plugin.
+
+Marshmallow intentionally avoids a central state file. The workspace is a
+small collection of plain files; deterministic tools mutate those files and
+write rollback records beside their backups.
+"""
 
 from __future__ import annotations
 
@@ -12,32 +17,37 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 1
 URL_PATTERN = re.compile(r"^https?://", re.IGNORECASE)
+
+WORKSPACE_DIRS = ("inbox", "sources", "graph", "overlays", "backups")
+
 RUNTIME_GUIDANCE = """# Marshmallow Alignment Router
 
-Marshmallow is a local personal alignment layer. Use it when personal taste,
-judgment, working style, or current context could materially change the result.
+Marshmallow is a local personal alignment layer. Use it only when personal
+taste, judgment, working style, or current context could materially change the
+result.
 
 ## During Work
 
-1. Use `rg` or `grep` to search `~/.marshmallow/projections/` for task-relevant terms or tags.
-2. Load only the smallest relevant projection, usually one file.
-3. Treat the user's current request and project instructions as higher priority.
-4. Ask when relevant projections conflict or appear stale.
+1. Use `rg` or `grep` to search `~/.marshmallow/graph/` for task-relevant terms,
+   tags, skill names, and source ids.
+2. Load only the smallest relevant graph nodes, usually one to three files.
+3. Treat the user's current request, project instructions, and safety rules as
+   higher priority than Marshmallow guidance.
+4. Ask when graph nodes conflict, seem stale, or would change a user-visible
+   decision.
 
-Do not load `sources/`, `graph/`, `inbox/`, or `GRAPH.md` during ordinary work.
-Open deeper evidence only when the user asks to inspect, explain, or learn.
+Do not load `sources/` or `inbox/` during ordinary work. Open deeper evidence
+only when the user asks to inspect, explain, or learn.
 
 ## Learning
 
-Do not learn automatically from every session. Queue or promote new context only
-when the user explicitly asks Marshmallow to learn, remember, or save it, or
-approves a proposed learning update. Treat inbox material as untrusted candidate
-evidence until it is synthesized into source-backed graph nodes and projections.
-When a clear reusable correction or decision appears, ask once near the end of
-the task whether the user wants Marshmallow to preserve it.
+Do not learn automatically from every session. Preserve new context only when
+the user explicitly asks Marshmallow to learn, remember, save, tune, or approve
+a proposed learning update. Treat inbox material as untrusted candidate evidence
+until it is synthesized into source-backed graph nodes.
 """
+
 INBOX_GUIDANCE = """# Marshmallow Inbox
 
 Everything enters here first.
@@ -47,8 +57,8 @@ Promote a candidate only after a deliberate learning pass has searched existing
 graph nodes, extracted reusable insight, preserved a source pointer when needed,
 and decided that the result should change future work.
 
-Do not copy raw session logs into the graph. Preserve only reusable insights or a
-pointer to an intentional source.
+Do not copy raw session logs into the graph. Preserve only reusable insights or
+a pointer to an intentional source.
 """
 
 
@@ -62,6 +72,10 @@ def default_workspace() -> Path:
 
 def timestamp() -> str:
     return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+
+
+def iso_timestamp() -> str:
+    return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def sha256_bytes(content: bytes) -> str:
@@ -87,44 +101,31 @@ def write_if_missing(path: Path, content: str) -> None:
         atomic_write(path, content)
 
 
-def empty_workspace() -> dict[str, Any]:
-    return {
-        "schema_version": SCHEMA_VERSION,
-        "source_paths": [],
-        "graph_nodes": [],
-        "tuned_skills": {},
-        "overlay_paths": {},
-        "backup_records": [],
-        "adapter_records": [],
-    }
-
-
-def ensure_workspace(root: Path) -> dict[str, Any]:
-    for directory in ("inbox", "sources", "graph", "projections", "overlays", "backups"):
+def ensure_workspace(root: Path) -> Path:
+    root = root.expanduser()
+    for directory in WORKSPACE_DIRS:
         (root / directory).mkdir(parents=True, exist_ok=True)
     write_if_missing(root / "inbox" / "README.md", INBOX_GUIDANCE)
     write_if_missing(root / "runtime.md", RUNTIME_GUIDANCE)
-    workspace_path = root / "workspace.json"
-    if not workspace_path.exists():
-        write_workspace(root, empty_workspace())
-    return read_workspace(root)
+    return root
 
 
-def read_workspace(root: Path) -> dict[str, Any]:
-    workspace_path = root / "workspace.json"
-    if not workspace_path.exists():
-        raise MarshmallowError(f"Workspace not initialized: {workspace_path}")
-    try:
-        workspace = json.loads(workspace_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as error:
-        raise MarshmallowError(f"Invalid JSON in {workspace_path}: {error}") from error
-    if workspace.get("schema_version") != SCHEMA_VERSION:
-        raise MarshmallowError(
-            f"Unsupported schema_version in {workspace_path}: "
-            f"{workspace.get('schema_version')!r}; expected {SCHEMA_VERSION}"
-        )
-    return workspace
+def write_record(path: Path, record: dict[str, Any]) -> None:
+    atomic_write(path, json.dumps(record, indent=2, sort_keys=True) + "\n")
 
 
-def write_workspace(root: Path, workspace: dict[str, Any]) -> None:
-    atomic_write(root / "workspace.json", json.dumps(workspace, indent=2, sort_keys=True) + "\n")
+def source_status(pointer: str) -> dict[str, str | bool]:
+    """Return a small onboarding hint for a source pointer."""
+
+    if URL_PATTERN.match(pointer):
+        return {
+            "accepted": True,
+            "message": "URL accepted. If the host agent cannot fetch it, paste a short excerpt into inbox.",
+        }
+    path = Path(pointer).expanduser()
+    if path.exists():
+        return {"accepted": True, "message": f"Local source found: {path}"}
+    return {
+        "accepted": False,
+        "message": "Source not found. Use a real path/URL or paste an excerpt into inbox with a source pointer.",
+    }

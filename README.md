@@ -1,165 +1,108 @@
 # Marshmallow
 
-No-bullshit AI personalization for Claude Code.
+Marshmallow is a small local personalization layer for Claude Code.
 
-Marshmallow turns the things you make, like, and reject into a local skill graph
-and knowledge graph. Claude Code can then use your taste, judgment, and working
-style from the first prompt instead of relearning them through repeated
-corrections.
+The loop is intentionally plain:
 
 ```text
-your work + references + rejections
--> guarded inbox
--> source-backed graph
--> compact runtime projections
--> Claude Code adapter
--> better first attempts
+context sources -> source-backed graph nodes -> Claude runtime adapter -> skill overlays -> explicit learning updates
 ```
 
-No database. No account. No daemon. No silent memory. Just inspectable Markdown,
-`rg`/`grep`, reviewable diffs, backups, and rollback.
+Models do the synthesis work. Python handles the parts that should be
+deterministic: creating files, previewing diffs, installing/removing the runtime
+adapter, applying overlays, and rolling back exact bytes from backups.
 
-## Why
+## What It Creates
 
-Generic agents keep making the same wrong calls:
-
-- adding infrastructure before a local file has failed
-- making interfaces busier than you like
-- sanding away your writing voice
-- expanding a focused wedge into a platform
-- forgetting decisions you already explained three sessions ago
-
-Marshmallow compiles those recurring signals into small, task-shaped context
-files. Ordinary Claude Code sessions get a persistent adapter. Judgment-sensitive
-skills can also get personal overlays that patch their defaults without copying
-giant prompts into every skill.
-
-## Install
-
-After the public repository is live:
+`~/.marshmallow/` is the source of truth:
 
 ```text
-/plugin marketplace add <github-owner>/marshmallow-plugin
-/plugin install marshmallow@marshmallow
-/reload-plugins
+runtime.md    # short instructions imported by ~/.claude/CLAUDE.md
+inbox/        # unsynthesized candidate material
+sources/      # source cards with pointers/provenance
+graph/        # source-backed graph nodes
+overlays/     # approved skill alignment overlays
+backups/      # backup files plus record.json metadata
 ```
 
-For local development:
+There is no required `workspace.json`, generated `GRAPH.md`, or generated
+`projections/` directory.
+
+## CLI
+
+Use one public command:
 
 ```bash
-claude --plugin-dir /absolute/path/to/marshmallow-plugin
+python3 scripts/marshmallow.py init
+python3 scripts/marshmallow.py doctor
+python3 scripts/marshmallow.py scan-skills
+python3 scripts/marshmallow.py adapter preview
+python3 scripts/marshmallow.py adapter apply
+python3 scripts/marshmallow.py adapter remove
+python3 scripts/marshmallow.py adapter remove --approve
+python3 scripts/marshmallow.py overlay preview --skill /path/to/SKILL.md --overlay /path/to/overlay.md
+python3 scripts/marshmallow.py overlay apply --skill /path/to/SKILL.md --overlay /path/to/overlay.md
+python3 scripts/marshmallow.py overlay rollback --skill /path/to/SKILL.md
+python3 scripts/marshmallow.py overlay rollback --skill /path/to/SKILL.md --approve
+python3 scripts/marshmallow.py starter preview --overlay /path/to/overlay.md
+python3 scripts/marshmallow.py starter apply --overlay /path/to/overlay.md
 ```
 
-Then run:
+Preview before mutation. Adapter installs and skill rewrites require explicit
+user approval. Rollback metadata lives beside each backup in `backups/`.
 
-```text
-/marshmallow:start
+## Skills
+
+- `/marshmallow:start` onboards the workspace, first graph, adapter, and first tune.
+- `/marshmallow:learn` ingests explicit sources or corrections.
+- `/marshmallow:tune` retunes skills, creates aligned copies, creates starter skills, and rolls back overlays.
+
+## Graph Shape
+
+Graph node minimum schema:
+
+```yaml
+id: prefer-clear-hierarchy
+insight: Prefer clear hierarchy over decorative complexity.
+source_ids: [source-example]
+applies_to: [design]
+related_nodes: []
+skills: [frontend-design]
+labels: [visual-taste]
 ```
 
-## Quick Start
+Source card minimum schema:
 
-Marshmallow asks how deep you want to go:
-
-1. Quick start: 3-7 sources and one useful aligned result.
-2. Guided calibration: a broader pass across several skills.
-
-Send a loose taste pack:
-
-- things you made
-- things you like
-- things you reject
-
-Paths, folders, pasted text, screenshots, PDFs, and URLs all work. You do not
-need to organize them perfectly.
-
-Marshmallow stages the material, extracts reusable insights, renders compact
-projections, previews a `~/.claude/CLAUDE.md` adapter, and asks before changing
-anything durable.
-
-If you have no existing skills, activation still works: the adapter routes
-ordinary Claude Code sessions into your projections. Marshmallow can also
-preview a starter skill called `marshmallow-aligned-builder`.
-
-## What It Writes
-
-`~/.marshmallow/` is the source of truth. Durable personal data lives outside
-the plugin cache:
-
-```text
-~/.marshmallow/
-  inbox/          # untrusted candidates
-  sources/        # source cards and pointers
-  graph/          # source-backed insights
-  projections/    # compact runtime context
-  overlays/       # approved skill overlays
-  backups/        # rollback material
-  runtime.md      # Claude Code router
-  GRAPH.md        # inspectable graph view
+```yaml
+id: source-example
+pointer: /absolute/path/or/url
+captured: 2026-06-01T00:00:00Z
+summary: Optional reason this source matters.
+labels: [product]
 ```
 
-After approval, Claude Code gets one replaceable import block:
+Every graph node must have at least one `source_ids` entry. User corrections are saved
+as source cards, so corrections remain source-backed too.
 
-```md
-<!-- marshmallow:adapter:start -->
-@/Users/you/.marshmallow/runtime.md
-<!-- marshmallow:adapter:end -->
-```
+## Demo
 
-Tuned skills get one pointer to an approved overlay under `~/.marshmallow/`.
-They do not receive copied graph dumps.
-
-## Trust Model
-
-- Dry-run diffs before adapter or skill rewrites.
-- Explicit approval before every durable write.
-- Timestamped backups and byte-for-byte rollback.
-- Inbox material stays out of runtime until promoted.
-- Raw session logs are not silently ingested.
-- Generated projections and overlays block common prompt-injection patterns.
-- Plugin caches are never edited.
-
-Run a local health check:
+The bundled demo is reproducible:
 
 ```bash
-python3 scripts/doctor.py --workspace examples/builder-graph
+python3 scripts/marshmallow.py doctor --workspace examples/builder-graph
+python3 scripts/marshmallow.py overlay preview \
+  --workspace examples/builder-graph \
+  --skill /path/to/frontend-design/SKILL.md \
+  --overlay examples/builder-graph/overlays/frontend-design.md
 ```
 
-See [docs/trust-and-rollback.md](docs/trust-and-rollback.md) for rollback and
-uninstall commands.
+See [DEMO.md](DEMO.md), [ARCHITECTURE.md](ARCHITECTURE.md), and
+[docs/trust-and-rollback.md](docs/trust-and-rollback.md).
 
-## Example
-
-The example graph turns taste and builder judgment into runtime guidance:
-
-- prefer inspectable local primitives before adding infrastructure
-- avoid decorative glass cards without hierarchy
-- prefer calm helper-like interfaces over control panels
-
-Open [examples/builder-graph/GRAPH.md](examples/builder-graph/GRAPH.md) or run:
-
-```bash
-python3 scripts/render-graph.py --workspace examples/builder-graph
-```
-
-## Learn More
-
-- [docs/usage.md](docs/usage.md): onboarding, learning, and no-skills fallback.
-- [ARCHITECTURE.md](ARCHITECTURE.md): file layout and ownership boundaries.
-- [UX.md](UX.md): first-run interaction contract.
-- [METHODOLOGY.md](METHODOLOGY.md): research trail and validation method.
-- [DEMO.md](DEMO.md): one-minute launch walkthrough.
-
-## Development
-
-Requires Python 3.10+ and the standard library only.
+## Checks
 
 ```bash
 python3 -m unittest discover -s tests -v
+python3 -m compileall -q scripts tests
 claude plugin validate . --strict
-python3 scripts/validate-workspace.py --workspace examples/builder-graph
-python3 scripts/render-graph.py --workspace examples/builder-graph
 ```
-
-## License
-
-MIT

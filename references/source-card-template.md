@@ -1,7 +1,8 @@
 ---
 id: source-example
 pointer: /absolute/path/or/url
-captured: YYYY-MM-DD
+captured: YYYY-MM-DDTHH:MM:SSZ
+summary: Optional one-line reason this source matters.
 labels: [product]
 ---
 
@@ -9,7 +10,7 @@ labels: [product]
 
 ## Useful Excerpts
 
-- Preserve only excerpts that support graph nodes.
+- Preserve only excerpts that support graph nodes. Do not paste large raw dumps.
 
 ## Image Description
 
