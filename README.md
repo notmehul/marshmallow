@@ -98,8 +98,8 @@ Marshmallow's graph and overlays are plain files, so other harnesses can use the
 too. Install the adapter into `AGENTS.md` instead of `CLAUDE.md`:
 
 ```bash
-python3 scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
-python3 scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
+scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
+scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
 ```
 
 ## What it creates
@@ -128,17 +128,17 @@ backups/      # exact backup bytes plus record.json for rollback
 The skills call one public CLI. You can run it directly too:
 
 ```bash
-python3 scripts/marshmallow.py init
-python3 scripts/marshmallow.py doctor
-python3 scripts/marshmallow.py scan-skills
-python3 scripts/marshmallow.py adapter preview   [--harness claude|codex|cursor]
-python3 scripts/marshmallow.py adapter apply     [--harness claude|codex|cursor]
-python3 scripts/marshmallow.py adapter remove [--approve]
-python3 scripts/marshmallow.py overlay preview  --skill <SKILL.md> --overlay <overlay.md>
-python3 scripts/marshmallow.py overlay apply    --skill <SKILL.md> --overlay <overlay.md>
-python3 scripts/marshmallow.py overlay rollback --skill <SKILL.md> [--approve]
-python3 scripts/marshmallow.py starter preview  --overlay <overlay.md>
-python3 scripts/marshmallow.py starter apply    --overlay <overlay.md>
+scripts/marshmallow.py init
+scripts/marshmallow.py doctor
+scripts/marshmallow.py scan-skills
+scripts/marshmallow.py adapter preview   [--harness claude|codex|cursor]
+scripts/marshmallow.py adapter apply     [--harness claude|codex|cursor]
+scripts/marshmallow.py adapter remove [--approve]
+scripts/marshmallow.py overlay preview  --skill <SKILL.md> --overlay <overlay.md>
+scripts/marshmallow.py overlay apply    --skill <SKILL.md> --overlay <overlay.md>
+scripts/marshmallow.py overlay rollback --skill <SKILL.md> [--approve]
+scripts/marshmallow.py starter preview  --overlay <overlay.md>
+scripts/marshmallow.py starter apply    --overlay <overlay.md>
 ```
 
 Preview before mutation. Adapter installs and skill rewrites require explicit
@@ -188,7 +188,7 @@ on the roadmap.
 The bundled demo workspace is reproducible and touches nothing real:
 
 ```bash
-python3 scripts/marshmallow.py doctor --workspace examples/builder-graph
+scripts/marshmallow.py doctor --workspace examples/builder-graph
 ```
 
 See [DEMO.md](DEMO.md) for the full walkthrough.

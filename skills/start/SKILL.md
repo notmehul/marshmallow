@@ -3,6 +3,7 @@ name: start
 description: Onboard Marshmallow, build the first source-backed personal graph, preview/apply the Claude runtime adapter, and create the first useful skill tune or starter skill. Use when the user runs /marshmallow:start or asks to personalize Claude Code with Marshmallow.
 license: MIT
 compatibility: Designed for Claude Code with Python 3.11+ available locally.
+allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "AskUserQuestion", "Bash(${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py:*)", "Bash(rg:*)"]
 ---
 
 # Marshmallow Start
@@ -14,7 +15,7 @@ first run useful and inspectable. Do not turn it into a framework setup.
 Use one public CLI:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" init
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" init
 ```
 
 ## First Run
@@ -43,8 +44,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" init
 5. Validate and scan:
 
    ```bash
-   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" doctor
-   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" scan-skills --project "$PWD"
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" doctor
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" scan-skills --project "$PWD"
    ```
 
 6. Reveal 3-5 patterns in plain language and recommend writable,
@@ -56,7 +57,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" init
 Preview the persistent runtime adapter:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter preview
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter preview
 ```
 
 Explain that it adds one replaceable import block to `~/.claude/CLAUDE.md`
@@ -66,7 +67,7 @@ graph nodes directly and load only the smallest relevant nodes.
 Apply only after explicit approval:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter apply
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter apply
 ```
 
 If the user also works in Codex or Cursor, offer the same adapter for `AGENTS.md`
@@ -82,7 +83,7 @@ change only defaults, quality bars, anti-patterns, and ask-when rules.
 Preview:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay preview \
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay preview \
   --skill "<skill-path>" \
   --overlay "<overlay-path>"
 ```
@@ -90,7 +91,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay preview \
 Apply only after explicit approval:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay apply \
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay apply \
   --skill "<skill-path>" \
   --overlay "<overlay-path>"
 ```
@@ -101,13 +102,13 @@ copy, provide another writable skill path, or skip that skill.
 Starter skill preview:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" starter preview --overlay "<overlay-path>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" starter preview --overlay "<overlay-path>"
 ```
 
 Starter skill apply:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" starter apply --overlay "<overlay-path>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" starter apply --overlay "<overlay-path>"
 ```
 
 Adapter and skill rewrites must be included in one explicit approval request
@@ -118,20 +119,20 @@ when both are pending.
 Preview rollback first:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay rollback --skill "<skill-path>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay rollback --skill "<skill-path>"
 ```
 
 Apply rollback only after explicit approval:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay rollback --skill "<skill-path>" --approve
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" overlay rollback --skill "<skill-path>" --approve
 ```
 
 Remove the adapter with the same preview/apply shape:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter remove
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter remove --approve
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter remove
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter remove --approve
 ```
 
 ## Boundary

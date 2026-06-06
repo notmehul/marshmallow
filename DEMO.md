@@ -19,7 +19,7 @@ You should see:
 ## 2. Run Doctor
 
 ```bash
-python3 scripts/marshmallow.py doctor --workspace examples/builder-graph
+scripts/marshmallow.py doctor --workspace examples/builder-graph
 ```
 
 The workspace should report valid source cards and graph nodes.
@@ -32,7 +32,7 @@ Use a temporary target so the demo does not touch your real `CLAUDE.md`:
 mkdir -p /tmp/marshmallow-demo/.claude
 printf '# Demo Claude file\n' > /tmp/marshmallow-demo/.claude/CLAUDE.md
 
-python3 scripts/marshmallow.py adapter preview \
+scripts/marshmallow.py adapter preview \
   --workspace examples/builder-graph \
   --target /tmp/marshmallow-demo/.claude/CLAUDE.md
 ```
@@ -40,7 +40,7 @@ python3 scripts/marshmallow.py adapter preview \
 Apply only if you want to see the backup record:
 
 ```bash
-python3 scripts/marshmallow.py adapter apply \
+scripts/marshmallow.py adapter apply \
   --workspace examples/builder-graph \
   --target /tmp/marshmallow-demo/.claude/CLAUDE.md
 ```
@@ -66,7 +66,7 @@ EOF
 Preview:
 
 ```bash
-python3 scripts/marshmallow.py overlay preview \
+scripts/marshmallow.py overlay preview \
   --workspace examples/builder-graph \
   --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md \
   --overlay examples/builder-graph/overlays/frontend-design.md
@@ -75,7 +75,7 @@ python3 scripts/marshmallow.py overlay preview \
 Apply after reviewing the diff:
 
 ```bash
-python3 scripts/marshmallow.py overlay apply \
+scripts/marshmallow.py overlay apply \
   --workspace examples/builder-graph \
   --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md \
   --overlay examples/builder-graph/overlays/frontend-design.md
@@ -84,11 +84,11 @@ python3 scripts/marshmallow.py overlay apply \
 Rollback:
 
 ```bash
-python3 scripts/marshmallow.py overlay rollback \
+scripts/marshmallow.py overlay rollback \
   --workspace examples/builder-graph \
   --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md
 
-python3 scripts/marshmallow.py overlay rollback \
+scripts/marshmallow.py overlay rollback \
   --workspace examples/builder-graph \
   --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md \
   --approve

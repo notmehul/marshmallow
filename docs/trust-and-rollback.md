@@ -19,33 +19,33 @@ must explicitly approve adapter installs, skill rewrites, and rollback applies.
 Preview:
 
 ```bash
-python3 scripts/marshmallow.py adapter preview
+scripts/marshmallow.py adapter preview
 ```
 
 Apply:
 
 ```bash
-python3 scripts/marshmallow.py adapter apply
+scripts/marshmallow.py adapter apply
 ```
 
 Remove preview:
 
 ```bash
-python3 scripts/marshmallow.py adapter remove
+scripts/marshmallow.py adapter remove
 ```
 
 Remove apply:
 
 ```bash
-python3 scripts/marshmallow.py adapter remove --approve
+scripts/marshmallow.py adapter remove --approve
 ```
 
 By default the adapter writes one marker block in `~/.claude/CLAUDE.md` that
 imports `~/.marshmallow/runtime.md`. For other harnesses, pass `--harness`:
 
 ```bash
-python3 scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
-python3 scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
+scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
+scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
 ```
 
 `AGENTS.md` has no import directive, so Codex and Cursor get a short pointer
@@ -57,25 +57,25 @@ uses the same preview, approval, backup, and rollback shape.
 Preview:
 
 ```bash
-python3 scripts/marshmallow.py overlay preview --skill /path/to/SKILL.md --overlay /path/to/overlay.md
+scripts/marshmallow.py overlay preview --skill /path/to/SKILL.md --overlay /path/to/overlay.md
 ```
 
 Apply:
 
 ```bash
-python3 scripts/marshmallow.py overlay apply --skill /path/to/SKILL.md --overlay /path/to/overlay.md
+scripts/marshmallow.py overlay apply --skill /path/to/SKILL.md --overlay /path/to/overlay.md
 ```
 
 Rollback preview:
 
 ```bash
-python3 scripts/marshmallow.py overlay rollback --skill /path/to/SKILL.md
+scripts/marshmallow.py overlay rollback --skill /path/to/SKILL.md
 ```
 
 Rollback apply:
 
 ```bash
-python3 scripts/marshmallow.py overlay rollback --skill /path/to/SKILL.md --approve
+scripts/marshmallow.py overlay rollback --skill /path/to/SKILL.md --approve
 ```
 
 Each apply writes backup bytes and a `record.json` beside them under
@@ -87,7 +87,7 @@ restores or removes the overlay file according to that record.
 Run:
 
 ```bash
-python3 scripts/marshmallow.py doctor
+scripts/marshmallow.py doctor
 ```
 
 Doctor checks workspace shape, source-backed graph validation, adapter status,
