@@ -34,7 +34,15 @@ rg -n "<skill|topic|label>" ~/.marshmallow/graph
 
 Use `references/overlay-template.md`. Keep the overlay short, source-backed,
 and scoped to defaults, quality bars, anti-patterns, and ask-when rules. Do not
-copy the full graph into a skill.
+copy the full graph into a skill. Use only the 2-5 graph nodes that actually
+change this skill.
+
+Before drafting, answer four questions:
+
+- What kind of signal is each selected node?
+- What exact evidence supports it?
+- What should this skill do differently?
+- Where should this alignment not apply?
 
 ## Preview And Apply
 

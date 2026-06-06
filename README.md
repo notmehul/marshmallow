@@ -158,6 +158,11 @@ skills: [frontend-design]
 labels: [visual-taste]
 ```
 
+Graph nodes should stay compact and behavior-changing. Use the body to explain
+the rule, evidence, skills affected, limits, and any real `[[wikilink]]`
+connections. `doctor --json` may report quality warnings for generic or thin
+nodes; warnings do not break existing workspaces.
+
 Source card minimum schema:
 
 ```yaml

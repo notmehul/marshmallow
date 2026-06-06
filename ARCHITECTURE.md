@@ -56,6 +56,11 @@ Every graph node must include:
 Optional fields are `applies_to`, `related_nodes`, `skills`, and `labels`.
 Labels are retrieval hints, not a fixed taxonomy.
 
+Graph nodes should stay compact and behavior-changing. The body is the
+alignment surface: a rule, evidence, the skills it changes, limits, and
+Obsidian `[[links]]` for meaningful connections. `doctor` keeps schema errors
+separate from non-blocking quality warnings so old workspaces remain usable.
+
 Source cards must include `id`, `pointer`, and `captured`. A user correction can
 become a source card named `user-correction-YYYYMMDD...`, which keeps future
 guidance source-backed without pretending the correction came from an external

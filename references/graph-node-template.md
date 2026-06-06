@@ -10,15 +10,27 @@ labels: [visual-taste]
 
 # Prefer Clear Hierarchy
 
-## When It Applies
+## Rule
 
-Describe the contexts where this principle should change agent behavior.
+State the concrete behavior future agents should change. If the behavior is
+not clear, keep the material in inbox or a source card instead of promoting it.
 
 ## Evidence
 
-- `source-example` - explain the evidence.
+- `source-example` - cite selected details that justify the rule.
 
-## Notes
+## Use In Skills
 
-Keep interpretation inspectable. If the evidence conflicts, name the tension here
-or ask the user before promoting the insight.
+- `frontend-design` - explain what default, quality bar, anti-pattern, or
+  ask-when rule this should change.
+
+## Limits
+
+Name where this rule should not apply, weak evidence, counter-signals, or the
+focused question to ask before using it.
+
+## Connections
+
+Add real Obsidian links only when another node would materially improve use.
+
+- [[related-node-id]] - explain the practical reason to load both nodes.
