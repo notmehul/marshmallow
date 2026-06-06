@@ -1,9 +1,21 @@
 {
   "name": "marshmallow",
-  "description": "Build a local personal alignment layer for Claude Code with source-backed projections and reviewable skill overlays.",
+  "description": "Build a local personal alignment layer for Claude Code with source-backed graph nodes and reviewable skill overlays.",
   "version": "0.3.0",
   "author": {
-    "name": "Marshmallow"
+    "name": "Marshmallow contributors",
+    "url": "https://github.com/notmehul/marshmallow"
   },
-  "license": "MIT"
+  "homepage": "https://github.com/notmehul/marshmallow",
+  "repository": "https://github.com/notmehul/marshmallow",
+  "license": "MIT",
+  "keywords": [
+    "personalization",
+    "memory",
+    "local-first",
+    "agent",
+    "skills",
+    "claude-code",
+    "context"
+  ]
 }

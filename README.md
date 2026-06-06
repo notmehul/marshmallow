@@ -1,165 +1,221 @@
-# Marshmallow
+<!-- Hero art: drop assets/marshy-hero.png here once committed. See assets/README.md. -->
+<div align="center">
 
-No-bullshit AI personalization for Claude Code.
+# 🐱 Marshmallow
 
-Marshmallow turns the things you make, like, and reject into a local skill graph
-and knowledge graph. Claude Code can then use your taste, judgment, and working
-style from the first prompt instead of relearning them through repeated
-corrections.
+### Make your AI agents less generic.
 
-```text
-your work + references + rejections
--> guarded inbox
--> source-backed graph
--> compact runtime projections
--> Claude Code adapter
--> better first attempts
-```
+**Local-first personalization for AI coding agents.** Your taste, your rules,
+your context — captured into the skills your agent already uses as plain files,
+nothing hidden.
 
-No database. No account. No daemon. No silent memory. Just inspectable Markdown,
-`rg`/`grep`, reviewable diffs, backups, and rollback.
+[![tests](https://github.com/notmehul/marshmallow/actions/workflows/test.yml/badge.svg)](https://github.com/notmehul/marshmallow/actions/workflows/test.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![works with: Claude Code · Codex · Cursor](https://img.shields.io/badge/works%20with-Claude%20Code%20·%20Codex%20·%20Cursor-blue.svg)](#supported-harnesses)
 
-## Why
+</div>
 
-Generic agents keep making the same wrong calls:
+---
 
-- adding infrastructure before a local file has failed
-- making interfaces busier than you like
-- sanding away your writing voice
-- expanding a focused wedge into a platform
-- forgetting decisions you already explained three sessions ago
+## Your agent keeps forgetting
 
-Marshmallow compiles those recurring signals into small, task-shaped context
-files. Ordinary Claude Code sessions get a persistent adapter. Judgment-sensitive
-skills can also get personal overlays that patch their defaults without copying
-giant prompts into every skill.
+Taste. Rules. Context. Constraints. Every new session, a competent stranger
+shows up — knows the language, knows nothing about *you*. You re-explain the same
+preferences, paste the same references, correct the same defaults.
 
-## Install
+Marshmallow gives your agent a small, inspectable memory of what makes your work
+*yours*, and feeds only the relevant piece into each task.
 
-After the public repository is live:
+> Meet **Marshy** — the mascot. Cute on the outside, boringly robust underneath.
+> We took the Go gopher approach: a friendly face on a system you can trust with
+> your `CLAUDE.md`.
+
+## How it works
 
 ```text
-/plugin marketplace add <github-owner>/marshmallow-plugin
-/plugin install marshmallow@marshmallow
-/reload-plugins
+sources  ->  graph nodes  ->  runtime adapter  ->  skill overlays  ->  better output
+ your        small,            one import in        your skills,         answers that
+ notes,      source-backed     CLAUDE.md /          tuned to your        sound like you,
+ docs,       insights          AGENTS.md            judgment             not everyone
+ likes…
 ```
 
-For local development:
+- **Sources become context.** Point Marshmallow at things you made, liked,
+  rejected, or corrected. It distills them into small graph nodes — each one
+  backed by a real source you can trace.
+- **Context stays small.** A runtime adapter tells your agent to load only the
+  handful of nodes relevant to the task, not your whole history.
+- **Skills get tuned, not replaced.** Marshmallow adds a reviewable overlay to
+  the skills you already use. The base skill keeps its procedure; the overlay
+  carries your judgment.
+- **Models synthesize, Python is deterministic.** The model does the
+  understanding. Python handles file mutation, previews, backups, and byte-exact
+  rollback — the parts that must be predictable.
 
-```bash
-claude --plugin-dir /absolute/path/to/marshmallow-plugin
+## No silent memory tricks
+
+Marshmallow is **local-first** and **honest** by design:
+
+- 🔒 **Local-first.** Marshmallow writes plain files under `~/.marshmallow/` and
+  does not upload, sync, or run a background service.
+- ❌ **No log hoarding.** No background capture, no silent learning. Marshmallow
+  remembers only what you explicitly ask it to.
+- ↩️ **Rollback.** Every change is previewed before it's applied, backed up
+  byte-for-byte, and reversible.
+
+## Quickstart
+
+### 1. Install the plugin (Claude Code)
+
+```text
+/plugin marketplace add notmehul/marshmallow
+/plugin install marshmallow
 ```
 
-Then run:
+> Prefer the CLI? `claude plugin marketplace add notmehul/marshmallow && claude plugin install marshmallow`
+
+### 2. Let Marshy interview you
 
 ```text
 /marshmallow:start
 ```
 
-## Quick Start
+Marshy asks for a few things that feel like *you* — files you made, references
+you love, a default you keep correcting — and runs a short calibration:
 
-Marshmallow asks how deep you want to go:
+1. Pick a depth (quick start is one taste pack → one tuned skill).
+2. Share a loose bundle: local files, pasted text, screenshots, PDFs, URLs.
+3. Marshy reveals the patterns it found, in plain language.
+4. You approve a persistent adapter and the first skill tune. Nothing is written
+   without your explicit yes.
 
-1. Quick start: 3-7 sources and one useful aligned result.
-2. Guided calibration: a broader pass across several skills.
+That's the whole loop. Later, teach it more with `/marshmallow:learn` and retune
+skills with `/marshmallow:tune`.
 
-Send a loose taste pack:
+### Codex & Cursor
 
-- things you made
-- things you like
-- things you reject
+Marshmallow's graph and overlays are plain files, so other harnesses can use them
+too. Install the adapter into `AGENTS.md` instead of `CLAUDE.md`:
 
-Paths, folders, pasted text, screenshots, PDFs, and URLs all work. You do not
-need to organize them perfectly.
+```bash
+python3 scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
+python3 scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
+```
 
-Marshmallow stages the material, extracts reusable insights, renders compact
-projections, previews a `~/.claude/CLAUDE.md` adapter, and asks before changing
-anything durable.
+## What it creates
 
-If you have no existing skills, activation still works: the adapter routes
-ordinary Claude Code sessions into your projections. Marshmallow can also
-preview a starter skill called `marshmallow-aligned-builder`.
-
-## What It Writes
-
-`~/.marshmallow/` is the source of truth. Durable personal data lives outside
-the plugin cache:
+`~/.marshmallow/` is the source of truth — plain files, no database:
 
 ```text
-~/.marshmallow/
-  inbox/          # untrusted candidates
-  sources/        # source cards and pointers
-  graph/          # source-backed insights
-  projections/    # compact runtime context
-  overlays/       # approved skill overlays
-  backups/        # rollback material
-  runtime.md      # Claude Code router
-  GRAPH.md        # inspectable graph view
+runtime.md    # short instructions imported by CLAUDE.md / AGENTS.md
+inbox/        # unsynthesized candidate material (untrusted until promoted)
+sources/      # source cards with pointers and provenance
+graph/        # source-backed graph nodes (the durable substrate)
+overlays/     # approved skill alignment overlays
+backups/      # exact backup bytes plus record.json for rollback
 ```
 
-After approval, Claude Code gets one replaceable import block:
+## Skills
 
-```md
-<!-- marshmallow:adapter:start -->
-@/Users/you/.marshmallow/runtime.md
-<!-- marshmallow:adapter:end -->
-```
+- **`/marshmallow:start`** — onboard the workspace, build the first graph,
+  install the runtime adapter, create the first tune.
+- **`/marshmallow:learn`** — ingest explicit sources or corrections.
+- **`/marshmallow:tune`** — retune skills with overlays, create aligned copies or
+  starter skills, and roll overlays back.
 
-Tuned skills get one pointer to an approved overlay under `~/.marshmallow/`.
-They do not receive copied graph dumps.
+## CLI
 
-## Trust Model
-
-- Dry-run diffs before adapter or skill rewrites.
-- Explicit approval before every durable write.
-- Timestamped backups and byte-for-byte rollback.
-- Inbox material stays out of runtime until promoted.
-- Raw session logs are not silently ingested.
-- Generated projections and overlays block common prompt-injection patterns.
-- Plugin caches are never edited.
-
-Run a local health check:
+The skills call one public CLI. You can run it directly too:
 
 ```bash
-python3 scripts/doctor.py --workspace examples/builder-graph
+python3 scripts/marshmallow.py init
+python3 scripts/marshmallow.py doctor
+python3 scripts/marshmallow.py scan-skills
+python3 scripts/marshmallow.py adapter preview   [--harness claude|codex|cursor]
+python3 scripts/marshmallow.py adapter apply     [--harness claude|codex|cursor]
+python3 scripts/marshmallow.py adapter remove [--approve]
+python3 scripts/marshmallow.py overlay preview  --skill <SKILL.md> --overlay <overlay.md>
+python3 scripts/marshmallow.py overlay apply    --skill <SKILL.md> --overlay <overlay.md>
+python3 scripts/marshmallow.py overlay rollback --skill <SKILL.md> [--approve]
+python3 scripts/marshmallow.py starter preview  --overlay <overlay.md>
+python3 scripts/marshmallow.py starter apply    --overlay <overlay.md>
 ```
 
-See [docs/trust-and-rollback.md](docs/trust-and-rollback.md) for rollback and
-uninstall commands.
+Preview before mutation. Adapter installs and skill rewrites require explicit
+approval. Rollback metadata lives beside each backup in `backups/`.
 
-## Example
+## Graph shape
 
-The example graph turns taste and builder judgment into runtime guidance:
+Graph node minimum schema:
 
-- prefer inspectable local primitives before adding infrastructure
-- avoid decorative glass cards without hierarchy
-- prefer calm helper-like interfaces over control panels
+```yaml
+id: prefer-clear-hierarchy
+insight: Prefer clear hierarchy over decorative complexity.
+source_ids: [source-example]
+applies_to: [design]
+related_nodes: []
+skills: [frontend-design]
+labels: [visual-taste]
+```
 
-Open [examples/builder-graph/GRAPH.md](examples/builder-graph/GRAPH.md) or run:
+Source card minimum schema:
+
+```yaml
+id: source-example
+pointer: /absolute/path/or/url
+captured: 2026-06-01T00:00:00Z
+summary: Optional reason this source matters.
+labels: [product]
+```
+
+Every graph node must have at least one `source_ids` entry. User corrections are
+saved as source cards, so corrections stay source-backed too.
+
+## Supported harnesses
+
+| Harness | Adapter target | Style |
+| --- | --- | --- |
+| Claude Code | `~/.claude/CLAUDE.md` | native `@import` |
+| Codex | `~/.codex/AGENTS.md` | pointer block |
+| Cursor | `./AGENTS.md` | pointer block |
+
+The full onboarding skills are built for Claude Code today. Codex and Cursor read
+the same graph through the `AGENTS.md` adapter; deeper native flows for them are
+on the roadmap.
+
+## Try the demo
+
+The bundled demo workspace is reproducible and touches nothing real:
 
 ```bash
-python3 scripts/render-graph.py --workspace examples/builder-graph
+python3 scripts/marshmallow.py doctor --workspace examples/builder-graph
 ```
 
-## Learn More
+See [DEMO.md](DEMO.md) for the full walkthrough.
 
-- [docs/usage.md](docs/usage.md): onboarding, learning, and no-skills fallback.
-- [ARCHITECTURE.md](ARCHITECTURE.md): file layout and ownership boundaries.
-- [UX.md](UX.md): first-run interaction contract.
-- [METHODOLOGY.md](METHODOLOGY.md): research trail and validation method.
-- [DEMO.md](DEMO.md): one-minute launch walkthrough.
-
-## Development
-
-Requires Python 3.10+ and the standard library only.
+## Checks
 
 ```bash
 python3 -m unittest discover -s tests -v
+python3 -m compileall -q scripts tests
 claude plugin validate . --strict
-python3 scripts/validate-workspace.py --workspace examples/builder-graph
-python3 scripts/render-graph.py --workspace examples/builder-graph
 ```
+
+Requires **Python 3.11+** (uses `datetime.UTC` and modern typing).
+
+## Learn more
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) — the runtime loop and design boundaries
+- [METHODOLOGY.md](METHODOLOGY.md) — what we borrowed, what we deliberately didn't
+- [docs/trust-and-rollback.md](docs/trust-and-rollback.md) — the trust model
+- [UX.md](UX.md) — what good onboarding should feel like
+- [CONTRIBUTING.md](CONTRIBUTING.md) — how to help
+
+## Contributing
+
+Marshmallow is built for builders — try it, remix it, make it yours. Issues and
+PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT
+[MIT](LICENSE).

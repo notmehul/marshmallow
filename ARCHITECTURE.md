@@ -1,92 +1,81 @@
 # Architecture
 
-Marshmallow is deliberately small. Claude Code does the interpretation. Python scripts handle deterministic filesystem work.
+Marshmallow is a local file-based personalization layer. It is not a database,
+memory daemon, graph server, or compiler.
+
+## Runtime Loop
 
 ```text
-user sources + explicitly approved insights
--> ~/.marshmallow/inbox/*.md
--> host-agent search, reading, and synthesis
--> ~/.marshmallow/sources/*.md
--> ~/.marshmallow/graph/*.md
--> ~/.marshmallow/GRAPH.md
--> ~/.marshmallow/projections/*.md
--> ~/.marshmallow/runtime.md
--> ~/.claude/CLAUDE.md import block
--> better context during ordinary Claude Code sessions
+sources/ -> graph/ -> runtime.md -> CLAUDE.md/AGENTS.md adapter -> skill overlays
 ```
 
-Judgment-sensitive skills remain an additional downstream surface:
+The graph is the durable personalization substrate. The runtime adapter is a
+small marker block that imports or points at `~/.marshmallow/runtime.md`:
 
-```text
-relevant graph nodes
--> reviewable pending overlay
--> approved ~/.marshmallow/overlays/*.md
--> approved SKILL.md pointer block
-```
+- **Claude Code** uses a native `@import` in `~/.claude/CLAUDE.md`.
+- **Codex and Cursor** use a short pointer block in `AGENTS.md` (Codex reads
+  `~/.codex/AGENTS.md`; Cursor reads the project `./AGENTS.md`), since `AGENTS.md`
+  has no import directive.
 
-## Boundaries
+The runtime file tells the agent to search `~/.marshmallow/graph/` with `rg` or
+`grep` and load only the smallest relevant graph nodes for the current task.
 
-- `skills/start/SKILL.md` owns the guided conversation and approval gates.
-- `skills/learn/SKILL.md` owns inbox-first selective learning after onboarding.
-- `scripts/` owns workspace initialization, skill discovery, validation, rendering, safe apply, and rollback.
-- `~/.marshmallow/` owns durable personal graph data outside plugin caches.
-- `~/.claude/CLAUDE.md` owns one replaceable import block after explicit approval.
-- Existing Claude skills remain authoritative outside one replaceable
-  Marshmallow pointer block.
+## Workspace
 
-The graph stays inspectable, but it is not a mandatory approval screen. The
-first-run experience surfaces recognizable patterns and relevant skills, then
-reserves explicit approval for filesystem rewrites. See [`UX.md`](UX.md).
+`~/.marshmallow/` contains plain files:
 
-## Why Markdown And Grep
+- `runtime.md`: concise routing guidance
+- `inbox/`: unsynthesized candidates
+- `sources/`: source cards with pointers
+- `graph/`: source-backed personalization nodes
+- `overlays/`: approved skill overlay files
+- `backups/`: exact backup bytes plus `record.json`
 
-The graph is a learning and compilation substrate, not a runtime database. Markdown keeps provenance inspectable and lets future harnesses reuse the same files without adopting a service.
+There is no central state file. Tools discover state from the filesystem.
 
-During normal work, the imported router tells Claude Code to search compact
-tagged projections with `rg` or `grep`. It never loads the whole graph by
-default:
+## Graph
 
-```text
-global adapter + smallest relevant projection + task = aligned run
-```
+Every graph node must include:
 
-Tuned skills receive an additional compact approved overlay:
+- `id`
+- `insight`
+- non-empty `source_ids`
 
-```text
-base skill + personal projection + task = aligned run
-```
+Optional fields are `applies_to`, `related_nodes`, `skills`, and `labels`.
+Labels are retrieval hints, not a fixed taxonomy.
 
-## Learning Boundary
+Source cards must include `id`, `pointer`, and `captured`. A user correction can
+become a source card named `user-correction-YYYYMMDD...`, which keeps future
+guidance source-backed without pretending the correction came from an external
+document.
 
-Alignment is persistent. Learning is selective.
+## Skills
 
-Ordinary sessions are not silently captured. Every source or compact insight
-lands under `~/.marshmallow/inbox/` first. Inbox files remain untrusted
-candidates until the host agent searches existing memory, reasons over the
-candidate, promotes source cards where provenance matters, extracts only
-reusable insight into graph nodes, and re-renders projections. Raw session logs
-do not become graph nodes or runtime projections. The runtime adapter may ask
-once whether a clearly reusable correction should be preserved; it does not
-silently save it.
+Base skills stay intact. Marshmallow inserts one marker block that points to an
+overlay file in `~/.marshmallow/overlays/`. The overlay carries the personal
+alignment layer; the base skill keeps its domain procedure.
 
-## Evolving Shape
+Skills contain a pointer, not the whole graph. This keeps runtime context small
+and makes rollback simple.
 
-Graph nodes have a small stable contract: ID, insight, source pointers, runtime
-tags, links, and optional labels. There is no fixed memory taxonomy. Labels
-emerge when they improve retrieval and evolve with the user's work.
+## Trust And Rollback
 
-## Pointer Rule
+Mutating commands follow a preview/apply shape. Adapter changes and skill
+rewrites require explicit approval. Each applied mutation writes a backup and a
+`record.json` beside that backup. Rollback restores exact bytes from the backup
+and restores or removes the overlay store according to the record.
 
-`~/.marshmallow/` is canonical. The Claude adapter imports `runtime.md`. Tuned
-skills contain a pointer to an approved overlay under `overlays/`. Future
-harness adapters should point to the same canonical files instead of copying
-instructions into harness-specific stores.
+Plugin-cache skills are not edited in place.
 
-Projection rendering rejects common prompt-injection and credential-
-exfiltration patterns before runtime files are rewritten.
+## Deliberate Non-Goals
 
-## Deferred
+Marshmallow avoids:
 
-Do not add a database, vector search, graph server, daemon, MCP service,
-dashboard, account system, sync layer, OAuth flow, or silent session ingestion
-until real usage proves the need.
+- generated projections
+- mandatory graph render files
+- background capture
+- hidden learning or hallucination-backed guidance
+- cron jobs
+- dashboards
+- databases and temporal graph infrastructure
+- broad MCP/tool integration layers

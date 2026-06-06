@@ -1,59 +1,103 @@
-# One-Minute Demo
+# Demo
 
-## Setup
+This demo uses the bundled `examples/builder-graph` workspace. It shows the
+product loop without private files or generated projections.
 
-Install the plugin, then run:
+## 1. Inspect The Example
 
-```text
-/marshmallow:start
+```bash
+find examples/builder-graph -maxdepth 3 -type f | sort
 ```
 
-## Walkthrough
+You should see:
 
-1. Choose quick start.
+- `fixtures/`: bundled example source material
+- `sources/`: source cards pointing to those fixtures
+- `graph/`: source-backed personalization nodes
+- `overlays/frontend-design.md`: a demo skill overlay
 
-2. Add three sources:
-   - a product spec you made
-   - an interface screenshot you like
-   - a dashboard screenshot you reject
+## 2. Run Doctor
 
-3. Let Marshmallow surface the patterns it sees:
+```bash
+python3 scripts/marshmallow.py doctor --workspace examples/builder-graph
+```
 
-   ```text
-   Prefer a calm helper-like interface over a control panel.
-   Avoid decorative glass cards and gradients without hierarchy.
-   Prefer inspectable local primitives before adding infrastructure.
-   ```
+The workspace should report valid source cards and graph nodes.
 
-4. Review and approve the one-block `~/.claude/CLAUDE.md` adapter diff.
+## 3. Preview The Adapter
 
-5. Let Marshmallow recommend the frontend-design skill.
+Use a temporary target so the demo does not touch your real `CLAUDE.md`:
 
-6. Choose frontend-design and review the proposed diff:
+```bash
+mkdir -p /tmp/marshmallow-demo/.claude
+printf '# Demo Claude file\n' > /tmp/marshmallow-demo/.claude/CLAUDE.md
 
-   ```diff
-   + Prefer calm hierarchy and conversational warmth over dashboard density.
-   + Avoid decorative glass cards, excessive rounding, and gradients without hierarchy.
-   ```
+python3 scripts/marshmallow.py adapter preview \
+  --workspace examples/builder-graph \
+  --target /tmp/marshmallow-demo/.claude/CLAUDE.md
+```
 
-7. Approve the tune.
+Apply only if you want to see the backup record:
 
-8. Show that the tuned skill contains one pointer to
-   `~/.marshmallow/overlays/frontend-design.md`, not a copied prompt.
+```bash
+python3 scripts/marshmallow.py adapter apply \
+  --workspace examples/builder-graph \
+  --target /tmp/marshmallow-demo/.claude/CLAUDE.md
+```
 
-9. Start a fresh Claude Code session and run the same UI task before and after
-   alignment.
+## 4. Preview A Skill Overlay
 
-10. Open `~/.marshmallow/projections/design.md` and `~/.marshmallow/GRAPH.md` to
-   show that the alignment comes from an
-   inspectable reusable graph.
+Create a temporary skill:
 
-11. Run `/marshmallow:learn` with one correction. Show the inbox candidate
-    before its reusable insight is promoted.
+```bash
+mkdir -p /tmp/marshmallow-demo/skills/frontend-design
+cat > /tmp/marshmallow-demo/skills/frontend-design/SKILL.md <<'EOF'
+---
+name: frontend-design
+description: Build polished user interfaces and review visual direction.
+---
 
-12. Roll back the skill to prove the update is reversible.
+# Frontend Design
 
-## Launch Message
+Preserve responsive layout and accessibility.
+EOF
+```
 
-> Drop in the things you love. Marshmallow turns them into a personal alignment
-> layer so your agents start closer to how you actually work.
+Preview:
+
+```bash
+python3 scripts/marshmallow.py overlay preview \
+  --workspace examples/builder-graph \
+  --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md \
+  --overlay examples/builder-graph/overlays/frontend-design.md
+```
+
+Apply after reviewing the diff:
+
+```bash
+python3 scripts/marshmallow.py overlay apply \
+  --workspace examples/builder-graph \
+  --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md \
+  --overlay examples/builder-graph/overlays/frontend-design.md
+```
+
+Rollback:
+
+```bash
+python3 scripts/marshmallow.py overlay rollback \
+  --workspace examples/builder-graph \
+  --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md
+
+python3 scripts/marshmallow.py overlay rollback \
+  --workspace examples/builder-graph \
+  --skill /tmp/marshmallow-demo/skills/frontend-design/SKILL.md \
+  --approve
+```
+
+## 5. What To Notice
+
+- Source cards point to real bundled fixtures.
+- Graph nodes all have `source_ids`.
+- The runtime searches graph nodes directly.
+- Skill files contain one pointer block, not the whole graph.
+- Rollback restores exact bytes from `backups/`.
