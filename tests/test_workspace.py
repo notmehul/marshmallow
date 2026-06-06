@@ -249,6 +249,64 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual("remove", record["action"])
         self.assertTrue(Path(record["backup_path"]).exists())
 
+    def test_adapter_pointer_style_targets_agents_md_for_codex_and_cursor(self) -> None:
+        target = self.temp_path / "proj/AGENTS.md"
+        original = "# Project rules\n\nUse tabs.\n"
+        atomic_write(target, original)
+
+        for harness in ("codex", "cursor"):
+            applied = self.cli(
+                "adapter",
+                "apply",
+                "--workspace",
+                str(self.root),
+                "--harness",
+                harness,
+                "--target",
+                str(target),
+            )
+            self.assertEqual(0, applied.returncode, applied.stdout + applied.stderr)
+            installed = target.read_text()
+            self.assertEqual(1, installed.count(ADAPTER_START_MARKER))
+            self.assertIn("Marshmallow personal alignment", installed)
+            self.assertIn("# Project rules", installed)
+            # AGENTS.md has no @import directive; pointer style must not emit one.
+            self.assertNotIn(f"@{(self.root / 'runtime.md').resolve()}", installed)
+
+            removed = self.cli(
+                "adapter",
+                "remove",
+                "--workspace",
+                str(self.root),
+                "--harness",
+                harness,
+                "--target",
+                str(target),
+                "--approve",
+            )
+            self.assertEqual(0, removed.returncode, removed.stdout + removed.stderr)
+            self.assertEqual(original, target.read_text())
+
+    def test_doctor_reports_all_harness_statuses(self) -> None:
+        home = self.temp_path / "home"
+        project = self.temp_path / "project"
+        claude_md = home / ".claude/CLAUDE.md"
+        codex_agents = home / ".codex/AGENTS.md"
+        self.cli("adapter", "apply", "--workspace", str(self.root), "--target", str(claude_md))
+        self.cli(
+            "adapter", "apply", "--workspace", str(self.root),
+            "--harness", "codex", "--target", str(codex_agents),
+        )
+        result = self.cli(
+            "doctor", "--workspace", str(self.root),
+            "--claude-md", str(claude_md), "--home", str(home), "--project", str(project), "--json",
+        )
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual("installed", report["harnesses"]["claude"]["status"])
+        self.assertEqual("installed", report["harnesses"]["codex"]["status"])
+        self.assertEqual("missing", report["harnesses"]["cursor"]["status"])
+
     def test_doctor_reports_workspace_adapter_and_skill_health(self) -> None:
         self.add_valid_graph()
         home = self.temp_path / "home"

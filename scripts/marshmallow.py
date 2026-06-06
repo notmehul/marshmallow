@@ -10,7 +10,13 @@ import shutil
 import sys
 from pathlib import Path
 
-from harness_adapter import adapter_status, default_claude_md, update_adapter
+from harness_adapter import (
+    adapter_status,
+    default_claude_md,
+    default_target_for,
+    harness_style,
+    update_adapter,
+)
 from markdown_graph import graph_nodes, source_cards, validate_workspace
 from marshmallow_workspace import MarshmallowError, default_workspace, ensure_workspace
 from skill_overlay import apply_overlay, create_starter_skill, rollback_overlay
@@ -40,10 +46,19 @@ def command_init(args: argparse.Namespace) -> int:
 def command_doctor(args: argparse.Namespace) -> int:
     root = ensure_workspace(args.workspace)
     errors = validate_workspace(root)
-    try:
-        adapter = {"target": str(args.claude_md), "status": adapter_status(args.claude_md)}
-    except MarshmallowError as error:
-        adapter = {"target": str(args.claude_md), "status": "error", "error": str(error)}
+
+    def status_for(target: Path) -> dict[str, str]:
+        try:
+            return {"target": str(target), "status": adapter_status(target)}
+        except MarshmallowError as error:
+            return {"target": str(target), "status": "error", "error": str(error)}
+
+    adapter = status_for(args.claude_md)
+    harnesses = {
+        "claude": status_for(args.claude_md),
+        "codex": status_for(args.home / ".codex" / "AGENTS.md"),
+        "cursor": status_for(args.project / "AGENTS.md"),
+    }
     skills = discover(args.home, args.project, args.additional or [])
     try:
         sources = source_cards(root)
@@ -64,6 +79,7 @@ def command_doctor(args: argparse.Namespace) -> int:
             "backups": len(list((root / "backups").glob("**/record.json"))),
         },
         "adapter": adapter,
+        "harnesses": harnesses,
         "skills_found": len(skills),
         "recommended_skills": sum(1 for skill in skills if skill["recommended"]),
         "python": platform.python_version(),
@@ -75,11 +91,13 @@ def command_doctor(args: argparse.Namespace) -> int:
         print(f"Workspace: {report['workspace_status']} ({root})")
         print(f"Runtime: {'present' if report['runtime_exists'] else 'missing'}")
         print(f"Graph: {report['counts']['graph_nodes']} nodes from {report['counts']['sources']} sources")
-        print(f"Adapter: {adapter['status']} ({adapter['target']})")
+        for name, info in harnesses.items():
+            print(f"Adapter ({name}): {info['status']} ({info['target']})")
         print(f"Skills: {report['skills_found']} found, {report['recommended_skills']} recommended")
         for error in errors:
             print(f"ERROR: {error}")
-    return 0 if not errors and adapter.get("status") != "error" else 1
+    any_adapter_error = any(info.get("status") == "error" for info in harnesses.values())
+    return 0 if not errors and not any_adapter_error else 1
 
 
 def command_scan_skills(args: argparse.Namespace) -> int:
@@ -91,7 +109,9 @@ def command_adapter(args: argparse.Namespace) -> int:
     action = args.action
     remove = action == "remove"
     approve = action == "apply" or (remove and args.approve)
-    code, message = update_adapter(args.workspace, args.target, approve=approve, remove=remove)
+    style = harness_style(args.harness)
+    target = args.target or default_target_for(args.harness)
+    code, message = update_adapter(args.workspace, target, approve=approve, remove=remove, style=style)
     print(message)
     return code
 
@@ -153,7 +173,13 @@ def build_parser() -> argparse.ArgumentParser:
     adapter = subparsers.add_parser("adapter", help="Preview, apply, or remove the Claude runtime adapter.")
     add_workspace(adapter)
     adapter.add_argument("action", choices=("preview", "apply", "remove"))
-    adapter.add_argument("--target", type=Path, default=default_claude_md())
+    adapter.add_argument(
+        "--harness",
+        choices=("claude", "codex", "cursor"),
+        default="claude",
+        help="Target harness. claude imports runtime.md from CLAUDE.md; codex/cursor add a pointer block to AGENTS.md.",
+    )
+    adapter.add_argument("--target", type=Path, help="Override the adapter target file (defaults to the harness location).")
     adapter.add_argument("--approve", action="store_true", help="Apply adapter removal after previewing it.")
     adapter.set_defaults(func=command_adapter)
 

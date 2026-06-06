@@ -39,8 +39,17 @@ Remove apply:
 python3 scripts/marshmallow.py adapter remove --approve
 ```
 
-The adapter writes one marker block in `~/.claude/CLAUDE.md` and imports
-`~/.marshmallow/runtime.md`.
+By default the adapter writes one marker block in `~/.claude/CLAUDE.md` that
+imports `~/.marshmallow/runtime.md`. For other harnesses, pass `--harness`:
+
+```bash
+python3 scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
+python3 scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
+```
+
+`AGENTS.md` has no import directive, so Codex and Cursor get a short pointer
+block that tells the agent to read `~/.marshmallow/runtime.md`. Every harness
+uses the same preview, approval, backup, and rollback shape.
 
 ## Overlays
 

@@ -69,6 +69,10 @@ Apply only after explicit approval:
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter apply
 ```
 
+If the user also works in Codex or Cursor, offer the same adapter for `AGENTS.md`
+(`--harness codex` writes `~/.codex/AGENTS.md`; `--harness cursor` writes the
+project `./AGENTS.md`). It uses the identical preview/approve/rollback shape.
+
 ## First Tune
 
 Draft an overlay from three to seven relevant graph nodes using

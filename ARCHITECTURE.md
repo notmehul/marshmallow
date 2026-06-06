@@ -10,10 +10,15 @@ sources/ -> graph/ -> runtime.md -> ~/.claude/CLAUDE.md -> skill overlays
 ```
 
 The graph is the durable personalization substrate. The runtime adapter is a
-small import block in `~/.claude/CLAUDE.md` that imports
-`~/.marshmallow/runtime.md`. The runtime file tells Claude to search
-`~/.marshmallow/graph/` with `rg` or `grep` and load only the smallest relevant
-graph nodes for the current task.
+small marker block that imports or points at `~/.marshmallow/runtime.md`:
+
+- **Claude Code** uses a native `@import` in `~/.claude/CLAUDE.md`.
+- **Codex and Cursor** use a short pointer block in `AGENTS.md` (Codex reads
+  `~/.codex/AGENTS.md`; Cursor reads the project `./AGENTS.md`), since `AGENTS.md`
+  has no import directive.
+
+The runtime file tells the agent to search `~/.marshmallow/graph/` with `rg` or
+`grep` and load only the smallest relevant graph nodes for the current task.
 
 ## Workspace
 
