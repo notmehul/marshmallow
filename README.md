@@ -6,7 +6,7 @@
 ### Make your AI agents less generic.
 
 **Local-first personalization for AI coding agents.** Your taste, your rules,
-your context — captured into the skills your agent already uses, on your machine,
+your context — captured into the skills your agent already uses as plain files,
 nothing hidden.
 
 [![tests](https://github.com/notmehul/marshmallow/actions/workflows/test.yml/badge.svg)](https://github.com/notmehul/marshmallow/actions/workflows/test.yml)
@@ -56,8 +56,8 @@ sources  ->  graph nodes  ->  runtime adapter  ->  skill overlays  ->  better ou
 
 Marshmallow is **local-first** and **honest** by design:
 
-- 🔒 **Local-first.** Everything lives in `~/.marshmallow/`. Nothing leaves your
-  machine.
+- 🔒 **Local-first.** Marshmallow writes plain files under `~/.marshmallow/` and
+  does not upload, sync, or run a background service.
 - ❌ **No log hoarding.** No background capture, no silent learning. Marshmallow
   remembers only what you explicitly ask it to.
 - ↩️ **Rollback.** Every change is previewed before it's applied, backed up

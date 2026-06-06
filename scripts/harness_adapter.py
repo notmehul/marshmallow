@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reversible user-level Claude Code adapter installation."""
+"""Reversible runtime adapter installation for supported agent harnesses."""
 
 from __future__ import annotations
 
@@ -111,9 +111,9 @@ def remove_marker(original: str) -> str:
 
 def validate_marker(text: str) -> None:
     if text.count(START_MARKER) != 1 or text.count(END_MARKER) != 1:
-        raise MarshmallowError("CLAUDE.md contains malformed or duplicate Marshmallow adapter markers")
+        raise MarshmallowError("Adapter target contains malformed or duplicate Marshmallow adapter markers")
     if text.index(START_MARKER) > text.index(END_MARKER):
-        raise MarshmallowError("CLAUDE.md contains reversed Marshmallow adapter markers")
+        raise MarshmallowError("Adapter target contains reversed Marshmallow adapter markers")
 
 
 def adapter_record_dir(root: Path) -> Path:
@@ -174,7 +174,7 @@ def update_adapter(
     record_dir = adapter_record_dir(workspace_root)
     backup: Path | None = None
     if target.exists():
-        backup = record_dir / "CLAUDE.md"
+        backup = record_dir / target.name
         atomic_write(backup, original_bytes)
     record = {
         "timestamp": timestamp(),

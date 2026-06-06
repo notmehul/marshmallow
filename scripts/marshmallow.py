@@ -170,7 +170,7 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("--additional", type=Path, action="append", default=[])
     scan.set_defaults(func=command_scan_skills)
 
-    adapter = subparsers.add_parser("adapter", help="Preview, apply, or remove the Claude runtime adapter.")
+    adapter = subparsers.add_parser("adapter", help="Preview, apply, or remove a runtime adapter.")
     add_workspace(adapter)
     adapter.add_argument("action", choices=("preview", "apply", "remove"))
     adapter.add_argument(

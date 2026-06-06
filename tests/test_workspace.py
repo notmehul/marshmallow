@@ -286,6 +286,9 @@ class WorkspaceTests(unittest.TestCase):
             )
             self.assertEqual(0, removed.returncode, removed.stdout + removed.stderr)
             self.assertEqual(original, target.read_text())
+            records = sorted((self.root / "backups/adapters").glob("*/record.json"))
+            record = json.loads(records[-1].read_text())
+            self.assertEqual("AGENTS.md", Path(record["backup_path"]).name)
 
     def test_doctor_reports_all_harness_statuses(self) -> None:
         home = self.temp_path / "home"

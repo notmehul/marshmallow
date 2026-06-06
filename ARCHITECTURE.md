@@ -6,7 +6,7 @@ memory daemon, graph server, or compiler.
 ## Runtime Loop
 
 ```text
-sources/ -> graph/ -> runtime.md -> ~/.claude/CLAUDE.md -> skill overlays
+sources/ -> graph/ -> runtime.md -> CLAUDE.md/AGENTS.md adapter -> skill overlays
 ```
 
 The graph is the durable personalization substrate. The runtime adapter is a
@@ -74,7 +74,7 @@ Marshmallow avoids:
 - generated projections
 - mandatory graph render files
 - background capture
-- hidden learning
+- hidden learning or hallucination-backed guidance
 - cron jobs
 - dashboards
 - databases and temporal graph infrastructure

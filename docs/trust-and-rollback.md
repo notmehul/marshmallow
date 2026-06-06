@@ -7,6 +7,7 @@ must explicitly approve adapter installs, skill rewrites, and rollback applies.
 
 - No silent learning.
 - No background capture.
+- No upload, sync, or background service run by Marshmallow.
 - No required `workspace.json`.
 - No generated `GRAPH.md` or `projections/`.
 - Raw session logs do not become graph nodes.
