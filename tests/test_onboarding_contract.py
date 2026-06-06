@@ -67,9 +67,9 @@ class OnboardingContractTests(unittest.TestCase):
         trust = (ROOT / "docs/trust-and-rollback.md").read_text()
 
         self.assertIn("`~/.marshmallow/` is the source of truth", readme)
-        self.assertIn("There is no required `workspace.json`", readme)
         self.assertIn("Skills contain a pointer", architecture)
         self.assertIn("There is no central state file.", architecture)
+        self.assertIn("No required `workspace.json`.", trust)
         self.assertIn("No silent learning.", trust)
         self.assertIn("Adapter and skill rewrites require explicit approval.", trust)
 
