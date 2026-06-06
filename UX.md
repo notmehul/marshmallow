@@ -27,6 +27,8 @@ The graph is inspectable, but it is not a mandatory checkpoint before tuning.
 
 - Ask for a small taste pack, not a taxonomy.
 - Use "made, liked, rejected, corrected" as examples.
+- Ask what to learn before inferring from vague or low-signal folders.
+- Promote 3-7 compact behavior-changing nodes, not exhaustive coverage.
 - Surface 3-5 patterns in ordinary language.
 - Recommend only skills where personal judgment changes the output.
 - Offer a starter skill when no useful existing skill is writable.

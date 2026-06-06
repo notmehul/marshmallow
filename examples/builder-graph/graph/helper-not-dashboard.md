@@ -10,10 +10,25 @@ labels: [interface-character]
 
 # Helper, Not Dashboard
 
-## When It Applies
+## Rule
 
-Use when choosing the emotional contract and information density of an interface.
+Choose a helper-like emotional contract before adding dashboard density.
 
 ## Evidence
 
 - `like-warm-interface` - the reference centers clarity, restraint, and conversational warmth.
+
+## Use In Skills
+
+- `frontend-design` - favor calm conversational structure over operational
+  panels when both would satisfy the brief.
+- `product-spec` - name the emotional contract before specifying screens.
+
+## Limits
+
+Dense operational tools can still be right when repeated expert comparison is
+the product.
+
+## Connections
+
+- [[avoid-decorative-glass]] - both nodes protect hierarchy from visual noise.

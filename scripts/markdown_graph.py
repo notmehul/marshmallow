@@ -14,6 +14,13 @@ REQUIRED_NODE_FIELDS = {"id", "insight", "source_ids"}
 REQUIRED_SOURCE_FIELDS = {"id", "pointer", "captured"}
 ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 SLUG_PATTERN = re.compile(r"[^a-z0-9]+")
+GENERIC_INSIGHT_PATTERNS = (
+    re.compile(r"\bprefer clarity\b", re.IGNORECASE),
+    re.compile(r"\bavoid complexity\b", re.IGNORECASE),
+    re.compile(r"\bbe thoughtful\b", re.IGNORECASE),
+    re.compile(r"\bhigh quality\b", re.IGNORECASE),
+    re.compile(r"\bmake it better\b", re.IGNORECASE),
+)
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, Any], str]:
@@ -96,6 +103,58 @@ def graph_nodes(root: Path) -> dict[str, dict[str, Any]]:
         frontmatter["_path"] = str(path)
         nodes[node_id] = frontmatter
     return nodes
+
+
+def section_text(body: str, heading: str) -> str:
+    pattern = re.compile(rf"^## {re.escape(heading)}\s*$", re.MULTILINE)
+    match = pattern.search(body)
+    if not match:
+        return ""
+    next_heading = re.search(r"^##\s+", body[match.end() :], re.MULTILINE)
+    end = match.end() + next_heading.start() if next_heading else len(body)
+    return body[match.end() : end].strip()
+
+
+def evidence_is_thin(evidence: str) -> bool:
+    compact = re.sub(r"\s+", " ", evidence).strip()
+    if len(compact) < 80:
+        return True
+    placeholders = ("explain the evidence", "source-example", "selected details")
+    return any(placeholder in compact.lower() for placeholder in placeholders)
+
+
+def graph_quality_warnings(root: Path) -> list[str]:
+    """Return non-blocking warnings for graph nodes that may not change behavior."""
+
+    root = ensure_workspace(root)
+    warnings: list[str] = []
+    try:
+        nodes = graph_nodes(root)
+    except MarshmallowError as error:
+        return [str(error)]
+
+    for node_id, node in nodes.items():
+        path = Path(node["_path"])
+        try:
+            _, body = parse_frontmatter(path)
+        except MarshmallowError as error:
+            warnings.append(str(error))
+            continue
+
+        insight = str(node.get("insight", "")).strip()
+        if any(pattern.search(insight) for pattern in GENERIC_INSIGHT_PATTERNS):
+            warnings.append(f"{path}: insight may be too generic to change agent behavior")
+
+        related_nodes = list_field(node, "related_nodes")
+        if related_nodes and "[[" not in body:
+            warnings.append(f"{path}: related_nodes should also appear as Obsidian [[links]] in the body")
+
+        if evidence_is_thin(section_text(body, "Evidence")):
+            warnings.append(f"{path}: evidence section looks too thin for durable alignment")
+
+        if not list_field(node, "skills"):
+            warnings.append(f"{path}: node is not tied to any skill; it may not affect agent behavior")
+    return warnings
 
 
 def validate_workspace(root: Path) -> list[str]:

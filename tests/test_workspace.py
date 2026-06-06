@@ -16,7 +16,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from harness_adapter import END_MARKER as ADAPTER_END_MARKER  # noqa: E402
 from harness_adapter import START_MARKER as ADAPTER_START_MARKER  # noqa: E402
-from markdown_graph import validate_workspace, write_user_correction_source  # noqa: E402
+from markdown_graph import graph_quality_warnings, validate_workspace, write_user_correction_source  # noqa: E402
 from marshmallow_workspace import atomic_write, ensure_workspace, sha256_bytes, source_status  # noqa: E402
 from skill_overlay import END_MARKER, START_MARKER  # noqa: E402
 
@@ -40,19 +40,60 @@ def graph_node(
     labels: str = "[visual-taste]",
     source_ids: str = "[source-one]",
     related_nodes: str = "[]",
+    skills: str = "[frontend-design]",
+    body: str | None = None,
 ) -> str:
+    node_body = body or "# Node\n"
     return f"""---
 id: {node_id}
 insight: {insight}
 applies_to: [design]
 source_ids: {source_ids}
 related_nodes: {related_nodes}
-skills: [frontend-design]
+skills: {skills}
 labels: {labels}
 ---
 
-# Node
-"""
+{node_body}"""
+
+
+def high_quality_graph_node(
+    node_id: str,
+    related_nodes: str = "[]",
+    skills: str = "[frontend-design]",
+) -> str:
+    return graph_node(
+        node_id,
+        insight="Use compact hierarchy and restraint when visual polish could compete with legibility.",
+        related_nodes=related_nodes,
+        skills=skills,
+        body="""# Compact Hierarchy
+
+## Rule
+
+Use hierarchy, spacing, and restraint before decorative treatment when the UI
+needs to help a user decide quickly.
+
+## Evidence
+
+- `source-one` - rejected dashboard examples favored translucent cards and
+  gradients, but the useful critique was that decoration replaced product focus
+  and made the hierarchy harder to scan.
+
+## Use In Skills
+
+- `frontend-design` - prefer calm visual hierarchy over decorative surfaces.
+
+## Limits
+
+This does not ban expressive visual direction when the brief asks for a poster,
+game, brand world, or immersive editorial surface.
+
+## Connections
+
+- [[node-two]] - compare when helper-like warmth changes the same design choice.
+""",
+    )
 
 
 def overlay(label: str = "Prefer quiet hierarchy.") -> str:
@@ -179,6 +220,44 @@ class WorkspaceTests(unittest.TestCase):
     def test_graph_labels_can_evolve_without_fixed_categories(self) -> None:
         atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
         atomic_write(self.root / "graph/node-one.md", graph_node("node-one", labels="[strange-specificity]"))
+        self.assertEqual([], validate_workspace(self.root))
+
+    def test_graph_quality_warnings_accept_high_quality_compact_node(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", high_quality_graph_node("node-one"))
+        self.assertEqual([], validate_workspace(self.root))
+        self.assertEqual([], graph_quality_warnings(self.root))
+
+    def test_graph_quality_warns_for_generic_or_disconnected_nodes(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", graph_node("node-one", skills="[]"))
+        atomic_write(self.root / "graph/node-two.md", high_quality_graph_node("node-two"))
+        warnings = graph_quality_warnings(self.root)
+        self.assertTrue(any("too generic" in warning for warning in warnings))
+        self.assertTrue(any("too thin" in warning for warning in warnings))
+        self.assertTrue(any("not tied to any skill" in warning for warning in warnings))
+        self.assertEqual([], validate_workspace(self.root))
+
+    def test_graph_quality_warns_when_related_nodes_lack_wikilinks(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(
+            self.root / "graph/node-one.md",
+            graph_node(
+                "node-one",
+                insight="Use compact hierarchy when decoration competes with legibility.",
+                related_nodes="[node-two]",
+                body="""# Node
+
+## Evidence
+
+- `source-one` - rejected references show decorative treatment replacing the
+  hierarchy users need for fast scanning and decision-making.
+""",
+            ),
+        )
+        atomic_write(self.root / "graph/node-two.md", high_quality_graph_node("node-two"))
+        warnings = graph_quality_warnings(self.root)
+        self.assertTrue(any("Obsidian [[links]]" in warning for warning in warnings))
         self.assertEqual([], validate_workspace(self.root))
 
     def test_user_correction_creates_source_card(self) -> None:
@@ -385,6 +464,30 @@ description: Review code against a deterministic security checklist.
         self.assertEqual(1, len(found))
         self.assertFalse(found[0]["recommended"])
         self.assertIn("deterministic workflow", found[0]["reason"])
+
+    def test_scan_skills_prioritizes_explicit_graph_skill_targets(self) -> None:
+        home = self.temp_path / "home"
+        product = home / ".claude/skills/product-builder/SKILL.md"
+        remotion = home / ".claude/skills/remotion-best-practices/SKILL.md"
+        atomic_write(
+            product,
+            """---
+name: product-builder
+description: Build product strategy and validate decisions with a security-aware checklist.
+---
+
+# Product Builder
+""",
+        )
+        atomic_write(remotion, skill("remotion-best-practices"))
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", high_quality_graph_node("node-one", skills="[product-builder]"))
+
+        result = self.cli("scan-skills", "--workspace", str(self.root), "--home", str(home))
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        found = {item["name"]: item for item in json.loads(result.stdout)}
+        self.assertTrue(found["product-builder"]["recommended"])
+        self.assertIn("Explicit graph skill target", found["product-builder"]["reason"])
 
     def test_overlay_preview_apply_and_rollback_are_exact(self) -> None:
         target = self.temp_path / "skills/frontend-design/SKILL.md"

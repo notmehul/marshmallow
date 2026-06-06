@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from markdown_graph import parse_frontmatter
+from markdown_graph import graph_nodes, list_field, parse_frontmatter
 from marshmallow_workspace import MarshmallowError
 from skill_overlay import is_writable, normalize_skill_file
 
@@ -69,7 +69,28 @@ def is_excluded(path: Path) -> bool:
     return path.parent.name in {"marshmallow", "start"}
 
 
-def recommendation(path: Path) -> tuple[bool, str]:
+def graph_skill_targets(workspace: Path | None) -> dict[str, int]:
+    if workspace is None or not (workspace.expanduser() / "graph").exists():
+        return {}
+    try:
+        nodes = graph_nodes(workspace.expanduser())
+    except (MarshmallowError, OSError):
+        return {}
+    targets: dict[str, int] = {}
+    for node in nodes.values():
+        for skill in list_field(node, "skills"):
+            targets[skill] = targets.get(skill, 0) + 1
+    return targets
+
+
+def recommendation(path: Path, graph_targets: dict[str, int] | None = None) -> tuple[bool, str]:
+    graph_targets = graph_targets or {}
+    skill_name = path.parent.name.lower()
+    if skill_name in graph_targets:
+        count = graph_targets[skill_name]
+        suffix = "node" if count == 1 else "nodes"
+        return True, f"Explicit graph skill target: {count} {suffix}"
+
     text = path.read_text(encoding="utf-8").lower()
     try:
         frontmatter, _ = parse_frontmatter(path)
@@ -94,8 +115,14 @@ def keyword_hits(text: str, keywords: set[str]) -> list[str]:
     )
 
 
-def discover(home: Path, project: Path, additional: list[Path]) -> list[dict[str, str | bool]]:
+def discover(
+    home: Path,
+    project: Path,
+    additional: list[Path],
+    workspace: Path | None = None,
+) -> list[dict[str, str | bool]]:
     roots = [home / ".claude" / "skills", project / ".claude" / "skills", *additional]
+    graph_targets = graph_skill_targets(workspace)
     seen: set[Path] = set()
     skills: list[dict[str, str | bool]] = []
     for root in roots:
@@ -106,7 +133,7 @@ def discover(home: Path, project: Path, additional: list[Path]) -> list[dict[str
             if resolved in seen or is_excluded(resolved):
                 continue
             seen.add(resolved)
-            recommended, reason = recommendation(resolved)
+            recommended, reason = recommendation(resolved, graph_targets)
             skills.append(
                 {
                     "name": resolved.parent.name,

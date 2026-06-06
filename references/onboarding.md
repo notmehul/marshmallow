@@ -33,6 +33,8 @@ Ask for any useful mix of:
 
 Treat "made, liked, rejected, corrected" as examples, not required buckets.
 Prefer 3-7 sources for quick start. Do not ask for an archive migration.
+If a folder is vague or low-signal, ask what to learn from it before inferring
+personality, taste, or values.
 
 ## 4. Stage Evidence In The Inbox
 
@@ -52,18 +54,36 @@ and graph nodes before writing durable memory:
 rg -n "<topic|skill|source-id>" ~/.marshmallow/sources ~/.marshmallow/graph
 ```
 
+Think before promoting. Keep this reasoning in the conversation unless the user
+asks for a durable note:
+
+```text
+classify input -> extract evidence -> name behavior change -> reject weak insights
+```
+
+For each candidate, answer:
+
+- What kind of signal is this input: made-work, liked-reference,
+  rejected-reference, correction, active-project, archive, sensitive-private,
+  low-signal, or unknown-intent?
+- What exact evidence supports it?
+- What should future agents do differently?
+- Where should this not apply?
+
 Promote only what will improve future work:
 
 - source cards under `~/.marshmallow/sources/`
 - reusable alignment insights under `~/.marshmallow/graph/`
 
 Use [source-card-template](source-card-template.md) and
-[graph-node-template](graph-node-template.md). Create a small set of high-signal
-nodes only.
+[graph-node-template](graph-node-template.md). Create 3-7 high-signal nodes for
+onboarding, not exhaustive coverage. Each node should fit roughly one screen.
 
 Every node needs source support. User corrections count as sources when saved
 as `user-correction-YYYYMMDD...` source cards. Labels are optional and
-corpus-shaped. Do not force a starter taxonomy.
+corpus-shaped. Do not force a starter taxonomy. Do not create new folders,
+projection directories, generated graph files, or durable source-plan files by
+default.
 
 ## 6. Reveal Patterns And Recommend Skills
 
@@ -120,6 +140,9 @@ For each chosen target:
 4. show the diff
 5. ask for explicit approval
 6. apply with `overlay apply` only after approval
+
+Each overlay should use only the 2-5 graph nodes that actually change that
+skill. Do not copy the full graph into the overlay.
 
 Apply the pending adapter first when it was included in the same approved list.
 

@@ -26,6 +26,11 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("ask for approval before applying", onboarding)
         self.assertIn("Everything lands under `~/.marshmallow/inbox/` first", onboarding)
         self.assertIn("Do not force a starter taxonomy", onboarding)
+        self.assertIn("classify input -> extract evidence -> name behavior change -> reject weak insights", onboarding)
+        self.assertIn("ask what to learn", onboarding)
+        self.assertIn("before inferring", onboarding)
+        self.assertIn("Create 3-7 high-signal nodes for", onboarding)
+        self.assertIn("Each overlay should use only the 2-5 graph nodes", onboarding)
 
     def test_start_skill_uses_one_cli_and_explicit_rewrite_gates(self) -> None:
         skill = (ROOT / "skills/start/SKILL.md").read_text()
@@ -46,6 +51,9 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("starter preview", skill)
         self.assertIn("Apply only after explicit approval", skill)
         self.assertIn("Adapter and skill rewrites must be included in one explicit approval request", skill)
+        self.assertIn("ask what to learn", skill)
+        self.assertIn("create 3-7 graph nodes for onboarding", skill)
+        self.assertIn("two to five relevant graph nodes", skill)
 
     def test_marshmallow_cli_is_executable_for_plugin_allowlist(self) -> None:
         mode = (ROOT / "scripts/marshmallow.py").stat().st_mode
@@ -60,6 +68,8 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("source cards in `~/.marshmallow/sources/`", skill)
         self.assertIn("user-correction-YYYYMMDD", skill)
         self.assertIn("Do not modify `CLAUDE.md`, `AGENTS.md`, or an existing skill during learning.", skill)
+        self.assertIn("classify input -> extract evidence -> name behavior change -> reject weak insights", skill)
+        self.assertIn("If no concrete behavior change appears", skill)
         self.assertNotIn("queue-candidate.py", skill)
 
     def test_tune_skill_owns_overlay_and_rollback_workflows(self) -> None:
@@ -73,6 +83,8 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("overlay rollback", skill)
         self.assertIn("plugin-cache", skill)
         self.assertIn("explicit approval", skill)
+        self.assertIn("2-5 graph nodes", skill)
+        self.assertIn("What should this skill do differently?", skill)
 
     def test_docs_keep_simplified_contracts(self) -> None:
         readme = (ROOT / "README.md").read_text()

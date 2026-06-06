@@ -17,7 +17,7 @@ from harness_adapter import (
     harness_style,
     update_adapter,
 )
-from markdown_graph import graph_nodes, source_cards, validate_workspace
+from markdown_graph import graph_nodes, graph_quality_warnings, source_cards, validate_workspace
 from marshmallow_workspace import MarshmallowError, default_workspace, ensure_workspace
 from skill_overlay import apply_overlay, create_starter_skill, rollback_overlay
 from skill_scanner import discover
@@ -46,6 +46,7 @@ def command_init(args: argparse.Namespace) -> int:
 def command_doctor(args: argparse.Namespace) -> int:
     root = ensure_workspace(args.workspace)
     errors = validate_workspace(root)
+    warnings = graph_quality_warnings(root)
 
     def status_for(target: Path) -> dict[str, str]:
         try:
@@ -59,7 +60,7 @@ def command_doctor(args: argparse.Namespace) -> int:
         "codex": status_for(args.home / ".codex" / "AGENTS.md"),
         "cursor": status_for(args.project / "AGENTS.md"),
     }
-    skills = discover(args.home, args.project, args.additional or [])
+    skills = discover(args.home, args.project, args.additional or [], root)
     try:
         sources = source_cards(root)
         nodes = graph_nodes(root)
@@ -70,6 +71,7 @@ def command_doctor(args: argparse.Namespace) -> int:
         "workspace": str(root),
         "workspace_status": "ok" if not errors else "error",
         "errors": errors,
+        "warnings": warnings,
         "runtime_exists": (root / "runtime.md").is_file(),
         "directories": {name: (root / name).is_dir() for name in ("inbox", "sources", "graph", "overlays", "backups")},
         "counts": {
@@ -94,14 +96,17 @@ def command_doctor(args: argparse.Namespace) -> int:
         for name, info in harnesses.items():
             print(f"Adapter ({name}): {info['status']} ({info['target']})")
         print(f"Skills: {report['skills_found']} found, {report['recommended_skills']} recommended")
+        print(f"Warnings: {len(warnings)}")
         for error in errors:
             print(f"ERROR: {error}")
+        for warning in warnings:
+            print(f"WARNING: {warning}")
     any_adapter_error = any(info.get("status") == "error" for info in harnesses.values())
     return 0 if not errors and not any_adapter_error else 1
 
 
 def command_scan_skills(args: argparse.Namespace) -> int:
-    json_print(discover(args.home, args.project, args.additional or []))
+    json_print(discover(args.home, args.project, args.additional or [], args.workspace))
     return 0
 
 

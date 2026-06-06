@@ -6,7 +6,8 @@
 
 ### Override Defaults
 
-- Replace only defaults contradicted by the user's graph.
+- Replace only defaults contradicted by 2-5 graph nodes that materially change
+  this skill.
 
 ### Quality Bar
 
