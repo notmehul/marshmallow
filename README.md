@@ -1,13 +1,15 @@
-<!-- Hero art: drop assets/marshy-hero.png here once committed. See assets/README.md. -->
 <div align="center">
 
-# 🐱 Marshmallow
+<img src="assets/marshy-hero.png" alt="Marshmallow: sources to runtime context to skill overlays, with Marshy the mascot" width="900">
 
-### Make your AI agents less generic.
+# Marshmallow
 
-**Local-first personalization for AI coding agents.** Your taste, your rules,
-your context — captured into the skills your agent already uses as plain files,
-nothing hidden.
+### Make your agent skills less generic.
+
+**Open-source alignment for AI agent skills.** Marshmallow turns the things you
+explicitly provide — docs, examples, corrections, preferences, and project rules
+— into plain-file context and overlays that tune the skills your agents already
+use.
 
 [![tests](https://github.com/notmehul/marshmallow/actions/workflows/test.yml/badge.svg)](https://github.com/notmehul/marshmallow/actions/workflows/test.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -17,55 +19,62 @@ nothing hidden.
 
 ---
 
-## Your agent keeps forgetting
+## Why this exists
 
-Taste. Rules. Context. Constraints. Every new session, a competent stranger
-shows up — knows the language, knows nothing about *you*. You re-explain the same
-preferences, paste the same references, correct the same defaults.
+Agent skills are powerful, but they are generic by default.
 
-Marshmallow gives your agent a small, inspectable memory of what makes your work
-*yours*, and feeds only the relevant piece into each task.
+A design skill knows how to produce a layout. A code review skill knows how to
+look for risk. A writing skill knows how to shape a draft.
 
-> Meet **Marshy** — the mascot. Cute on the outside, boringly robust underneath.
-> We took the Go gopher approach: a friendly face on a system you can trust with
-> your `CLAUDE.md`.
+What they do not know is *your* version of good: the defaults you keep rejecting,
+the taste you are trying to preserve, the project rules that matter here, and the
+corrections you have already made three times.
 
-## How it works
+Marshmallow makes those skill-level corrections reusable without turning them
+into a black box.
+
+It keeps a small, source-backed graph of the things you explicitly ask it to
+learn, then uses that graph to tune runtime context and skill overlays.
+
+> **Marshy** is the mascot. Marshmallow is the system.
+> Cute face, boringly inspectable files underneath.
+
+## The idea
 
 ```text
-sources  ->  graph nodes  ->  runtime adapter  ->  skill overlays  ->  better output
- your        small,            one import in        your skills,         answers that
- notes,      source-backed     CLAUDE.md /          tuned to your        sound like you,
- docs,       insights          AGENTS.md            judgment             not everyone
- likes…
+sources -> graph nodes -> runtime.md -> adapter -> skill overlays -> aligned skills
 ```
 
-- **Sources become context.** Point Marshmallow at things you made, liked,
-  rejected, or corrected. It distills them into small graph nodes — each one
-  backed by a real source you can trace.
-- **Context stays small.** A runtime adapter tells your agent to load only the
-  handful of nodes relevant to the task, not your whole history.
-- **Skills get tuned, not replaced.** Marshmallow adds a reviewable overlay to
-  the skills you already use. The base skill keeps its procedure; the overlay
-  carries your judgment.
-- **Models synthesize, Python is deterministic.** The model does the
-  understanding. Python handles file mutation, previews, backups, and byte-exact
-  rollback — the parts that must be predictable.
+- **Sources** are things you chose: files, notes, examples, rejected outputs,
+  corrections, screenshots, PDFs, or URLs.
+- **Graph nodes** are compact rules with provenance: what the source teaches,
+  where it applies, and which skills it should affect.
+- **`runtime.md`** tells the agent how to search the graph and load only what
+  matters now.
+- **Adapters** connect that runtime file to `CLAUDE.md` or `AGENTS.md`.
+- **Skill overlays** tune existing agent skills without replacing their base
+  procedure. The skill still knows its craft; the overlay carries your judgment.
 
-## No silent memory tricks
+The goal is not to make a giant memory layer. The goal is to make useful skills
+behave less like generic imports and more like tools shaped by your standards.
 
-Marshmallow is **local-first** and **honest** by design:
+## Trust model
 
-- 🔒 **Local-first.** Marshmallow writes plain files under `~/.marshmallow/` and
-  does not upload, sync, or run a background service.
-- ❌ **No log hoarding.** No background capture, no silent learning. Marshmallow
-  remembers only what you explicitly ask it to.
-- ↩️ **Rollback.** Every change is previewed before it's applied, backed up
-  byte-for-byte, and reversible.
+Marshmallow is deliberately boring where trust matters.
+
+- **Local-first.** It writes plain files under `~/.marshmallow/`.
+- **Explicit learning.** No background capture. No silent session ingestion.
+- **Source-backed guidance.** Graph nodes point back to real sources or approved
+  corrections.
+- **Preview before mutation.** Adapter installs and skill rewrites show you what
+  will change.
+- **Rollback.** Applied mutations create byte-exact backups and rollback records.
+
+No hosted profile. No dashboard. No database. No memory daemon.
 
 ## Quickstart
 
-### 1. Install the plugin (Claude Code)
+### Claude Code
 
 ```text
 /plugin marketplace add notmehul/marshmallow
@@ -74,28 +83,25 @@ Marshmallow is **local-first** and **honest** by design:
 
 > Prefer the CLI? `claude plugin marketplace add notmehul/marshmallow && claude plugin install marshmallow`
 
-### 2. Let Marshy interview you
+Then start the calibration:
 
 ```text
 /marshmallow:start
 ```
 
-Marshy asks for a few things that feel like *you* — files you made, references
-you love, a default you keep correcting — and runs a short calibration:
+Marshy asks for a small taste pack: things you made, liked, rejected, or
+corrected. Marshmallow turns that bundle into the first source-backed graph,
+previews the runtime adapter, and proposes the first useful skill overlay.
 
-1. Pick a depth (quick start is one taste pack → one tuned skill).
-2. Share a loose bundle: local files, pasted text, screenshots, PDFs, URLs.
-3. Marshy reveals the patterns it found, in plain language.
-4. You approve a persistent adapter and the first skill tune. Nothing is written
-   without your explicit yes.
+Nothing durable is written without your explicit approval.
 
-That's the whole loop. Later, teach it more with `/marshmallow:learn` and retune
-skills with `/marshmallow:tune`.
+Later, teach it more with `/marshmallow:learn` and retune skills with
+`/marshmallow:tune`.
 
 ### Codex & Cursor
 
-Marshmallow's graph and overlays are plain files, so other harnesses can use them
-too. Install the adapter into `AGENTS.md` instead of `CLAUDE.md`:
+Marshmallow's graph and overlays are plain files. Codex and Cursor can read the
+same context through an `AGENTS.md` adapter:
 
 ```bash
 scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
