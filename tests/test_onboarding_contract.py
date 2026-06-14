@@ -111,9 +111,9 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("No sending, posting, queueing, or automation actions.", trust)
         self.assertIn("Adapter and skill rewrites require explicit approval.", trust)
 
-        launch = (ROOT / "docs/launch-outreach.md").read_text()
-        self.assertIn("The new recall command is read-only", launch)
-        self.assertNotIn("The new CLI surface is\nread-only", launch)
+        self.assertFalse((ROOT / "docs/launch-outreach.md").exists())
+        self.assertIn("[ARCHITECTURE.md](ARCHITECTURE.md)", readme)
+        self.assertIn("[CONTRIBUTING.md](CONTRIBUTING.md)", readme)
 
     def test_demo_uses_real_bundled_example_sources(self) -> None:
         demo = (ROOT / "DEMO.md").read_text()
