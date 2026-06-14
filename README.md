@@ -222,8 +222,7 @@ The bundled demo workspace is reproducible and touches nothing real:
 scripts/marshmallow.py doctor --workspace examples/operator-recall
 ```
 
-See [DEMO.md](DEMO.md) for the recall-first walkthrough and optional skill
-overlay demo.
+See [DEMO.md](DEMO.md) for the recall-first walkthrough.
 
 ## Checks
 

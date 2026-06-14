@@ -118,8 +118,8 @@ class OnboardingContractTests(unittest.TestCase):
     def test_demo_uses_real_bundled_example_sources(self) -> None:
         demo = (ROOT / "DEMO.md").read_text()
         self.assertNotIn("examples/private", demo)
-        source_cards = list((ROOT / "examples/builder-graph/sources").glob("*.md"))
-        source_cards.extend((ROOT / "examples/operator-recall/sources").glob("*.md"))
+        self.assertNotIn("examples/builder-graph", demo)
+        source_cards = list((ROOT / "examples/operator-recall/sources").glob("*.md"))
         for card in source_cards:
             text = card.read_text()
             self.assertNotIn("examples/private", text)

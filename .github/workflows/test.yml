@@ -14,5 +14,5 @@ jobs:
           python-version: "3.11"
       - run: python3 -m unittest discover -s tests -v
       - run: python3 -m compileall -q scripts tests
-      - run: python3 scripts/marshmallow.py doctor --workspace examples/builder-graph --json
+      - run: python3 scripts/marshmallow.py doctor --workspace examples/operator-recall --json
       - run: git diff --exit-code

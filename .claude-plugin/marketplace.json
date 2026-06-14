@@ -1,6 +1,6 @@
 {
   "name": "marshmallow",
-  "description": "Local-first personal alignment tools for giving Claude Code source-backed builder judgment from the first prompt.",
+  "description": "Local source-backed recall for giving Claude Code agents the right context before work.",
   "owner": {
     "name": "Marshmallow contributors"
   },
@@ -8,8 +8,8 @@
     {
       "name": "marshmallow",
       "source": "./",
-      "description": "Build a local personal alignment layer for Claude Code with source-backed graph nodes and reviewable skill overlays.",
-      "version": "0.5.0-alpha.0"
+      "description": "Build a local source-backed recall context runtime for Claude Code agents.",
+      "version": "0.6.0-beta.0"
     }
   ]
 }

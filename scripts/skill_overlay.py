@@ -98,7 +98,7 @@ def alignment_block(overlay_path: Path) -> str:
     return (
         f"{START_MARKER}\n"
         "## Marshmallow Alignment\n\n"
-        f"Before using this skill, read `{overlay_path.resolve()}` and apply it as the personal alignment layer.\n"
+        f"Before using this skill, read `{overlay_path.resolve()}` and apply it as the recall-aware alignment layer.\n"
         f"{END_MARKER}"
     )
 

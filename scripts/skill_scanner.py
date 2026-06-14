@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Discover Claude Code skills that may benefit from personal alignment."""
+"""Discover Claude Code skills that may benefit from recall-aware tuning."""
 
 from __future__ import annotations
 
