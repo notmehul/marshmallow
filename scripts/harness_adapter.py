@@ -11,7 +11,7 @@ from typing import Callable
 from marshmallow_workspace import (
     MarshmallowError,
     atomic_write,
-    ensure_workspace,
+    require_workspace,
     sha256_bytes,
     sha256_file,
     timestamp,
@@ -72,9 +72,9 @@ def adapter_block(runtime_path: Path, style: str = STYLE_IMPORT) -> str:
         body = f"@{runtime}"
     elif style == STYLE_POINTER:
         body = (
-            "## Marshmallow personal alignment\n\n"
-            f"Read `{runtime}` and apply it as a personal alignment layer whenever "
-            "personal taste, judgment, or working style could change the result. "
+            "## Marshmallow source-backed recall\n\n"
+            f"Read `{runtime}` and use it as a source-backed recall layer whenever "
+            "people, projects, decisions, working rules, or current context could change the result. "
             "Treat the user's current request, project instructions, and safety "
             "rules as higher priority than this guidance."
         )
@@ -128,6 +128,25 @@ def adapter_record_dir(root: Path) -> Path:
         counter += 1
 
 
+def target_was_created_by_latest_install(root: Path, target: Path, original_bytes: bytes) -> bool:
+    target_resolved = str(target.resolve())
+    records: list[tuple[Path, dict[str, object]]] = []
+    for path in sorted((root / "backups" / "adapters").glob("*/record.json")):
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if record.get("target") == target_resolved and record.get("action") == "install":
+            records.append((path, record))
+    if not records:
+        return False
+    latest = records[-1][1]
+    return bool(
+        latest.get("target_existed") is False
+        and latest.get("applied_hash") == sha256_bytes(original_bytes)
+    )
+
+
 def unified_diff(target: Path, original: str, updated: str) -> str:
     return "".join(
         difflib.unified_diff(
@@ -156,11 +175,12 @@ def update_adapter(
     remove: bool,
     style: str = STYLE_IMPORT,
 ) -> tuple[int, str]:
-    workspace_root = ensure_workspace(workspace_root)
+    workspace_root = require_workspace(workspace_root)
     target = target.expanduser()
     if target.exists() and not is_writable(target):
         raise MarshmallowError(f"Adapter target is read-only: {target}")
-    original_bytes = target.read_bytes() if target.exists() else b""
+    target_existed = target.exists()
+    original_bytes = target.read_bytes() if target_existed else b""
     original = original_bytes.decode("utf-8")
     runtime = workspace_root / "runtime.md"
     updated = remove_marker(original) if remove else install_marker(original, runtime, style)
@@ -181,13 +201,29 @@ def update_adapter(
         "action": action,
         "target": str(target.resolve()),
         "backup_path": str(backup.resolve()) if backup else None,
+        "target_existed": target_existed,
         "original_hash": sha256_bytes(original_bytes),
         "planned_hash": sha256_bytes(updated.encode("utf-8")),
     }
     write_record(record_dir / "record.json", record)
 
-    atomic_write(target, updated)
-    record["applied_hash"] = sha256_file(target)
+    should_delete_target = remove and updated == "" and target_was_created_by_latest_install(
+        workspace_root,
+        target,
+        original_bytes,
+    )
+    if should_delete_target:
+        target.unlink(missing_ok=True)
+        try:
+            target.parent.rmdir()
+        except OSError:
+            pass
+        record["applied_hash"] = None
+        record["deleted_target"] = True
+    else:
+        atomic_write(target, updated)
+        record["applied_hash"] = sha256_file(target)
+        record["deleted_target"] = False
     write_record(record_dir / "record.json", record)
     return 0, json.dumps(
         {
@@ -196,6 +232,7 @@ def update_adapter(
             "target": str(target),
             "backup": str(backup) if backup else None,
             "record": str(record_dir / "record.json"),
+            "deleted_target": should_delete_target,
         },
         indent=2,
     )

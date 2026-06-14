@@ -1,15 +1,15 @@
 <div align="center">
 
-<img src="assets/marshy-hero.png" alt="Marshmallow: sources to runtime context to skill overlays, with Marshy the mascot" width="900">
+<img src="assets/marshy-hero.png" alt="Marshmallow: source-backed recall for AI agents, with Marshy the mascot" width="900">
 
 # Marshmallow
 
-### Make your agent skills less generic.
+### Source-backed recall for AI agents.
 
-**Open-source alignment for AI agent skills.** Marshmallow turns the things you
-explicitly provide — docs, examples, corrections, preferences, and project rules
-— into plain-file context and overlays that tune the skills your agents already
-use.
+**A local context runtime for agent work.** Marshmallow turns the things you
+explicitly provide — people, projects, decisions, corrections, examples, formats,
+and working rules — into plain-file context your agents can recall before they
+act.
 
 [![tests](https://github.com/notmehul/marshmallow/actions/workflows/test.yml/badge.svg)](https://github.com/notmehul/marshmallow/actions/workflows/test.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -21,20 +21,17 @@ use.
 
 ## Why this exists
 
-Agent skills are powerful, but they are generic by default.
+Agents are useful, but they miss the context that makes work correct.
 
-A design skill knows how to produce a layout. A code review skill knows how to
-look for risk. A writing skill knows how to shape a draft.
+They may know the task and still miss the person, project, relationship,
+decision, or format behind it.
 
-What they do not know is *your* version of good: the defaults you keep rejecting,
-the taste you are trying to preserve, the project rules that matter here, and the
-corrections you have already made three times.
-
-Marshmallow makes those skill-level corrections reusable without turning them
-into a black box.
+Marshmallow gives them source-backed recall: the few entities, decisions,
+working rules, and open loops that matter now.
 
 It keeps a small, source-backed graph of the things you explicitly ask it to
-learn, then uses that graph to tune runtime context and skill overlays.
+learn, then routes that graph into compact indexes, task-shaped recall packets,
+runtime guidance, and optional skill overlays.
 
 > **Marshy** is the mascot. Marshmallow is the system.
 > Cute face, boringly inspectable files underneath.
@@ -42,21 +39,24 @@ learn, then uses that graph to tune runtime context and skill overlays.
 ## The idea
 
 ```text
-sources -> graph nodes -> runtime.md -> adapter -> skill overlays -> aligned skills
+sources -> typed graph nodes -> indexes/recall packets -> runtime.md -> adapter -> agent
 ```
 
 - **Sources** are things you chose: files, notes, examples, rejected outputs,
   corrections, screenshots, PDFs, or URLs.
-- **Graph nodes** are compact rules with provenance: what the source teaches,
-  where it applies, and which skills it should affect.
-- **`runtime.md`** tells the agent how to search the graph and load only what
-  matters now.
+- **Graph nodes** are compact, source-backed records: entities, decisions,
+  relationships, preferences, and working rules.
+- **Indexes** are agent-written navigation pages that keep future agents from
+  crawling the whole graph.
+- **Projections** are task-shaped recall packets for meetings, handoffs,
+  workflows, or focused agent work.
+- **`runtime.md`** tells the agent to check indexes first, then load only the
+  graph nodes and projections that matter now.
 - **Adapters** connect that runtime file to `CLAUDE.md` or `AGENTS.md`.
-- **Skill overlays** tune existing agent skills without replacing their base
-  procedure. The skill still knows its craft; the overlay carries your judgment.
+- **Skill overlays** are optional downstream tuning for existing agent skills.
 
-The goal is not to make a giant memory layer. The goal is to make useful skills
-behave less like generic imports and more like tools shaped by your standards.
+The goal is not to make a giant memory layer. The goal is to give connected
+agents the right source-backed context before they draft, decide, or act.
 
 ## Trust model
 
@@ -89,23 +89,28 @@ Then start the calibration:
 /marshmallow:start
 ```
 
-Marshy asks for a small taste pack: things you made, liked, rejected, or
-corrected. Marshmallow turns that bundle into the first source-backed graph,
-previews the runtime adapter, and proposes the first useful skill overlay.
+Marshy asks for a small context pack: people, projects, decisions, formats,
+corrections, rejected outputs, or working rules. Marshmallow turns that bundle
+into the first source-backed graph, previews the runtime adapter, and can propose
+optional skill overlays when they are useful.
 
 Nothing durable is written without your explicit approval.
 
-Later, teach it more with `/marshmallow:learn` and retune skills with
-`/marshmallow:tune`.
+Later, teach it more with `/marshmallow:learn`, find context with `recall`, and
+retune skills with `/marshmallow:tune` when a reusable skill should change.
 
 ### Codex & Cursor
 
-Marshmallow's graph and overlays are plain files. Codex and Cursor can read the
-same context through an `AGENTS.md` adapter:
+Marshmallow's graph and recall packets are plain files. Codex and Cursor can
+read the same context through an `AGENTS.md` adapter:
 
 ```bash
-scripts/marshmallow.py adapter apply --harness codex   # ~/.codex/AGENTS.md
-scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
+scripts/marshmallow.py init
+scripts/marshmallow.py adapter preview --harness codex   # ~/.codex/AGENTS.md
+scripts/marshmallow.py adapter apply --harness codex
+
+scripts/marshmallow.py adapter preview --harness cursor  # ./AGENTS.md
+scripts/marshmallow.py adapter apply --harness cursor
 ```
 
 ## What it creates
@@ -116,18 +121,21 @@ scripts/marshmallow.py adapter apply --harness cursor  # ./AGENTS.md
 runtime.md    # short instructions imported by CLAUDE.md / AGENTS.md
 inbox/        # unsynthesized candidate material (untrusted until promoted)
 sources/      # source cards with pointers and provenance
-graph/        # source-backed graph nodes (the durable substrate)
+graph/        # source-backed context nodes (the durable substrate)
+indexes/      # compact navigation pages for agents
+projections/  # task-shaped recall packets
 overlays/     # approved skill alignment overlays
 backups/      # exact backup bytes plus record.json for rollback
 ```
 
 ## Skills
 
-- **`/marshmallow:start`** — onboard the workspace, build the first graph,
-  install the runtime adapter, create the first tune.
-- **`/marshmallow:learn`** — ingest explicit sources or corrections.
-- **`/marshmallow:tune`** — retune skills with overlays, create aligned copies or
-  starter skills, and roll overlays back.
+- **`/marshmallow:start`** — onboard the workspace, build the first recall
+  graph, install the runtime adapter, and optionally create the first tune.
+- **`/marshmallow:learn`** — ingest explicit sources, corrections, decisions, or
+  context updates.
+- **`/marshmallow:tune`** — optionally retune skills with overlays, create
+  aligned copies or starter skills, and roll overlays back.
 
 ## CLI
 
@@ -137,6 +145,7 @@ The skills call one public CLI. You can run it directly too:
 scripts/marshmallow.py init
 scripts/marshmallow.py doctor
 scripts/marshmallow.py scan-skills
+scripts/marshmallow.py recall "<query>" [--json] [--limit N]
 scripts/marshmallow.py adapter preview   [--harness claude|codex|cursor]
 scripts/marshmallow.py adapter apply     [--harness claude|codex|cursor]
 scripts/marshmallow.py adapter remove [--approve]
@@ -161,13 +170,24 @@ source_ids: [source-example]
 applies_to: [design]
 related_nodes: []
 skills: [frontend-design]
-labels: [visual-taste]
+labels: [investor-update]
+type: decision
+subjects: [marshmallow, fundraising]
+status: active
+updated: 2026-06-01
 ```
 
 Graph nodes should stay compact and behavior-changing. Use the body to explain
-the rule, evidence, skills affected, limits, and any real `[[wikilink]]`
+the record, evidence, affected behavior, limits, and any real `[[wikilink]]`
 connections. `doctor --json` may report quality warnings for generic or thin
-nodes; warnings do not break existing workspaces.
+nodes; warnings do not break existing workspaces. Optional typed fields such as
+`type`, `subjects`, `status`, and `updated` help agents navigate the graph.
+Beta types are `entity`, `decision`, `relationship`, and `preference`, but they
+are retrieval hints rather than a fixed taxonomy.
+
+Indexes and projections are Markdown runtime aids. Projections are task-shaped
+recall packets. Agents may write them, and `doctor` validates their frontmatter
+and graph references, but durable source truth stays in `sources/` and `graph/`.
 
 Source card minimum schema:
 
@@ -190,19 +210,20 @@ saved as source cards, so corrections stay source-backed too.
 | Codex | `~/.codex/AGENTS.md` | pointer block |
 | Cursor | `./AGENTS.md` | pointer block |
 
-The full onboarding skills are built for Claude Code today. Codex and Cursor read
-the same graph through the `AGENTS.md` adapter; deeper native flows for them are
-on the roadmap.
+The full onboarding skills are built for Claude Code today. Codex and Cursor
+read the same graph and recall packets through the `AGENTS.md` adapter; deeper
+native flows for them are on the roadmap.
 
 ## Try the demo
 
 The bundled demo workspace is reproducible and touches nothing real:
 
 ```bash
-scripts/marshmallow.py doctor --workspace examples/builder-graph
+scripts/marshmallow.py doctor --workspace examples/operator-recall
 ```
 
-See [DEMO.md](DEMO.md) for the full walkthrough.
+See [DEMO.md](DEMO.md) for the recall-first walkthrough and optional skill
+overlay demo.
 
 ## Checks
 
@@ -212,7 +233,7 @@ python3 -m compileall -q scripts tests
 claude plugin validate . --strict
 ```
 
-Requires **Python 3.11+** (uses `datetime.UTC` and modern typing).
+Requires **Python 3.9+** and the Claude Code CLI for plugin validation.
 
 ## Learn more
 

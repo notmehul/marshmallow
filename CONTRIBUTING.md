@@ -17,7 +17,7 @@ much easier to accept when they respect the boundaries:
 
 ## Development setup
 
-You only need Python 3.11+ and (optionally) the Claude Code CLI.
+You only need Python 3.9+ and (optionally) the Claude Code CLI.
 
 ```bash
 git clone https://github.com/notmehul/marshmallow.git
@@ -32,7 +32,7 @@ All of these must pass — they run in CI:
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m compileall -q scripts tests
-scripts/marshmallow.py doctor --workspace examples/builder-graph --json
+scripts/marshmallow.py doctor --workspace examples/operator-recall --json
 claude plugin validate . --strict   # if you have the Claude Code CLI
 ```
 

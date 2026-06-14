@@ -13,32 +13,39 @@ import json
 import os
 import re
 import tempfile
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 URL_PATTERN = re.compile(r"^https?://", re.IGNORECASE)
+UTC = timezone.utc
 
-WORKSPACE_DIRS = ("inbox", "sources", "graph", "overlays", "backups")
+WORKSPACE_DIRS = ("inbox", "sources", "graph", "indexes", "projections", "overlays", "backups")
 
 RUNTIME_GUIDANCE = """# Marshmallow Alignment Router
 
-Marshmallow is a local personal alignment layer. Use it only when personal
-taste, judgment, working style, or current context could materially change the
-result.
+Marshmallow is a local source-backed recall layer. Use it when people, projects,
+decisions, working rules, or current context could materially change the result.
 
 ## During Work
 
-1. Use `rg` or `grep` to search `~/.marshmallow/graph/` for task-relevant terms,
-   tags, skill names, and source ids.
-2. Load only the smallest relevant graph nodes, usually one to three files.
-3. Treat the user's current request, project instructions, and safety rules as
+1. Run `marshmallow.py recall "<task/person/decision>"` when the CLI is
+   available, or check `~/.marshmallow/indexes/` first for compact navigation
+   pages relevant to the task.
+2. Use `rg` or `grep` to search `~/.marshmallow/graph/` only after recall or
+   indexes. Load the smallest relevant graph nodes, usually three to seven files.
+3. Use or create a focused `~/.marshmallow/projections/` recall packet when the
+   task needs a reusable brief. Treat recall packets as runtime aids, not source
+   truth.
+4. Treat the user's current request, project instructions, and safety rules as
    higher priority than Marshmallow guidance.
-4. Ask when graph nodes conflict, seem stale, or would change a user-visible
+5. Ask when graph nodes conflict, seem stale, or would change a user-visible
    decision.
 
-Do not load `sources/` or `inbox/` during ordinary work. Open deeper evidence
-only when the user asks to inspect, explain, or learn.
+Do not crawl the whole graph by default. Do not load `sources/` or `inbox/`
+during ordinary work. Do not send, post, queue, or automate on Marshmallow's
+behalf. Open deeper evidence only when the user asks to inspect, explain, or
+learn.
 
 ## Learning
 
@@ -59,6 +66,25 @@ and decided that the result should change future work.
 
 Do not copy raw session logs into the graph. Preserve only reusable insights or
 a pointer to an intentional source.
+"""
+
+INDEX_GUIDANCE = """# Marshmallow Indexes
+
+Indexes are agent-written Markdown navigation pages. They summarize what to
+look at first so future agents do not crawl the whole graph.
+
+Indexes are runtime aids, not source truth. Durable knowledge stays in
+`graph/`, backed by `sources/`.
+"""
+
+PROJECTION_GUIDANCE = """# Marshmallow Projections
+
+Projections are task-shaped recall packets written by agents for a specific job,
+workflow, meeting, or handoff.
+
+Use projections to collect the few graph nodes, open loops, constraints, and
+source trails that matter now. Projections are runtime aids, not durable source
+truth.
 """
 
 
@@ -101,11 +127,20 @@ def write_if_missing(path: Path, content: str) -> None:
         atomic_write(path, content)
 
 
+def require_workspace(root: Path) -> Path:
+    root = root.expanduser()
+    if not root.exists():
+        raise MarshmallowError(f"Workspace not found: {root}. Run init first.")
+    return root
+
+
 def ensure_workspace(root: Path) -> Path:
     root = root.expanduser()
     for directory in WORKSPACE_DIRS:
         (root / directory).mkdir(parents=True, exist_ok=True)
     write_if_missing(root / "inbox" / "README.md", INBOX_GUIDANCE)
+    write_if_missing(root / "indexes" / "README.md", INDEX_GUIDANCE)
+    write_if_missing(root / "projections" / "README.md", PROJECTION_GUIDANCE)
     write_if_missing(root / "runtime.md", RUNTIME_GUIDANCE)
     return root
 

@@ -2,15 +2,15 @@
 name: tune
 description: Retune existing Claude skills with Marshmallow graph-backed overlays, create aligned copies or starter skills, and rollback overlays with approval. Use when the user runs /marshmallow:tune or asks to personalize, retune, align, or rollback a skill.
 license: MIT
-compatibility: Designed for Claude Code with Python 3.11+ available locally.
+compatibility: Designed for Claude Code with Python 3.9+ available locally.
 allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "AskUserQuestion", "Bash(${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py:*)", "Bash(rg:*)"]
 ---
 
 # Marshmallow Tune
 
 Tune skills only when the user wants Marshmallow to change durable skill
-behavior. The graph supplies source-backed defaults; the target skill keeps its
-own procedure.
+behavior. Skill overlays are optional downstream use of Marshmallow recall. The
+graph supplies source-backed defaults; the target skill keeps its own procedure.
 
 ## Choose Targets
 
@@ -26,9 +26,11 @@ deterministic checklist skills unless the user explicitly asks.
 
 ## Draft Overlay
 
-Search graph nodes directly:
+Use recall first, then check compact indexes and graph nodes directly:
 
 ```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<skill|topic|label>"
+rg -n "<skill|topic|label>" ~/.marshmallow/indexes
 rg -n "<skill|topic|label>" ~/.marshmallow/graph
 ```
 

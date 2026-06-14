@@ -8,8 +8,11 @@ must explicitly approve adapter installs, skill rewrites, and rollback applies.
 - No silent learning.
 - No background capture.
 - No upload, sync, or background service run by Marshmallow.
+- No sending, posting, queueing, or automation actions.
 - No required `workspace.json`.
-- No generated `GRAPH.md` or `projections/`.
+- No generated `GRAPH.md`.
+- No deterministic projection generator in v1; projections are agent-written
+  Markdown recall packets.
 - Raw session logs do not become graph nodes.
 - Adapter and skill rewrites require explicit approval.
 - Plugin-cache skills are not edited in place.
@@ -90,5 +93,18 @@ Run:
 scripts/marshmallow.py doctor
 ```
 
-Doctor checks workspace shape, source-backed graph validation, adapter status,
-skill discovery, and backup counts. It is a health check, not an approval gate.
+Doctor checks workspace shape, runtime guidance freshness, source-backed graph
+validation, index and recall-packet references, adapter status, skill discovery,
+and backup counts. It is a health check, not an approval gate.
+
+## Recall
+
+Run:
+
+```bash
+scripts/marshmallow.py recall "investor update"
+```
+
+`recall` is read-only. It searches `indexes/`, `projections/`, and `graph/` for
+matching context. It does not search raw `sources/` or `inbox/`, and it does not
+write, synthesize, send, or queue anything.

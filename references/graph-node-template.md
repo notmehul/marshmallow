@@ -1,33 +1,38 @@
 ---
-id: prefer-clear-hierarchy
-insight: Prefer clear hierarchy over decorative complexity.
-applies_to: [design, product]
+id: delay-fundraise-until-retention-signal
+insight: Do not recommend fundraising until retention evidence is strong enough to make the round credible.
+applies_to: [fundraising, investor-updates]
 source_ids: [source-example]
 related_nodes: []
 skills: []
-labels: [visual-taste]
+labels: [decision]
+type: decision
+subjects: [fundraising, investor-update]
+status: active
+updated: YYYY-MM-DD
 ---
 
-# Prefer Clear Hierarchy
+# Delay Fundraise Until Retention Signal
 
-## Rule
+## Current Model
 
-State the concrete behavior future agents should change. If the behavior is
-not clear, keep the material in inbox or a source card instead of promoting it.
+State the compact entity, decision, relationship, preference, or working rule.
+If it will not change future behavior, keep the material in inbox or a source
+card instead of promoting it.
 
 ## Evidence
 
-- `source-example` - cite selected details that justify the rule.
+- `source-example` - cite selected details that justify the record.
 
-## Use In Skills
+## Use In Work
 
-- `frontend-design` - explain what default, quality bar, anti-pattern, or
-  ask-when rule this should change.
+- Explain what future agents should do differently because this exists.
+- Name any relevant task, format, relationship, decision, or skill.
 
 ## Limits
 
-Name where this rule should not apply, weak evidence, counter-signals, or the
-focused question to ask before using it.
+Name where this should not apply, weak evidence, counter-signals, or the focused
+question to ask before using it.
 
 ## Connections
 

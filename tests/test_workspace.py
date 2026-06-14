@@ -41,9 +41,11 @@ def graph_node(
     source_ids: str = "[source-one]",
     related_nodes: str = "[]",
     skills: str = "[frontend-design]",
+    extra_frontmatter: str = "",
     body: str | None = None,
 ) -> str:
     node_body = body or "# Node\n"
+    extra = f"{extra_frontmatter.rstrip()}\n" if extra_frontmatter else ""
     return f"""---
 id: {node_id}
 insight: {insight}
@@ -52,9 +54,40 @@ source_ids: {source_ids}
 related_nodes: {related_nodes}
 skills: {skills}
 labels: {labels}
----
+{extra}---
 
 {node_body}"""
+
+
+def index_page(index_id: str = "home", graph_ids: str = "[node-one]") -> str:
+    return f"""---
+id: {index_id}
+title: Home
+graph_ids: {graph_ids}
+labels: [home]
+---
+
+# Home
+
+- [[node-one]] - useful starting point.
+"""
+
+
+def projection_page(projection_id: str = "task-brief", graph_ids: str = "[node-one]") -> str:
+    return f"""---
+id: {projection_id}
+title: Task Brief
+task: Prepare an agent for this task.
+graph_ids: {graph_ids}
+labels: [brief]
+---
+
+# Task Brief
+
+## Use
+
+Load the linked graph nodes before acting.
+"""
 
 
 def high_quality_graph_node(
@@ -92,6 +125,41 @@ game, brand world, or immersive editorial surface.
 ## Connections
 
 - [[node-two]] - compare when helper-like warmth changes the same design choice.
+""",
+    )
+
+
+def high_quality_typed_graph_node(node_id: str, node_type: str = "entity", skills: str = "[]") -> str:
+    return graph_node(
+        node_id,
+        insight="Use investor update context that preserves the decision, tradeoff, and evidence.",
+        labels="[investor-update]",
+        skills=skills,
+        extra_frontmatter=f"""type: {node_type}
+subjects: [mani, loomline]
+status: active
+updated: 2026-06-14""",
+        body="""# Investor Update Context
+
+## Rule
+
+Preserve the decision, the tradeoff, and the evidence when preparing investor
+updates or decision recall.
+
+## Evidence
+
+- `source-one` - notes show the investor expects a short update with the ask,
+  what changed, and the evidence behind the decision. The same notes reject
+  inflated momentum claims that hide the real operating constraint.
+
+## Use In Work
+
+- Prepare recall packets and investor updates without changing the decision
+  rationale.
+
+## Limits
+
+Do not infer approval from the investor unless a source says so.
 """,
     )
 
@@ -161,20 +229,23 @@ class WorkspaceTests(unittest.TestCase):
         atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
         atomic_write(self.root / "graph/node-one.md", graph_node("node-one"))
 
-    def test_init_is_plain_files_without_workspace_json_graph_or_projections(self) -> None:
+    def test_init_is_plain_files_with_indexes_and_projections(self) -> None:
         result = self.cli("init", "--workspace", str(self.root))
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         self.assertTrue((self.root / "runtime.md").is_file())
         self.assertTrue((self.root / "inbox/README.md").is_file())
         self.assertTrue((self.root / "sources").is_dir())
         self.assertTrue((self.root / "graph").is_dir())
+        self.assertTrue((self.root / "indexes/README.md").is_file())
+        self.assertTrue((self.root / "projections/README.md").is_file())
         self.assertTrue((self.root / "overlays").is_dir())
         self.assertTrue((self.root / "backups").is_dir())
         self.assertFalse((self.root / "workspace.json").exists())
         self.assertFalse((self.root / "GRAPH.md").exists())
-        self.assertFalse((self.root / "projections").exists())
         runtime = (self.root / "runtime.md").read_text()
-        self.assertIn("search `~/.marshmallow/graph/`", runtime)
+        self.assertIn('marshmallow.py recall "<task/person/decision>"', runtime)
+        self.assertIn("`~/.marshmallow/indexes/`", runtime)
+        self.assertIn("Do not crawl the whole graph by default.", runtime)
         self.assertIn("Do not learn automatically", runtime)
 
     def test_source_status_has_actionable_fallbacks(self) -> None:
@@ -222,6 +293,76 @@ class WorkspaceTests(unittest.TestCase):
         atomic_write(self.root / "graph/node-one.md", graph_node("node-one", labels="[strange-specificity]"))
         self.assertEqual([], validate_workspace(self.root))
 
+    def test_graph_type_metadata_is_open_but_validated(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(
+            self.root / "graph/node-one.md",
+            graph_node(
+                "node-one",
+                extra_frontmatter="""type: relationship
+subjects: [kaustubh, biome, mehul]
+status: active
+updated: 2026-06-13""",
+            ),
+        )
+        self.assertEqual([], validate_workspace(self.root))
+
+    def test_graph_type_subjects_and_status_must_be_hyphen_case(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(
+            self.root / "graph/node-one.md",
+            graph_node(
+                "node-one",
+                extra_frontmatter="""type: Relationship
+subjects: [Kaustubh, ../biome]
+status: In Progress""",
+            ),
+        )
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("type must use lowercase hyphen-case" in error for error in errors))
+        self.assertTrue(any("subjects tag must use lowercase hyphen-case" in error for error in errors))
+        self.assertTrue(any("status must use lowercase hyphen-case" in error for error in errors))
+
+    def test_indexes_and_projections_validate_graph_references(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", graph_node("node-one"))
+        atomic_write(self.root / "indexes/home.md", index_page())
+        atomic_write(self.root / "projections/task-brief.md", projection_page())
+        self.assertEqual([], validate_workspace(self.root))
+
+    def test_index_requires_graph_ids(self) -> None:
+        atomic_write(self.root / "indexes/home.md", """---
+id: home
+title: Home
+---
+
+# Home
+""")
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("missing fields: graph_ids" in error for error in errors))
+        self.assertTrue(any("graph_ids must include at least one graph node id" in error for error in errors))
+
+    def test_index_id_must_match_filename(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", graph_node("node-one"))
+        atomic_write(self.root / "indexes/home.md", index_page(index_id="team"))
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("index id must match filename stem" in error for error in errors))
+
+    def test_projection_rejects_missing_graph_reference(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", graph_node("node-one"))
+        atomic_write(self.root / "projections/task-brief.md", projection_page(graph_ids="[missing-node]"))
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("missing graph reference: missing-node" in error for error in errors))
+
+    def test_projection_graph_ids_must_be_valid_ids(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", graph_node("node-one"))
+        atomic_write(self.root / "projections/task-brief.md", projection_page(graph_ids="[Node One]"))
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("graph_ids tag must use lowercase hyphen-case" in error for error in errors))
+
     def test_graph_quality_warnings_accept_high_quality_compact_node(self) -> None:
         atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
         atomic_write(self.root / "graph/node-one.md", high_quality_graph_node("node-one"))
@@ -236,6 +377,17 @@ class WorkspaceTests(unittest.TestCase):
         self.assertTrue(any("too generic" in warning for warning in warnings))
         self.assertTrue(any("too thin" in warning for warning in warnings))
         self.assertTrue(any("not tied to any skill" in warning for warning in warnings))
+        self.assertEqual([], validate_workspace(self.root))
+
+    def test_beta_typed_nodes_do_not_require_skills(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        for node_type in ("entity", "decision", "relationship", "preference"):
+            atomic_write(
+                self.root / "graph" / f"{node_type}-node.md",
+                high_quality_typed_graph_node(f"{node_type}-node", node_type=node_type),
+            )
+        warnings = graph_quality_warnings(self.root)
+        self.assertFalse(any("not tied to any skill" in warning for warning in warnings))
         self.assertEqual([], validate_workspace(self.root))
 
     def test_graph_quality_warns_when_related_nodes_lack_wikilinks(self) -> None:
@@ -288,6 +440,30 @@ class WorkspaceTests(unittest.TestCase):
         report = json.loads(doctor.stdout)
         self.assertEqual(str(root), report["workspace"])
         self.assertEqual("missing", report["adapter"]["status"])
+
+    def test_read_only_commands_do_not_create_workspace(self) -> None:
+        missing = self.temp_path / "missing-marshmallow"
+        target = self.temp_path / "home/.codex/AGENTS.md"
+
+        doctor = self.cli("doctor", "--workspace", str(missing), "--json")
+        self.assertEqual(1, doctor.returncode)
+        self.assertIn("Run init first", doctor.stderr)
+        self.assertFalse(missing.exists())
+
+        preview = self.cli(
+            "adapter",
+            "preview",
+            "--workspace",
+            str(missing),
+            "--harness",
+            "codex",
+            "--target",
+            str(target),
+        )
+        self.assertEqual(1, preview.returncode)
+        self.assertIn("Run init first", preview.stderr)
+        self.assertFalse(missing.exists())
+        self.assertFalse(target.exists())
 
     def test_adapter_preview_apply_and_remove_write_backup_metadata(self) -> None:
         target = self.temp_path / "home/.claude/CLAUDE.md"
@@ -347,7 +523,7 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(0, applied.returncode, applied.stdout + applied.stderr)
             installed = target.read_text()
             self.assertEqual(1, installed.count(ADAPTER_START_MARKER))
-            self.assertIn("Marshmallow personal alignment", installed)
+            self.assertIn("Marshmallow source-backed recall", installed)
             self.assertIn("# Project rules", installed)
             # AGENTS.md has no @import directive; pointer style must not emit one.
             self.assertNotIn(f"@{(self.root / 'runtime.md').resolve()}", installed)
@@ -366,8 +542,44 @@ class WorkspaceTests(unittest.TestCase):
             self.assertEqual(0, removed.returncode, removed.stdout + removed.stderr)
             self.assertEqual(original, target.read_text())
             records = sorted((self.root / "backups/adapters").glob("*/record.json"))
-            record = json.loads(records[-1].read_text())
-            self.assertEqual("AGENTS.md", Path(record["backup_path"]).name)
+        record = json.loads(records[-1].read_text())
+        self.assertEqual("AGENTS.md", Path(record["backup_path"]).name)
+
+    def test_adapter_remove_deletes_target_created_by_install(self) -> None:
+        target = self.temp_path / "new-home/.codex/AGENTS.md"
+        applied = self.cli(
+            "adapter",
+            "apply",
+            "--workspace",
+            str(self.root),
+            "--harness",
+            "codex",
+            "--target",
+            str(target),
+        )
+        self.assertEqual(0, applied.returncode, applied.stdout + applied.stderr)
+        self.assertTrue(target.exists())
+        install_record = json.loads(sorted((self.root / "backups/adapters").glob("*/record.json"))[-1].read_text())
+        self.assertFalse(install_record["target_existed"])
+        self.assertIsNone(install_record["backup_path"])
+
+        removed = self.cli(
+            "adapter",
+            "remove",
+            "--workspace",
+            str(self.root),
+            "--harness",
+            "codex",
+            "--target",
+            str(target),
+            "--approve",
+        )
+        self.assertEqual(0, removed.returncode, removed.stdout + removed.stderr)
+        self.assertFalse(target.exists())
+        remove_payload = json.loads(removed.stdout)
+        self.assertTrue(remove_payload["deleted_target"])
+        remove_record = json.loads(sorted((self.root / "backups/adapters").glob("*/record.json"))[-1].read_text())
+        self.assertTrue(remove_record["deleted_target"])
 
     def test_doctor_reports_all_harness_statuses(self) -> None:
         home = self.temp_path / "home"
@@ -391,6 +603,8 @@ class WorkspaceTests(unittest.TestCase):
 
     def test_doctor_reports_workspace_adapter_and_skill_health(self) -> None:
         self.add_valid_graph()
+        atomic_write(self.root / "indexes/home.md", index_page())
+        atomic_write(self.root / "projections/task-brief.md", projection_page())
         home = self.temp_path / "home"
         project = self.temp_path / "project"
         claude_md = home / ".claude/CLAUDE.md"
@@ -416,7 +630,160 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual("installed", report["adapter"]["status"])
         self.assertEqual(1, report["skills_found"])
         self.assertEqual(1, report["recommended_skills"])
+        self.assertEqual(1, report["counts"]["indexes"])
+        self.assertEqual(1, report["counts"]["projections"])
         self.assertTrue(report["runtime_exists"])
+
+    def test_doctor_warns_when_runtime_guidance_is_stale(self) -> None:
+        atomic_write(
+            self.root / "runtime.md",
+            """# Marshmallow Alignment Router
+
+Use `rg` to search `~/.marshmallow/graph/` for task-relevant terms.
+""",
+        )
+        result = self.cli("doctor", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertTrue(any("runtime guidance may be stale" in warning for warning in report["warnings"]))
+
+    def test_recall_finds_indexes_projections_and_graph(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", high_quality_typed_graph_node("node-one"))
+        atomic_write(
+            self.root / "indexes/home.md",
+            """---
+id: home
+title: Investor Update Home
+graph_ids: [node-one]
+labels: [investor-update]
+---
+
+# Investor Update Home
+
+- [[node-one]] - use for investor update context.
+""",
+        )
+        atomic_write(
+            self.root / "projections/task-brief.md",
+            """---
+id: task-brief
+title: Investor Update Recall
+task: Prepare an investor update.
+graph_ids: [node-one]
+labels: [investor-update]
+---
+
+# Investor Update Recall
+
+Load the investor update context before drafting.
+""",
+        )
+        result = self.cli("recall", "investor update", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        kinds = {item["kind"] for item in payload["results"]}
+        self.assertIn("graph", kinds)
+        self.assertIn("index", kinds)
+        self.assertIn("recall-packet", kinds)
+        for item in payload["results"]:
+            self.assertIn("path", item)
+            self.assertIn("id", item)
+            self.assertIn("score", item)
+            self.assertIn("snippet", item)
+
+    def test_recall_does_not_search_sources_or_inbox(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "inbox/private-note.md", "# Private\n\nneedle-only context\n")
+        result = self.cli("recall", "needle-only", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual([], payload["results"])
+
+    def test_recall_text_output_limit_and_empty_results(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", high_quality_typed_graph_node("node-one"))
+        atomic_write(self.root / "graph/node-two.md", high_quality_typed_graph_node("node-two"))
+        limited = self.cli("recall", "investor update", "--workspace", str(self.root), "--limit", "1")
+        self.assertEqual(0, limited.returncode, limited.stdout + limited.stderr)
+        self.assertEqual(1, sum(1 for line in limited.stdout.splitlines() if " graph " in line))
+
+        empty = self.cli("recall", "missing-topic", "--workspace", str(self.root))
+        self.assertEqual(0, empty.returncode, empty.stdout + empty.stderr)
+        self.assertIn("No matching context found.", empty.stdout)
+
+    def test_recall_uses_token_boundaries(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(
+            self.root / "graph/home.md",
+            graph_node(
+                "home",
+                insight="Use homepage context for framework decisions.",
+                body="""# Homepage Context
+
+## Evidence
+
+- `source-one` - enough evidence to make this node durable, but no standalone
+  first-person token appears here.
+""",
+            ),
+        )
+        result = self.cli("recall", "me", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual([], payload["results"])
+
+    def test_recall_matches_navigation_metadata(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-one.md", high_quality_graph_node("node-one"))
+        atomic_write(self.root / "graph/node-two.md", high_quality_graph_node("node-two"))
+        atomic_write(
+            self.root / "graph/design-policy.md",
+            graph_node(
+                "design-policy",
+                insight="Use compact UI policy context when tuning design work.",
+                related_nodes="[node-two]",
+                skills="[frontend-design]",
+                extra_frontmatter="applies_to: [interface-review]",
+                body="""# Design Policy
+
+## Evidence
+
+- `source-one` - enough concrete evidence to make this node durable for design
+  review and tuning decisions.
+""",
+            ),
+        )
+        atomic_write(
+            self.root / "indexes/design-map.md",
+            index_page(index_id="design-map", graph_ids="[design-policy]"),
+        )
+        atomic_write(
+            self.root / "projections/design-brief.md",
+            projection_page(projection_id="design-brief", graph_ids="[design-policy]"),
+        )
+
+        skill_result = self.cli("recall", "frontend-design", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, skill_result.returncode, skill_result.stdout + skill_result.stderr)
+        skill_payload = json.loads(skill_result.stdout)
+        self.assertTrue(any(item["id"] == "design-policy" for item in skill_payload["results"]))
+
+        graph_id_result = self.cli("recall", "design-policy", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, graph_id_result.returncode, graph_id_result.stdout + graph_id_result.stderr)
+        graph_id_payload = json.loads(graph_id_result.stdout)
+        ids = {item["id"] for item in graph_id_payload["results"]}
+        self.assertIn("design-map", ids)
+        self.assertIn("design-brief", ids)
+
+        applies_to_result = self.cli("recall", "interface-review", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, applies_to_result.returncode, applies_to_result.stdout + applies_to_result.stderr)
+        applies_to_payload = json.loads(applies_to_result.stdout)
+        self.assertTrue(any(item["id"] == "design-policy" for item in applies_to_payload["results"]))
+
+    def test_recall_rejects_non_positive_limit(self) -> None:
+        result = self.cli("recall", "investor update", "--workspace", str(self.root), "--limit", "0")
+        self.assertEqual(1, result.returncode)
+        self.assertIn("--limit must be at least 1", result.stderr)
 
     def test_scan_skills_excludes_plugin_cache(self) -> None:
         home = self.temp_path / "home"

@@ -7,11 +7,13 @@ import re
 from pathlib import Path
 from typing import Any
 
-from marshmallow_workspace import MarshmallowError, atomic_write, ensure_workspace, iso_timestamp, timestamp
+from marshmallow_workspace import MarshmallowError, atomic_write, ensure_workspace, iso_timestamp, require_workspace, timestamp
 from safety import validate_generated_guidance
 
 REQUIRED_NODE_FIELDS = {"id", "insight", "source_ids"}
 REQUIRED_SOURCE_FIELDS = {"id", "pointer", "captured"}
+REQUIRED_INDEX_FIELDS = {"id", "title", "graph_ids"}
+REQUIRED_PROJECTION_FIELDS = {"id", "title", "task", "graph_ids"}
 ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 SLUG_PATTERN = re.compile(r"[^a-z0-9]+")
 GENERIC_INSIGHT_PATTERNS = (
@@ -21,6 +23,7 @@ GENERIC_INSIGHT_PATTERNS = (
     re.compile(r"\bhigh quality\b", re.IGNORECASE),
     re.compile(r"\bmake it better\b", re.IGNORECASE),
 )
+SKILL_OPTIONAL_TYPES = {"entity", "decision", "relationship", "preference"}
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, Any], str]:
@@ -105,6 +108,30 @@ def graph_nodes(root: Path) -> dict[str, dict[str, Any]]:
     return nodes
 
 
+def markdown_records(root: Path, directory: str) -> dict[str, dict[str, Any]]:
+    records: dict[str, dict[str, Any]] = {}
+    for path in sorted((root / directory).glob("*.md")):
+        if path.name == "README.md":
+            continue
+        frontmatter, _ = parse_frontmatter(path)
+        record_id = str(frontmatter.get("id", ""))
+        if not record_id:
+            raise MarshmallowError(f"Missing {directory} id: {path}")
+        if record_id in records:
+            raise MarshmallowError(f"Duplicate {directory} id {record_id!r}: {path}")
+        frontmatter["_path"] = str(path)
+        records[record_id] = frontmatter
+    return records
+
+
+def index_pages(root: Path) -> dict[str, dict[str, Any]]:
+    return markdown_records(root, "indexes")
+
+
+def projections(root: Path) -> dict[str, dict[str, Any]]:
+    return markdown_records(root, "projections")
+
+
 def section_text(body: str, heading: str) -> str:
     pattern = re.compile(rf"^## {re.escape(heading)}\s*$", re.MULTILINE)
     match = pattern.search(body)
@@ -126,7 +153,7 @@ def evidence_is_thin(evidence: str) -> bool:
 def graph_quality_warnings(root: Path) -> list[str]:
     """Return non-blocking warnings for graph nodes that may not change behavior."""
 
-    root = ensure_workspace(root)
+    root = require_workspace(root)
     warnings: list[str] = []
     try:
         nodes = graph_nodes(root)
@@ -152,17 +179,20 @@ def graph_quality_warnings(root: Path) -> list[str]:
         if evidence_is_thin(section_text(body, "Evidence")):
             warnings.append(f"{path}: evidence section looks too thin for durable alignment")
 
-        if not list_field(node, "skills"):
+        node_type = str(node.get("type", "")).strip()
+        if not list_field(node, "skills") and node_type not in SKILL_OPTIONAL_TYPES:
             warnings.append(f"{path}: node is not tied to any skill; it may not affect agent behavior")
     return warnings
 
 
 def validate_workspace(root: Path) -> list[str]:
-    root = ensure_workspace(root)
+    root = require_workspace(root)
     errors: list[str] = []
     try:
         sources = source_cards(root)
         nodes = graph_nodes(root)
+        indexes = index_pages(root)
+        projection_pages = projections(root)
     except MarshmallowError as error:
         return [str(error)]
 
@@ -211,6 +241,15 @@ def validate_workspace(root: Path) -> list[str]:
             for tag in list_field(node, field):
                 if not ID_PATTERN.match(tag):
                     errors.append(f"{path}: {field} tag must use lowercase hyphen-case: {tag!r}")
+        node_type = str(node.get("type", "")).strip()
+        if node_type and not ID_PATTERN.match(node_type):
+            errors.append(f"{path}: type must use lowercase hyphen-case: {node_type!r}")
+        status = str(node.get("status", "")).strip()
+        if status and not ID_PATTERN.match(status):
+            errors.append(f"{path}: status must use lowercase hyphen-case: {status!r}")
+        for subject in list_field(node, "subjects"):
+            if not ID_PATTERN.match(subject):
+                errors.append(f"{path}: subjects tag must use lowercase hyphen-case: {subject!r}")
         for source_id in source_ids:
             if source_id not in sources:
                 errors.append(f"{path}: missing source reference: {source_id}")
@@ -219,6 +258,46 @@ def validate_workspace(root: Path) -> list[str]:
                 errors.append(f"{path}: related_nodes tag must use lowercase hyphen-case: {related_id!r}")
             elif related_id not in nodes:
                 errors.append(f"{path}: broken related node link: {related_id}")
+    for index_id, index in indexes.items():
+        path = Path(index["_path"])
+        missing = REQUIRED_INDEX_FIELDS - set(index)
+        if missing:
+            errors.append(f"{path}: missing fields: {', '.join(sorted(missing))}")
+        if index_id != path.stem:
+            errors.append(f"{path}: index id must match filename stem")
+        if not ID_PATTERN.match(index_id):
+            errors.append(f"{path}: index id must use lowercase hyphen-case")
+        graph_ids = list_field(index, "graph_ids")
+        if not graph_ids:
+            errors.append(f"{path}: graph_ids must include at least one graph node id")
+        for graph_id in graph_ids:
+            if not ID_PATTERN.match(graph_id):
+                errors.append(f"{path}: graph_ids tag must use lowercase hyphen-case: {graph_id!r}")
+            elif graph_id not in nodes:
+                errors.append(f"{path}: missing graph reference: {graph_id}")
+        for tag in list_field(index, "labels"):
+            if not ID_PATTERN.match(tag):
+                errors.append(f"{path}: labels tag must use lowercase hyphen-case: {tag!r}")
+    for projection_id, projection in projection_pages.items():
+        path = Path(projection["_path"])
+        missing = REQUIRED_PROJECTION_FIELDS - set(projection)
+        if missing:
+            errors.append(f"{path}: missing fields: {', '.join(sorted(missing))}")
+        if projection_id != path.stem:
+            errors.append(f"{path}: projection id must match filename stem")
+        if not ID_PATTERN.match(projection_id):
+            errors.append(f"{path}: projection id must use lowercase hyphen-case")
+        graph_ids = list_field(projection, "graph_ids")
+        if not graph_ids:
+            errors.append(f"{path}: graph_ids must include at least one graph node id")
+        for graph_id in graph_ids:
+            if not ID_PATTERN.match(graph_id):
+                errors.append(f"{path}: graph_ids tag must use lowercase hyphen-case: {graph_id!r}")
+            elif graph_id not in nodes:
+                errors.append(f"{path}: missing graph reference: {graph_id}")
+        for tag in list_field(projection, "labels"):
+            if not ID_PATTERN.match(tag):
+                errors.append(f"{path}: labels tag must use lowercase hyphen-case: {tag!r}")
     return errors
 
 

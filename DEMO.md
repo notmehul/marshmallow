@@ -1,51 +1,62 @@
 # Demo
 
-This demo uses the bundled `examples/builder-graph` workspace. It shows the
-product loop without private files or generated projections.
+This demo uses the bundled `examples/operator-recall` workspace. It shows the
+beta loop without private files, generated graph renders, databases, MCP, or
+automation.
 
-## 1. Inspect The Example
+## 1. Inspect The Recall Example
 
 ```bash
-find examples/builder-graph -maxdepth 3 -type f | sort
+find examples/operator-recall -maxdepth 3 -type f | sort
 ```
 
 You should see:
 
-- `fixtures/`: bundled example source material
+- `fixtures/`: fictional source material
 - `sources/`: source cards pointing to those fixtures
-- `graph/`: source-backed personalization nodes
-- `overlays/frontend-design.md`: a demo skill overlay
+- `graph/`: typed source-backed records
+- `indexes/home.md`: compact navigation for agents
+- `projections/investor-update-recall.md`: a task-shaped recall packet
+
+The demo task:
+
+```text
+Prepare an investor update and explain why Loomline is not raising this month.
+```
 
 ## 2. Run Doctor
 
 ```bash
-scripts/marshmallow.py doctor --workspace examples/builder-graph
+scripts/marshmallow.py doctor --workspace examples/operator-recall
 ```
 
-The workspace should report valid source cards and graph nodes.
+The workspace should report valid source cards, graph nodes, one index, and one
+recall packet.
 
-## 3. Preview The Adapter
+## 3. Use Recall
 
-Use a temporary target so the demo does not touch your real `CLAUDE.md`:
+Plain text:
 
 ```bash
-mkdir -p /tmp/marshmallow-demo/.claude
-printf '# Demo Claude file\n' > /tmp/marshmallow-demo/.claude/CLAUDE.md
-
-scripts/marshmallow.py adapter preview \
-  --workspace examples/builder-graph \
-  --target /tmp/marshmallow-demo/.claude/CLAUDE.md
+scripts/marshmallow.py recall "investor update not raising" \
+  --workspace examples/operator-recall
 ```
 
-Apply only if you want to see the backup record:
+JSON:
 
 ```bash
-scripts/marshmallow.py adapter apply \
-  --workspace examples/builder-graph \
-  --target /tmp/marshmallow-demo/.claude/CLAUDE.md
+scripts/marshmallow.py recall "Mani retention threshold" \
+  --workspace examples/operator-recall \
+  --json
 ```
 
-## 4. Preview A Skill Overlay
+Notice that recall returns matching indexes, recall packets, and graph nodes.
+It does not read raw `sources/` or `inbox/` by default, and it does not generate
+new context. The agent uses the returned files to do the work.
+
+## 4. Optional Skill Overlay Demo
+
+The older `examples/builder-graph` workspace still shows the overlay flow.
 
 Create a temporary skill:
 
@@ -96,8 +107,8 @@ scripts/marshmallow.py overlay rollback \
 
 ## 5. What To Notice
 
+- Graph nodes are typed as entities, decisions, and relationships.
+- Recall returns paths and snippets; it does not synthesize or act.
 - Source cards point to real bundled fixtures.
-- Graph nodes all have `source_ids`.
-- The runtime searches graph nodes directly.
-- Skill files contain one pointer block, not the whole graph.
-- Rollback restores exact bytes from `backups/`.
+- Skill overlays remain optional downstream tuning.
+- Rollback still restores exact bytes from `backups/`.

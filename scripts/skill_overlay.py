@@ -12,7 +12,7 @@ from typing import Any
 from marshmallow_workspace import (
     MarshmallowError,
     atomic_write,
-    ensure_workspace,
+    require_workspace,
     sha256_bytes,
     sha256_file,
     timestamp,
@@ -147,7 +147,7 @@ def apply_overlay(
     aligned_copy: bool = False,
     target: Path | None = None,
 ) -> tuple[int, str]:
-    workspace_root = ensure_workspace(workspace_root)
+    workspace_root = require_workspace(workspace_root)
     source = normalize_skill_file(skill)
     if not source.exists():
         raise MarshmallowError(f"Skill does not exist: {source}")
@@ -260,7 +260,7 @@ def find_latest_record(workspace_root: Path, target: Path) -> tuple[Path, dict[s
 
 
 def rollback_overlay(workspace_root: Path, skill: Path, approve: bool, force: bool = False) -> tuple[int, str]:
-    workspace_root = ensure_workspace(workspace_root)
+    workspace_root = require_workspace(workspace_root)
     destination = normalize_skill_file(skill)
     record_path, record = find_latest_record(workspace_root, destination)
     overlay_path = Path(str(record["overlay_path"]))
@@ -319,7 +319,7 @@ def default_starter_target(name: str) -> Path:
 def starter_text(name: str, overlay_store: Path) -> str:
     return f"""---
 name: {name}
-description: Apply Marshmallow personal alignment to judgment-sensitive builder work.
+description: Apply Marshmallow recall-aware alignment to judgment-sensitive builder work.
 ---
 
 # Marshmallow Aligned Builder
@@ -341,7 +341,7 @@ def create_starter_skill(
 ) -> tuple[int, str]:
     if not ID_PATTERN.match(name):
         raise MarshmallowError(f"Starter skill name must use lowercase hyphen-case: {name!r}")
-    workspace_root = ensure_workspace(workspace_root)
+    workspace_root = require_workspace(workspace_root)
     validate_overlay(overlay)
     destination = normalize_skill_file(target or default_starter_target(name))
     refuse_plugin_cache(destination)

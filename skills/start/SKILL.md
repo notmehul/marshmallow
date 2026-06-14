@@ -1,14 +1,14 @@
 ---
 name: start
-description: Onboard Marshmallow, build the first source-backed personal graph, preview/apply the Claude runtime adapter, and create the first useful skill tune or starter skill. Use when the user runs /marshmallow:start or asks to personalize Claude Code with Marshmallow.
+description: Onboard Marshmallow, build the first source-backed recall graph, preview/apply the Claude runtime adapter, and optionally create a useful skill tune or starter skill. Use when the user runs /marshmallow:start or asks to personalize Claude Code with Marshmallow.
 license: MIT
-compatibility: Designed for Claude Code with Python 3.11+ available locally.
+compatibility: Designed for Claude Code with Python 3.9+ available locally.
 allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "AskUserQuestion", "Bash(${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py:*)", "Bash(rg:*)"]
 ---
 
 # Marshmallow Start
 
-Marshmallow turns a small set of user-provided context into source-backed graph
+Marshmallow turns a small set of user-provided context into source-backed recall
 nodes, a short Claude runtime adapter, and optional skill overlays. Keep the
 first run useful and inspectable. Do not turn it into a framework setup.
 
@@ -21,16 +21,18 @@ Use one public CLI:
 ## First Run
 
 1. Ask for calibration depth:
-   - Quick start: one small taste pack, one useful tune.
-   - Guided calibration: a broader source pack and several candidate skills.
+   - Quick start: one small context pack, one useful recall result.
+   - Guided calibration: a broader source pack across people, projects,
+     decisions, relationships, and working rules.
 
    Recommend quick start unless the user asks for a deeper pass.
 
-2. Gather one taste pack. Useful inputs are things the user made, likes,
-   rejects, or explicitly corrects. Accept local paths, folders, pasted text,
-   images, PDFs, and user-provided URLs. If the input is vague or low-signal
-   (for example an arbitrary photo folder), ask what to learn from it before
-   inferring taste, values, or personality.
+2. Gather one context pack. Useful inputs include people, projects, decisions,
+   relationships, preferred formats, working rules, things the user made,
+   rejected outputs, or explicit corrections. Accept local paths, folders,
+   pasted text, images, PDFs, and user-provided URLs. If the input is vague or
+   low-signal, ask what to learn from it before inferring taste, values, or
+   personality.
 
 3. Stage useful raw inputs in `~/.marshmallow/inbox/` first. Everything lands
    under `~/.marshmallow/inbox/` first when it is not yet synthesized. Treat
@@ -43,14 +45,21 @@ Use one public CLI:
      input, what exact evidence supports it, what should future agents do
      differently, and where should this not apply?
    - create source cards in `~/.marshmallow/sources/`
-   - create or update graph nodes in `~/.marshmallow/graph/`
+   - create or update typed graph nodes in `~/.marshmallow/graph/` using
+     `type: entity`, `type: decision`, `type: relationship`, or
+     `type: preference` when useful
+   - create or update compact index pages in `~/.marshmallow/indexes/` only
+     when they give future agents a faster starting point
+   - create task-shaped recall packets in `~/.marshmallow/projections/` only
+     when a meeting, workflow, handoff, or focused agent task needs reusable
+     context
    - every graph node must include at least one `source_ids` entry
    - create 3-7 graph nodes for onboarding, not exhaustive coverage
    - keep each node compact, roughly one screen
    - do not require graph approval before tuning
    - do not force a starter taxonomy; labels can evolve from the user's corpus
-   - do not create new folders, projection directories, generated graph files,
-     or durable source-plan files by default
+   - do not create extra domain folders, generated graph files, deterministic
+     projection generators, or durable source-plan files by default
 
 5. Validate and scan:
 
@@ -59,9 +68,16 @@ Use one public CLI:
    "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" scan-skills --project "$PWD"
    ```
 
-6. Reveal 3-5 patterns in plain language and recommend writable,
-   judgment-sensitive skills. If no good existing skill exists, offer the
-   `marshmallow-aligned-builder` starter skill.
+6. Reveal 3-5 useful records in plain language and run recall for the user's
+   likely next task:
+
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<task|person|decision>"
+   ```
+
+   Recommend writable, judgment-sensitive skills only when a skill overlay
+   would improve real work. If no good existing skill exists and the user wants
+   skill tuning, offer the `marshmallow-aligned-builder` starter skill.
 
 ## Adapter
 
@@ -72,8 +88,9 @@ Preview the persistent runtime adapter:
 ```
 
 Explain that it adds one replaceable import block to `~/.claude/CLAUDE.md`
-which imports `~/.marshmallow/runtime.md`. The runtime tells Claude to search
-graph nodes directly and load only the smallest relevant nodes.
+which imports `~/.marshmallow/runtime.md`. The runtime tells Claude to use
+recall or check indexes first, then load only the smallest relevant graph nodes
+or recall packets.
 
 Apply only after explicit approval:
 
@@ -85,7 +102,7 @@ If the user also works in Codex or Cursor, offer the same adapter for `AGENTS.md
 (`--harness codex` writes `~/.codex/AGENTS.md`; `--harness cursor` writes the
 project `./AGENTS.md`). It uses the identical preview/approve/rollback shape.
 
-## First Tune
+## Optional First Tune
 
 Draft an overlay from two to five relevant graph nodes using
 `references/overlay-template.md`. Preserve the base skill's correct procedure;
@@ -150,7 +167,8 @@ Remove the adapter with the same preview/apply shape:
 
 ## Boundary
 
-Marshmallow is a small personal alignment layer, not a memory platform. Do not
-add databases, background capture, cron jobs, dashboards, broad MCP surfaces,
-or silent learning. Learn selectively through `/marshmallow:learn`; retune
-skills through `/marshmallow:tune`.
+Marshmallow is a small source-backed recall layer, not a memory platform or
+automation system. Do not add databases, background capture, cron jobs,
+dashboards, broad MCP surfaces, sending/posting/queueing behavior, or silent
+learning. Learn selectively through `/marshmallow:learn`; retune skills through
+`/marshmallow:tune` only when useful.
