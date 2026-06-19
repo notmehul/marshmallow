@@ -1054,5 +1054,57 @@ description: Build product strategy and validate decisions with a security-aware
         self.assertFalse(target.exists())
 
 
+    def test_validation_reports_all_errors_when_a_file_is_unparseable(self) -> None:
+        # A single unparseable file must not mask problems in other files.
+        atomic_write(self.root / "graph/broken.md", "no frontmatter here\n")
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one", pointer=""))
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("Missing YAML frontmatter" in error and "broken.md" in error for error in errors))
+        self.assertTrue(any("source pointer must be non-empty" in error for error in errors))
+
+    def test_validation_reports_duplicate_and_field_errors_together(self) -> None:
+        # A duplicate id in one place must not hide a field error elsewhere.
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "sources/source-dupe.md", source_card("source-one"))
+        atomic_write(self.root / "graph/node-empty.md", graph_node("node-empty", source_ids="[]"))
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("Duplicate source card id" in error for error in errors))
+        self.assertTrue(any("source_ids must include at least one source id" in error for error in errors))
+
+    def test_new_source_scaffold_is_structurally_valid(self) -> None:
+        result = self.cli("new", "source", "my-source", "--workspace", str(self.root))
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        path = Path(payload["path"])
+        self.assertTrue(path.exists())
+        self.assertEqual([], [error for error in validate_workspace(self.root) if str(path) in error])
+
+    def test_new_node_scaffold_nudges_to_link_a_real_source(self) -> None:
+        result = self.cli("new", "node", "my-node", "--workspace", str(self.root))
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertTrue(any("missing source reference" in error for error in validate_workspace(self.root)))
+
+    def test_new_refuses_overwrite_without_force(self) -> None:
+        first = self.cli("new", "source", "dup", "--workspace", str(self.root))
+        self.assertEqual(0, first.returncode, first.stdout + first.stderr)
+        again = self.cli("new", "source", "dup", "--workspace", str(self.root))
+        self.assertEqual(1, again.returncode)
+        self.assertIn("Already exists", again.stderr)
+        forced = self.cli("new", "source", "dup", "--workspace", str(self.root), "--force")
+        self.assertEqual(0, forced.returncode, forced.stdout + forced.stderr)
+
+    def test_new_rejects_bad_id(self) -> None:
+        result = self.cli("new", "node", "Bad_ID", "--workspace", str(self.root))
+        self.assertEqual(1, result.returncode)
+        self.assertIn("lowercase hyphen-case", result.stderr)
+
+    def test_reference_templates_are_present_and_non_empty(self) -> None:
+        refs = ROOT / "references"
+        for name in ("source-card", "graph-node", "index", "projection", "overlay"):
+            template = refs / f"{name}-template.md"
+            self.assertTrue(template.is_file(), template)
+            self.assertGreater(len(template.read_text(encoding="utf-8").strip()), 0, template)
+
+
 if __name__ == "__main__":
     unittest.main()

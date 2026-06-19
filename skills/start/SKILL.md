@@ -104,8 +104,10 @@ project `./AGENTS.md`). It uses the identical preview/approve/rollback shape.
 
 ## Optional First Tune
 
-Draft an overlay from two to five relevant graph nodes using
-`references/overlay-template.md`. Preserve the base skill's correct procedure;
+Draft an overlay from two to five relevant graph nodes. Scaffold a valid skeleton
+with `"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" new overlay <skill-name>`
+(field reference: `${CLAUDE_PLUGIN_ROOT}/references/overlay-template.md`).
+Preserve the base skill's correct procedure;
 change only defaults, quality bars, anti-patterns, and ask-when rules.
 Use only nodes that actually change this skill; do not copy the full graph into
 the overlay.

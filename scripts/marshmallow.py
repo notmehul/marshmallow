@@ -17,8 +17,17 @@ from harness_adapter import (
     harness_style,
     update_adapter,
 )
-from markdown_graph import graph_nodes, graph_quality_warnings, index_pages, projections, source_cards, validate_workspace
-from marshmallow_workspace import MarshmallowError, default_workspace, ensure_workspace, require_workspace
+from markdown_graph import (
+    SCAFFOLD_KINDS,
+    graph_nodes,
+    graph_quality_warnings,
+    index_pages,
+    projections,
+    scaffold_record,
+    source_cards,
+    validate_workspace,
+)
+from marshmallow_workspace import MarshmallowError, atomic_write, default_workspace, ensure_workspace, require_workspace
 from recall import recall_context
 from skill_overlay import apply_overlay, create_starter_skill, rollback_overlay
 from skill_scanner import discover
@@ -64,6 +73,26 @@ def command_init(args: argparse.Namespace) -> int:
                 "overlays",
                 "backups",
             ],
+        }
+    )
+    return 0
+
+
+def command_new(args: argparse.Namespace) -> int:
+    root = require_workspace(args.workspace)
+    relative, content = scaffold_record(args.kind, args.id, title=args.title, task=args.task)
+    path = root / relative
+    if path.exists() and not args.force:
+        raise MarshmallowError(f"Already exists: {path} (use --force to overwrite)")
+    atomic_write(path, content)
+    remaining = [error for error in validate_workspace(root) if str(path) in error]
+    json_print(
+        {
+            "status": "created",
+            "kind": args.kind,
+            "path": str(path),
+            "next_steps": remaining
+            or ["fill in the TODO placeholders, then run `doctor` to validate"],
         }
     )
     return 0
@@ -216,6 +245,18 @@ def build_parser() -> argparse.ArgumentParser:
     init = subparsers.add_parser("init", help="Create the lightweight Marshmallow workspace.")
     add_workspace(init)
     init.set_defaults(func=command_init)
+
+    new = subparsers.add_parser(
+        "new",
+        help="Scaffold a valid source, node, index, projection, or overlay skeleton.",
+    )
+    add_workspace(new)
+    new.add_argument("kind", choices=SCAFFOLD_KINDS, help="What to scaffold.")
+    new.add_argument("id", help="lowercase-hyphen-case id; also the filename stem.")
+    new.add_argument("--title", default=None, help="Optional human title (defaults from the id).")
+    new.add_argument("--task", default=None, help="For projections: the task this packet prepares for.")
+    new.add_argument("--force", action="store_true", help="Overwrite if the file already exists.")
+    new.set_defaults(func=command_new)
 
     doctor = subparsers.add_parser("doctor", help="Report workspace, adapter, graph, and skill health.")
     add_workspace(doctor)

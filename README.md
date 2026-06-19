@@ -143,6 +143,7 @@ The skills call one public CLI. You can run it directly too:
 
 ```bash
 scripts/marshmallow.py init
+scripts/marshmallow.py new source|node|index|projection|overlay <id> [--title ...] [--task ...] [--force]
 scripts/marshmallow.py doctor
 scripts/marshmallow.py scan-skills
 scripts/marshmallow.py recall "<query>" [--json] [--limit N]
@@ -188,6 +189,11 @@ are retrieval hints rather than a fixed taxonomy.
 Indexes and projections are Markdown runtime aids. Projections are task-shaped
 recall packets. Agents may write them, and `doctor` validates their frontmatter
 and graph references, but durable source truth stays in `sources/` and `graph/`.
+
+Authoring: run `marshmallow.py new <kind> <id>` to scaffold a valid, lint-aware
+skeleton with every required field instead of hand-writing frontmatter, then
+fill in the `TODO` placeholders. `doctor` reports every problem across the
+workspace in a single pass — one malformed file no longer hides the rest.
 
 Source card minimum schema:
 

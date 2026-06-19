@@ -51,25 +51,36 @@ inferring taste, values, or personality.
    If no concrete behavior change appears, leave the material in inbox or as a
    source card instead of creating a graph node.
 
-5. Create or update source cards in `~/.marshmallow/sources/` using
-   `references/source-card-template.md`. User corrections are valid source
-   cards; name them like `user-correction-YYYYMMDD...`.
+   Scaffold any record as a valid, lint-aware skeleton instead of hand-writing
+   frontmatter — this emits every required field and the expected body sections:
 
-6. Create or update typed graph nodes in `~/.marshmallow/graph/` using
-   `references/graph-node-template.md`. Every graph node must include at least
-   one `source_ids` entry. User corrections still satisfy source backing when
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" new source|node|index|projection <id>
+   ```
+
+   Then fill in the `TODO` placeholders. Full field references live in
+   `${CLAUDE_PLUGIN_ROOT}/references/` (`source-card-template.md`,
+   `graph-node-template.md`, `index-template.md`, `projection-template.md`).
+
+5. Create or update source cards in `~/.marshmallow/sources/`
+   (`new source <source-id>`). User corrections are valid source cards; name
+   them like `user-correction-YYYYMMDD...`.
+
+6. Create or update typed graph nodes in `~/.marshmallow/graph/`
+   (`new node <node-id>`). Every graph node must include at least one
+   `source_ids` entry. User corrections still satisfy source backing when
    represented as source cards. Keep nodes compact and source-backed. Use
    `type: entity`, `type: decision`, `type: relationship`, or
    `type: preference` when it helps recall. Types are retrieval hints, not a
    fixed taxonomy.
 
    If the new durable knowledge makes future navigation easier, update a
-   compact page in `~/.marshmallow/indexes/` using
-   `references/index-template.md`. If the user is preparing for a specific
-   meeting, workflow, handoff, or agent task, write a focused recall packet in
-   `~/.marshmallow/projections/` using `references/projection-template.md`.
-   Do not create extra domain folders, generated graph files, deterministic
-   projection generators, or durable source-plan files by default.
+   compact page in `~/.marshmallow/indexes/` (`new index <id>`). If the user is
+   preparing for a specific meeting, workflow, handoff, or agent task, write a
+   focused recall packet in `~/.marshmallow/projections/`
+   (`new projection <id>`). Do not create extra domain folders, generated graph
+   files, deterministic projection generators, or durable source-plan files by
+   default.
 
 7. Keep weak, conflicting, or context-dependent evidence explicit. Ask the user
    one focused question when the distinction changes future behavior.

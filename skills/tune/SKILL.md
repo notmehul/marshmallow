@@ -34,10 +34,12 @@ rg -n "<skill|topic|label>" ~/.marshmallow/indexes
 rg -n "<skill|topic|label>" ~/.marshmallow/graph
 ```
 
-Use `references/overlay-template.md`. Keep the overlay short, source-backed,
-and scoped to defaults, quality bars, anti-patterns, and ask-when rules. Do not
-copy the full graph into a skill. Use only the 2-5 graph nodes that actually
-change this skill.
+Scaffold a valid overlay skeleton with
+`"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" new overlay <skill-name>`
+(field reference: `${CLAUDE_PLUGIN_ROOT}/references/overlay-template.md`). Keep
+the overlay short, source-backed, and scoped to defaults, quality bars,
+anti-patterns, and ask-when rules. Do not copy the full graph into a skill. Use
+only the 2-5 graph nodes that actually change this skill.
 
 Before drafting, answer four questions:
 

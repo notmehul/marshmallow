@@ -185,16 +185,55 @@ def graph_quality_warnings(root: Path) -> list[str]:
     return warnings
 
 
+def _load_records_resilient(
+    root: Path,
+    directory: str,
+    noun: str,
+    *,
+    skip_readme: bool = False,
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    """Load records but collect per-file errors instead of raising on the first.
+
+    The public loaders (``source_cards``/``graph_nodes``/``markdown_records``)
+    deliberately raise on the first malformed file because their callers expect a
+    clean graph or a hard failure. Validation needs the opposite: report every
+    problem in one pass so a single bad file does not mask the rest. Error
+    strings mirror the public loaders so messages stay stable.
+    """
+
+    records: dict[str, dict[str, Any]] = {}
+    errors: list[str] = []
+    for path in sorted((root / directory).glob("*.md")):
+        if skip_readme and path.name == "README.md":
+            continue
+        try:
+            frontmatter, _ = parse_frontmatter(path)
+        except MarshmallowError as error:
+            errors.append(str(error))
+            continue
+        record_id = str(frontmatter.get("id", ""))
+        if not record_id:
+            errors.append(f"Missing {noun} id: {path}")
+            continue
+        if record_id in records:
+            errors.append(f"Duplicate {noun} id {record_id!r}: {path}")
+            continue
+        frontmatter["_path"] = str(path)
+        records[record_id] = frontmatter
+    return records, errors
+
+
 def validate_workspace(root: Path) -> list[str]:
     root = require_workspace(root)
-    errors: list[str] = []
-    try:
-        sources = source_cards(root)
-        nodes = graph_nodes(root)
-        indexes = index_pages(root)
-        projection_pages = projections(root)
-    except MarshmallowError as error:
-        return [str(error)]
+    sources, errors = _load_records_resilient(root, "sources", "source card")
+    nodes, node_errors = _load_records_resilient(root, "graph", "graph node")
+    indexes, index_errors = _load_records_resilient(root, "indexes", "indexes", skip_readme=True)
+    projection_pages, projection_errors = _load_records_resilient(
+        root, "projections", "projections", skip_readme=True
+    )
+    errors.extend(node_errors)
+    errors.extend(index_errors)
+    errors.extend(projection_errors)
 
     for source_id, source in sources.items():
         path = Path(source["_path"])
@@ -299,6 +338,153 @@ def validate_workspace(root: Path) -> list[str]:
             if not ID_PATTERN.match(tag):
                 errors.append(f"{path}: labels tag must use lowercase hyphen-case: {tag!r}")
     return errors
+
+
+SCAFFOLD_KINDS = ("source", "node", "index", "projection", "overlay")
+SCAFFOLD_DIRS = {
+    "source": "sources",
+    "node": "graph",
+    "index": "indexes",
+    "projection": "projections",
+    "overlay": "overlays",
+}
+
+
+def _humanize(record_id: str) -> str:
+    return " ".join(part.capitalize() for part in record_id.split("-"))
+
+
+def scaffold_record(
+    kind: str,
+    record_id: str,
+    *,
+    title: str | None = None,
+    task: str | None = None,
+) -> tuple[Path, str]:
+    """Return (relative_path, content) for a valid, lint-aware skeleton.
+
+    Skeletons carry every required field plus the body sections the linter
+    checks, so a filled-in record passes ``doctor`` in one pass instead of by
+    trial and error. Placeholders use ``todo-*`` ids (valid hyphen-case) so the
+    only error a fresh node/index/projection shows is the intentional
+    "link a real source/node" nudge that keeps the graph source-backed.
+    """
+
+    if kind not in SCAFFOLD_KINDS:
+        raise MarshmallowError(f"Unknown scaffold kind {kind!r}; choose one of {', '.join(SCAFFOLD_KINDS)}")
+    if not ID_PATTERN.match(record_id):
+        raise MarshmallowError(f"id must use lowercase hyphen-case: {record_id!r}")
+    heading = title or _humanize(record_id)
+    now = iso_timestamp()
+    relative = Path(SCAFFOLD_DIRS[kind]) / f"{record_id}.md"
+
+    if kind == "source":
+        content = f"""---
+id: {record_id}
+pointer: todo-replace-with-a-file-path-or-url
+captured: {now}
+summary: {heading}
+labels: []
+---
+
+# {heading}
+
+## What it is
+
+TODO describe what this source is.
+
+## What to trust
+
+TODO note provenance, recency, and what is authoritative here.
+"""
+    elif kind == "node":
+        content = f"""---
+id: {record_id}
+insight: TODO one sentence that should change future agent behavior
+type: preference
+applies_to: [todo-task]
+source_ids: [todo-source-id]
+related_nodes: []
+labels: [todo-label]
+updated: {now}
+---
+
+# {heading}
+
+## Current Model
+
+TODO the compact entity, decision, relationship, preference, or working rule.
+
+## Evidence
+
+- `todo-source-id` - TODO cite the specific source detail that justifies this
+  record so the evidence is concrete rather than generic.
+
+## Use In Work
+
+- TODO what future agents should do differently because this exists.
+
+## Limits
+
+TODO where this should not apply, weak evidence, or the question to ask first.
+"""
+    elif kind == "index":
+        content = f"""---
+id: {record_id}
+title: {heading}
+graph_ids: [todo-node-id]
+labels: []
+---
+
+# {heading}
+
+- [[todo-node-id]] - TODO why load this node from here.
+"""
+    elif kind == "projection":
+        content = f"""---
+id: {record_id}
+title: {heading}
+task: {task or "TODO the task this recall packet prepares an agent for"}
+graph_ids: [todo-node-id]
+labels: []
+---
+
+# {heading}
+
+## Use
+
+Load the linked graph nodes before acting. Keep this packet a runtime aid, not
+source truth.
+"""
+    else:  # overlay
+        content = f"""## Marshmallow Alignment
+
+### Preserve
+
+- Preserve the correct expert procedure from the base skill.
+
+### Override Defaults
+
+- Replace only defaults contradicted by 2-5 graph nodes that materially change
+  this skill.
+
+### Quality Bar
+
+- Name the source-backed qualities the output should satisfy.
+
+### Anti-Patterns
+
+- Name defaults or patterns to avoid.
+
+### Ask When
+
+- Ask when a graph tension affects the current task.
+
+### Source Trail
+
+- `todo-node-id` - explain why this node applies.
+"""
+    return relative, content
 
 
 def slugify(value: str, fallback: str = "correction") -> str:
