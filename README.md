@@ -202,6 +202,40 @@ This is the deliberate boundary: an agent's own note can become a first-class,
 citable source, but nothing reaches the durable graph without a source behind
 it. No background daemon, no silent ingestion.
 
+## MCP server
+
+So any model reaches for Marshmallow without a runtime ritual, the loop is also
+exposed as a dependency-free stdio MCP server (`scripts/mcp_server.py`). The tool
+descriptions are the instructions — a non-Claude harness gets "recall before you
+act, capture instead of forgetting" with no extra wiring.
+
+It exposes three **safe** tools:
+
+- **`recall`** — read source-backed context with citations (read-only).
+- **`remember`** — capture into the untrusted inbox (never touches the graph).
+- **`pending`** — list candidates awaiting review (read-only).
+
+`promote` is deliberately **not** exposed. Crossing a candidate into the trusted
+graph is the human gate; an autonomous model must not bypass it. Promotion stays
+a deliberate act through the CLI or `/marshmallow:learn`.
+
+In Claude Code the server is auto-registered when you install the plugin. For
+other harnesses, point them at the executable:
+
+```json
+{
+  "mcpServers": {
+    "marshmallow": {
+      "command": "/absolute/path/to/marshmallow/scripts/mcp_server.py"
+    }
+  }
+}
+```
+
+Codex uses the same command under `[mcp_servers.marshmallow]` in
+`~/.codex/config.toml`. The server creates or verifies `~/.marshmallow/` on
+start and writes nothing durable beyond the untrusted inbox.
+
 ## Graph shape
 
 Graph node minimum schema:

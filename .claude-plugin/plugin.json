@@ -17,5 +17,10 @@
     "skills",
     "claude-code",
     "context"
-  ]
+  ],
+  "mcpServers": {
+    "marshmallow": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/mcp_server.py"
+    }
+  }
 }

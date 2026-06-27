@@ -55,6 +55,19 @@ This deliberately keeps the constraints stated at the top of this file: no memor
 daemon (promotion is triggered, never a background process), no silent ingestion
 into the graph, and preview-before-mutation at the gate.
 
+## MCP Surface
+
+`scripts/mcp_server.py` is a stdlib-only stdio MCP server (newline-delimited
+JSON-RPC) so any harness can reach the loop without the `runtime.md` ritual. It
+is a thin wrapper over the same functions the CLI calls — no second
+implementation of recall or capture.
+
+It exposes only the safe verbs: `recall` (read), `remember` (write to untrusted
+inbox), and `pending` (read). `promote` is intentionally absent: crossing into
+the trusted graph is the human gate, so it is never an autonomous tool call. The
+server is dependency-free for the same reason the rest of Marshmallow is — it
+must stay boringly inspectable.
+
 ## Plugin Command Boundary
 
 Claude Code skills call the single executable CLI at
