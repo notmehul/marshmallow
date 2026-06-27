@@ -19,6 +19,19 @@ must explicitly approve adapter installs, skill rewrites, and rollback applies.
 
 ## Adapter
 
+One-command setup for Codex or Cursor:
+
+```bash
+scripts/marshmallow.py setup --harness codex
+scripts/marshmallow.py setup --harness codex --apply
+scripts/marshmallow.py setup --harness cursor
+scripts/marshmallow.py setup --harness cursor --apply
+```
+
+`setup` creates or verifies `~/.marshmallow/` and then uses the same adapter
+preview/apply path below. Without `--apply`, it does not write the target
+`AGENTS.md`.
+
 Preview:
 
 ```bash

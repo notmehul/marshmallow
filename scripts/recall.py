@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from markdown_graph import graph_nodes, index_pages, list_field, parse_frontmatter, projections
+from markdown_graph import graph_nodes, index_pages, list_field, parse_frontmatter, projections, source_cards
 from marshmallow_workspace import MarshmallowError
 
 TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
@@ -76,12 +76,31 @@ def score_record(tokens: list[str], weighted_text: str, body: str) -> int:
     return score
 
 
+def cite_sources(
+    frontmatter: dict[str, Any],
+    sources_by_id: dict[str, dict[str, Any]],
+) -> list[dict[str, str]]:
+    """Resolve a node's source_ids to {id, pointer} so recall is auditable.
+
+    This is the wedge: every recalled fact carries the immutable source it came
+    from. Unresolved ids are still listed (pointer empty) so a broken provenance
+    link is visible rather than silently dropped.
+    """
+
+    citations: list[dict[str, str]] = []
+    for source_id in list_field(frontmatter, "source_ids"):
+        source = sources_by_id.get(source_id, {})
+        citations.append({"id": source_id, "pointer": str(source.get("pointer", ""))})
+    return citations
+
+
 def record_result(
     *,
     kind: str,
     frontmatter: dict[str, Any],
     body: str,
     tokens: list[str],
+    sources_by_id: dict[str, dict[str, Any]],
 ) -> dict[str, Any] | None:
     title = str(frontmatter.get("title") or first_heading(body))
     insight = str(frontmatter.get("insight", ""))
@@ -124,6 +143,7 @@ def record_result(
         "subjects": subjects,
         "score": score,
         "snippet": first_matching_snippet(body, tokens),
+        "sources": cite_sources(frontmatter, sources_by_id) if kind == "graph" else [],
     }
 
 
@@ -143,6 +163,12 @@ def recall_context(root: Path, query: str, limit: int = 10) -> list[dict[str, An
     if not tokens:
         return []
 
+    try:
+        sources_by_id = source_cards(root)
+    except MarshmallowError:
+        # Citations degrade gracefully; a malformed source must not break recall.
+        sources_by_id = {}
+
     results: list[dict[str, Any]] = []
     sources = (
         ("index", index_pages(root)),
@@ -152,7 +178,13 @@ def recall_context(root: Path, query: str, limit: int = 10) -> list[dict[str, An
     for kind, records in sources:
         for frontmatter in records.values():
             body = read_body(str(frontmatter["_path"]))
-            result = record_result(kind=kind, frontmatter=frontmatter, body=body, tokens=tokens)
+            result = record_result(
+                kind=kind,
+                frontmatter=frontmatter,
+                body=body,
+                tokens=tokens,
+                sources_by_id=sources_by_id,
+            )
             if result:
                 results.append(result)
 

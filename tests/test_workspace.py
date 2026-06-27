@@ -441,6 +441,47 @@ title: Home
         self.assertEqual(str(root), report["workspace"])
         self.assertEqual("missing", report["adapter"]["status"])
 
+    def test_setup_previews_codex_onboarding_without_touching_agents_md(self) -> None:
+        root = self.temp_path / "fresh-marshmallow"
+        target = self.temp_path / "home/.codex/AGENTS.md"
+
+        result = self.cli("setup", "--workspace", str(root), "--harness", "codex", "--target", str(target))
+
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertTrue((root / "runtime.md").is_file())
+        self.assertFalse(target.exists())
+        self.assertIn("Workspace ready:", result.stdout)
+        self.assertIn("Adapter preview for codex", result.stdout)
+        self.assertIn("Apply with the same command plus --apply.", result.stdout)
+        self.assertIn(f"+{ADAPTER_START_MARKER}", result.stdout)
+        self.assertIn("Marshmallow source-backed recall", result.stdout)
+
+    def test_setup_apply_connects_cursor_and_writes_backup_record(self) -> None:
+        root = self.temp_path / "fresh-marshmallow"
+        target = self.temp_path / "project/AGENTS.md"
+
+        result = self.cli(
+            "setup",
+            "--workspace",
+            str(root),
+            "--harness",
+            "cursor",
+            "--target",
+            str(target),
+            "--apply",
+        )
+
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        installed = target.read_text()
+        self.assertIn(ADAPTER_START_MARKER, installed)
+        self.assertIn("Read `", installed)
+        self.assertIn(str((root / "runtime.md").resolve()), installed)
+        records = sorted((root / "backups/adapters").glob("*/record.json"))
+        self.assertEqual(1, len(records))
+        record = json.loads(records[0].read_text())
+        self.assertEqual("install", record["action"])
+        self.assertEqual(str(target.resolve()), record["target"])
+
     def test_read_only_commands_do_not_create_workspace(self) -> None:
         missing = self.temp_path / "missing-marshmallow"
         target = self.temp_path / "home/.codex/AGENTS.md"
@@ -691,6 +732,32 @@ Load the investor update context before drafting.
             self.assertIn("id", item)
             self.assertIn("score", item)
             self.assertIn("snippet", item)
+
+    def test_relationship_intelligence_demo_validates_and_recalls_brief(self) -> None:
+        demo_workspace = ROOT / "examples/relationship-intelligence"
+        doctor = self.cli("doctor", "--workspace", str(demo_workspace), "--json")
+        self.assertEqual(0, doctor.returncode, doctor.stdout + doctor.stderr)
+        report = json.loads(doctor.stdout)
+        self.assertEqual("ok", report["workspace_status"])
+        self.assertEqual(4, report["counts"]["sources"])
+        self.assertEqual(5, report["counts"]["graph_nodes"])
+        self.assertEqual(1, report["counts"]["indexes"])
+        self.assertEqual(1, report["counts"]["projections"])
+
+        recall = self.cli(
+            "recall",
+            "Rowan pre-meeting relationship brief next thoughtful action",
+            "--workspace",
+            str(demo_workspace),
+            "--json",
+        )
+        self.assertEqual(0, recall.returncode, recall.stdout + recall.stderr)
+        payload = json.loads(recall.stdout)
+        ids = {item["id"] for item in payload["results"]}
+        self.assertIn("rowan-pre-meeting-brief", ids)
+        self.assertIn("rowan-naya-relationship", ids)
+        self.assertIn("pre-meeting-brief-flow", ids)
+        self.assertIn("rowan-investor", ids)
 
     def test_recall_does_not_search_sources_or_inbox(self) -> None:
         atomic_write(self.root / "sources/source-one.md", source_card("source-one"))

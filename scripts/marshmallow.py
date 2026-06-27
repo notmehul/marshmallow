@@ -27,6 +27,7 @@ from markdown_graph import (
     source_cards,
     validate_workspace,
 )
+from capture import list_candidates, promote, remember
 from marshmallow_workspace import MarshmallowError, atomic_write, default_workspace, ensure_workspace, require_workspace
 from recall import recall_context
 from skill_overlay import apply_overlay, create_starter_skill, rollback_overlay
@@ -76,6 +77,21 @@ def command_init(args: argparse.Namespace) -> int:
         }
     )
     return 0
+
+
+def command_setup(args: argparse.Namespace) -> int:
+    root = ensure_workspace(args.workspace)
+    style = harness_style(args.harness)
+    target = args.target or default_target_for(args.harness)
+    code, message = update_adapter(root, target, approve=args.apply, remove=False, style=style)
+    action = "applied" if args.apply else "preview"
+    print(f"Workspace ready: {root}")
+    print(f"Adapter {action} for {args.harness}: {target}")
+    if not args.apply:
+        print("Apply with the same command plus --apply.")
+    if message:
+        print(message)
+    return code
 
 
 def command_new(args: argparse.Namespace) -> int:
@@ -194,6 +210,51 @@ def command_recall(args: argparse.Namespace) -> int:
             print(f"    {metadata}")
         if result["snippet"]:
             print(f"    {result['snippet']}")
+        for citation in result.get("sources", []):
+            print(f"    source: {citation['id']} ({citation['pointer'] or 'unresolved'})")
+    return 0
+
+
+def command_remember(args: argparse.Namespace) -> int:
+    path, candidate_id = remember(args.workspace, args.note, why=args.why, origin=args.origin)
+    json_print(
+        {
+            "status": "captured",
+            "id": candidate_id,
+            "path": str(path),
+            "note": "Untrusted candidate in inbox. Nothing in the graph changed. "
+            "Review with `pending`, then `promote` to make it source-backed.",
+        }
+    )
+    return 0
+
+
+def command_pending(args: argparse.Namespace) -> int:
+    candidates = list_candidates(args.workspace, include_promoted=args.all)
+    if args.json:
+        json_print({"candidates": candidates})
+        return 0
+    if not candidates:
+        print("No inbox candidates awaiting promotion.")
+        return 0
+    for candidate in candidates:
+        print(f"{candidate['status']:>8} {candidate['id']} - {candidate['summary']}")
+        print(f"         {candidate['path']}")
+    return 0
+
+
+def command_promote(args: argparse.Namespace) -> int:
+    plan = promote(args.workspace, args.id, apply=args.apply)
+    if args.json:
+        json_print(plan)
+        return 0
+    if plan["status"] == "preview":
+        print(f"Preview: would create source {plan['source_id']} at {plan['source_path']}")
+        print(f"Next: {plan['next_step']}")
+        print("Apply with the same command plus --apply.")
+        return 0
+    print(f"Promoted {plan['candidate_id']} -> source {plan['source_id']} ({plan['source_path']})")
+    print(f"Next: {plan['next_step']}")
     return 0
 
 
@@ -246,6 +307,18 @@ def build_parser() -> argparse.ArgumentParser:
     add_workspace(init)
     init.set_defaults(func=command_init)
 
+    setup = subparsers.add_parser("setup", help="Create the workspace and preview/apply a harness adapter.")
+    add_workspace(setup)
+    setup.add_argument(
+        "--harness",
+        choices=("claude", "codex", "cursor"),
+        default="codex",
+        help="Harness to connect. codex writes ~/.codex/AGENTS.md; cursor writes ./AGENTS.md.",
+    )
+    setup.add_argument("--target", type=Path, help="Override the adapter target file.")
+    setup.add_argument("--apply", action="store_true", help="Write the adapter instead of printing only the preview.")
+    setup.set_defaults(func=command_setup)
+
     new = subparsers.add_parser(
         "new",
         help="Scaffold a valid source, node, index, projection, or overlay skeleton.",
@@ -280,6 +353,32 @@ def build_parser() -> argparse.ArgumentParser:
     recall.add_argument("--json", action="store_true")
     recall.add_argument("--limit", type=int, default=10)
     recall.set_defaults(func=command_recall)
+
+    remember_parser = subparsers.add_parser(
+        "remember",
+        help="Capture a note into the inbox as an untrusted candidate. Zero approval; the graph is untouched.",
+    )
+    add_workspace(remember_parser)
+    remember_parser.add_argument("note", help="The thing worth keeping (a fact, decision, correction, or observation).")
+    remember_parser.add_argument("--why", help="Optional reason this matters.")
+    remember_parser.add_argument("--origin", help="Optional provenance: a file path, URL, or session context.")
+    remember_parser.set_defaults(func=command_remember)
+
+    pending = subparsers.add_parser("pending", help="List inbox candidates awaiting promotion.")
+    add_workspace(pending)
+    pending.add_argument("--all", action="store_true", help="Include already-promoted candidates.")
+    pending.add_argument("--json", action="store_true")
+    pending.set_defaults(func=command_pending)
+
+    promote_parser = subparsers.add_parser(
+        "promote",
+        help="Promote an inbox candidate into a source card (the trust gate). Preview unless --apply.",
+    )
+    add_workspace(promote_parser)
+    promote_parser.add_argument("id", help="Candidate id from `pending`.")
+    promote_parser.add_argument("--apply", action="store_true", help="Write the source card and mark the candidate promoted.")
+    promote_parser.add_argument("--json", action="store_true")
+    promote_parser.set_defaults(func=command_promote)
 
     adapter = subparsers.add_parser("adapter", help="Preview, apply, or remove a runtime adapter.")
     add_workspace(adapter)

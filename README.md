@@ -102,7 +102,25 @@ retune skills with `/marshmallow:tune` when a reusable skill should change.
 ### Codex & Cursor
 
 Marshmallow's graph and recall packets are plain files. Codex and Cursor can
-read the same context through an `AGENTS.md` adapter:
+read the same context through an `AGENTS.md` adapter.
+
+For Codex:
+
+```bash
+scripts/marshmallow.py setup --harness codex
+scripts/marshmallow.py setup --harness codex --apply
+```
+
+For Cursor, run this from the project you want Cursor to read:
+
+```bash
+scripts/marshmallow.py setup --harness cursor
+scripts/marshmallow.py setup --harness cursor --apply
+```
+
+`setup` creates or verifies `~/.marshmallow/`, previews the adapter, and only
+writes the `AGENTS.md` block when you pass `--apply`. Prefer the lower-level
+commands when you want to inspect each step separately:
 
 ```bash
 scripts/marshmallow.py init
@@ -143,10 +161,14 @@ The skills call one public CLI. You can run it directly too:
 
 ```bash
 scripts/marshmallow.py init
+scripts/marshmallow.py setup --harness codex|cursor [--apply]
 scripts/marshmallow.py new source|node|index|projection|overlay <id> [--title ...] [--task ...] [--force]
 scripts/marshmallow.py doctor
 scripts/marshmallow.py scan-skills
 scripts/marshmallow.py recall "<query>" [--json] [--limit N]
+scripts/marshmallow.py remember "<note>" [--why ...] [--origin ...]
+scripts/marshmallow.py pending [--all] [--json]
+scripts/marshmallow.py promote <candidate-id> [--apply] [--json]
 scripts/marshmallow.py adapter preview   [--harness claude|codex|cursor]
 scripts/marshmallow.py adapter apply     [--harness claude|codex|cursor]
 scripts/marshmallow.py adapter remove [--approve]
@@ -159,6 +181,26 @@ scripts/marshmallow.py starter apply    --overlay <overlay.md>
 
 Preview before mutation. Adapter installs and skill rewrites require explicit
 approval. Rollback metadata lives beside each backup in `backups/`.
+
+## The loop: capture, promote, recall
+
+Marshmallow keeps capture frictionless and durability earned. The trust gate
+sits at *promotion*, not capture, so any model can store freely without ever
+touching the graph.
+
+- **`remember`** drops a note into `inbox/` as an untrusted candidate. No
+  approval, no graph change — the inbox is untrusted by construction.
+- **`pending`** lists candidates awaiting review (the synthesis work queue).
+- **`promote`** turns a reviewed candidate into a source card — the provenance
+  anchor. You (or the agent) then write the graph node that cites it with
+  `new node`, keeping the synthesis judgment human. Preview unless `--apply`.
+- **`recall`** returns matching graph nodes with their resolved source
+  citations attached, so every recalled fact traces back to an immutable
+  source. Unresolved provenance is flagged, never hidden.
+
+This is the deliberate boundary: an agent's own note can become a first-class,
+citable source, but nothing reaches the durable graph without a source behind
+it. No background daemon, no silent ingestion.
 
 ## Graph shape
 
@@ -220,15 +262,17 @@ The full onboarding skills are built for Claude Code today. Codex and Cursor
 read the same graph and recall packets through the `AGENTS.md` adapter; deeper
 native flows for them are on the roadmap.
 
-## Try the demo
+## Try the demos
 
-The bundled demo workspace is reproducible and touches nothing real:
+The bundled demo workspaces are reproducible and touch nothing real:
 
 ```bash
 scripts/marshmallow.py doctor --workspace examples/operator-recall
+scripts/marshmallow.py doctor --workspace examples/relationship-intelligence
 ```
 
-See [DEMO.md](DEMO.md) for the recall-first walkthrough.
+See [DEMO.md](DEMO.md) for recall-first walkthroughs, including a dummy
+people-first pre-meeting relationship brief.
 
 ## Checks
 

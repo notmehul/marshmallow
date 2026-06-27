@@ -23,6 +23,38 @@ or `grep` and load only the smallest relevant graph nodes for the current task.
 When a task needs a reusable brief, the agent can write a recall packet under
 `~/.marshmallow/projections/`.
 
+The `setup` CLI is a thin onboarding convenience for non-Claude harnesses: it
+creates or verifies the workspace, then delegates to the same reversible adapter
+installer used by `adapter preview/apply`. It does not introduce a second state
+file or bypass adapter approval.
+
+## Capture Loop
+
+The runtime loop above is read-heavy. The capture loop is its write-side
+counterpart, and it keeps the same boundary that makes Marshmallow trustworthy:
+capture is free, durability is earned.
+
+```text
+remember -> inbox/ (untrusted) -> promote -> sources/ -> graph node cites it -> recall (cited)
+```
+
+- **`remember`** writes a candidate into `inbox/` with no approval. This does
+  not violate explicit learning: the inbox is untrusted by construction and is
+  never loaded as runtime context. Capture is not learning.
+- **`promote`** is the trust gate. It turns a reviewed candidate into a source
+  card (the provenance anchor) and previews before it writes. The candidate's
+  own text becomes a citable source, so even agent-captured memory stays
+  source-backed.
+- The graph node itself is authored by the agent or person, because the insight
+  is a synthesis judgment, not deterministic plumbing. The CLI handles files and
+  provenance; the human handles meaning.
+- **`recall`** resolves each node's `source_ids` to pointers, so every recalled
+  fact is auditable back to an immutable source.
+
+This deliberately keeps the constraints stated at the top of this file: no memory
+daemon (promotion is triggered, never a background process), no silent ingestion
+into the graph, and preview-before-mutation at the gate.
+
 ## Plugin Command Boundary
 
 Claude Code skills call the single executable CLI at

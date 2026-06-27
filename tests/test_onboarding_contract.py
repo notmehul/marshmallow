@@ -100,16 +100,20 @@ class OnboardingContractTests(unittest.TestCase):
 
         self.assertIn("`~/.marshmallow/` is the source of truth", readme)
         self.assertIn("Source-backed recall for AI agents.", readme)
+        self.assertIn("scripts/marshmallow.py setup --harness codex", readme)
+        self.assertIn("scripts/marshmallow.py setup --harness cursor", readme)
         self.assertIn('scripts/marshmallow.py recall "<query>"', readme)
         self.assertIn("examples/operator-recall", readme)
         self.assertNotIn("draft, decide, queue, or act", readme)
         self.assertIn("Skills contain a pointer", architecture)
         self.assertIn("recall packets", architecture)
         self.assertIn("There is no central state file.", architecture)
+        self.assertIn("The `setup` CLI is a thin onboarding convenience", architecture)
         self.assertIn("No required `workspace.json`.", trust)
         self.assertIn("No silent learning.", trust)
         self.assertIn("No sending, posting, queueing, or automation actions.", trust)
         self.assertIn("Adapter and skill rewrites require explicit approval.", trust)
+        self.assertIn("Without `--apply`, it does not write the target", trust)
 
         self.assertFalse((ROOT / "docs/launch-outreach.md").exists())
         self.assertIn("[ARCHITECTURE.md](ARCHITECTURE.md)", readme)
@@ -120,12 +124,22 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertNotIn("examples/private", demo)
         self.assertNotIn("examples/builder-graph", demo)
         source_cards = list((ROOT / "examples/operator-recall/sources").glob("*.md"))
+        source_cards.extend((ROOT / "examples/relationship-intelligence/sources").glob("*.md"))
         for card in source_cards:
             text = card.read_text()
             self.assertNotIn("examples/private", text)
             pointer_line = next(line for line in text.splitlines() if line.startswith("pointer: "))
             pointer = pointer_line.removeprefix("pointer: ")
             self.assertTrue((ROOT / pointer).exists(), f"{card} points to missing fixture {pointer}")
+
+    def test_public_examples_use_dummy_people(self) -> None:
+        example_text = "\n".join(
+            path.read_text()
+            for path in (ROOT / "examples").glob("**/*.md")
+            if ".git" not in path.parts
+        )
+        self.assertNotIn("Zaran", example_text)
+        self.assertNotIn("zaran", example_text)
 
     def test_public_markdown_no_longer_mentions_old_public_scripts(self) -> None:
         old_scripts = {

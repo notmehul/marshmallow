@@ -31,9 +31,15 @@ inferring taste, values, or personality.
    rg -n "<topic|skill|source-id>" ~/.marshmallow/graph ~/.marshmallow/sources
    ```
 
-3. If the new material is raw or not yet synthesized, place a compact candidate
-   note in `~/.marshmallow/inbox/`. Do not store raw session logs as graph
-   nodes.
+3. If the new material is raw or not yet synthesized, capture it as an untrusted
+   inbox candidate. This needs no approval — the inbox never reaches the graph:
+
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" remember "<note>" --why "<reason>" --origin "<path|url|context>"
+   ```
+
+   Review what is waiting for promotion with `pending`. Do not store raw session
+   logs as graph nodes.
 
 4. Think before promoting. Keep this reasoning ephemeral unless the user asks
    for a durable note:
@@ -63,8 +69,16 @@ inferring taste, values, or personality.
    `graph-node-template.md`, `index-template.md`, `projection-template.md`).
 
 5. Create or update source cards in `~/.marshmallow/sources/`
-   (`new source <source-id>`). User corrections are valid source cards; name
-   them like `user-correction-YYYYMMDD...`.
+   (`new source <source-id>`). To turn an inbox candidate into a source card
+   while preserving its provenance, promote it (preview first, then `--apply`):
+
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" promote <candidate-id>
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" promote <candidate-id> --apply
+   ```
+
+   User corrections are valid source cards; name them like
+   `user-correction-YYYYMMDD...`.
 
 6. Create or update typed graph nodes in `~/.marshmallow/graph/`
    (`new node <node-id>`). Every graph node must include at least one
