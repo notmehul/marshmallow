@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from typing import Any
@@ -62,9 +63,21 @@ def parse_simple_yaml(text: str, path: Path) -> dict[str, Any]:
 
 
 def unquote(value: str) -> str:
-    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return value[1:-1]
+        return str(parsed)
+    if len(value) >= 2 and value[0] == value[-1] == "'":
         return value[1:-1]
     return value
+
+
+def frontmatter_scalar(value: object) -> str:
+    """Serialize an arbitrary value as one safe, round-trippable scalar."""
+
+    return json.dumps(str(value), ensure_ascii=False)
 
 
 def parse_inline_list(value: str) -> list[str]:
@@ -223,6 +236,13 @@ def _load_records_resilient(
     return records, errors
 
 
+def readable_source_cards(root: Path) -> dict[str, dict[str, Any]]:
+    """Load valid source cards without letting one malformed card hide the rest."""
+
+    records, _ = _load_records_resilient(root, "sources", "source card")
+    return records
+
+
 def validate_workspace(root: Path) -> list[str]:
     root = require_workspace(root)
     sources, errors = _load_records_resilient(root, "sources", "source card")
@@ -354,6 +374,13 @@ def _humanize(record_id: str) -> str:
     return " ".join(part.capitalize() for part in record_id.split("-"))
 
 
+def _single_line(value: str | None, fallback: str) -> str:
+    """Collapse user-authored display text so it cannot inject frontmatter."""
+
+    compact = " ".join((value or "").split())
+    return compact or fallback
+
+
 def scaffold_record(
     kind: str,
     record_id: str,
@@ -374,7 +401,8 @@ def scaffold_record(
         raise MarshmallowError(f"Unknown scaffold kind {kind!r}; choose one of {', '.join(SCAFFOLD_KINDS)}")
     if not ID_PATTERN.match(record_id):
         raise MarshmallowError(f"id must use lowercase hyphen-case: {record_id!r}")
-    heading = title or _humanize(record_id)
+    heading = _single_line(title, _humanize(record_id))
+    projection_task = _single_line(task, "TODO the task this recall packet prepares an agent for")
     now = iso_timestamp()
     relative = Path(SCAFFOLD_DIRS[kind]) / f"{record_id}.md"
 
@@ -383,7 +411,7 @@ def scaffold_record(
 id: {record_id}
 pointer: todo-replace-with-a-file-path-or-url
 captured: {now}
-summary: {heading}
+summary: {frontmatter_scalar(heading)}
 labels: []
 ---
 
@@ -431,7 +459,7 @@ TODO where this should not apply, weak evidence, or the question to ask first.
     elif kind == "index":
         content = f"""---
 id: {record_id}
-title: {heading}
+title: {frontmatter_scalar(heading)}
 graph_ids: [todo-node-id]
 labels: []
 ---
@@ -443,8 +471,8 @@ labels: []
     elif kind == "projection":
         content = f"""---
 id: {record_id}
-title: {heading}
-task: {task or "TODO the task this recall packet prepares an agent for"}
+title: {frontmatter_scalar(heading)}
+task: {frontmatter_scalar(projection_task)}
 graph_ids: [todo-node-id]
 labels: []
 ---

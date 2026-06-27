@@ -14,10 +14,11 @@ who writes the graph node (`new node`) that cites the promoted source.
 
 from __future__ import annotations
 
+import secrets
 from pathlib import Path
 from typing import Any
 
-from markdown_graph import ID_PATTERN, parse_frontmatter, slugify
+from markdown_graph import ID_PATTERN, frontmatter_scalar, parse_frontmatter, slugify
 from marshmallow_workspace import (
     MarshmallowError,
     atomic_write,
@@ -41,7 +42,7 @@ def _first_line(body: str) -> str:
 
 def _candidate_id(heading: str) -> str:
     slug = slugify(heading)[:SLUG_LIMIT].strip("-") or "note"
-    return f"candidate-{timestamp().lower()}-{slug}"
+    return f"candidate-{timestamp().lower()}-{slug}-{secrets.token_hex(4)}"
 
 
 def remember(
@@ -63,7 +64,7 @@ def remember(
     if path.exists():
         raise MarshmallowError(f"Candidate already exists: {path}")
 
-    origin_line = f"origin: {origin.strip()}\n" if origin and origin.strip() else ""
+    origin_line = f"origin: {frontmatter_scalar(origin.strip())}\n" if origin and origin.strip() else ""
     body = note
     if why and why.strip():
         body += f"\n\n**Why:** {why.strip()}"
@@ -136,7 +137,7 @@ def _mark_promoted(path: Path, frontmatter: dict[str, Any], body: str, source_id
         "origin": str(frontmatter.get("origin", "")),
     }
     lines = ["---"]
-    lines += [f"{key}: {value}" for key, value in fields.items() if value]
+    lines += [f"{key}: {frontmatter_scalar(value)}" for key, value in fields.items() if value]
     lines.append("---")
     atomic_write(path, "\n".join(lines) + "\n\n" + body.strip() + "\n")
 
@@ -166,9 +167,9 @@ def promote(root: Path, candidate_id: str, *, apply: bool = False) -> dict[str, 
     source_content = (
         "---\n"
         f"id: {source_id}\n"
-        f"pointer: {pointer}\n"
-        f"captured: {captured}\n"
-        f"summary: {summary}\n"
+        f"pointer: {frontmatter_scalar(pointer)}\n"
+        f"captured: {frontmatter_scalar(captured)}\n"
+        f"summary: {frontmatter_scalar(summary)}\n"
         "labels: [inbox-promoted]\n"
         "---\n\n"
         f"# {summary}\n\n"

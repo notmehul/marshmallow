@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from markdown_graph import graph_nodes, index_pages, list_field, parse_frontmatter, projections, source_cards
+from markdown_graph import graph_nodes, index_pages, list_field, parse_frontmatter, projections, readable_source_cards
 from marshmallow_workspace import MarshmallowError
 
 TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
@@ -163,11 +163,7 @@ def recall_context(root: Path, query: str, limit: int = 10) -> list[dict[str, An
     if not tokens:
         return []
 
-    try:
-        sources_by_id = source_cards(root)
-    except MarshmallowError:
-        # Citations degrade gracefully; a malformed source must not break recall.
-        sources_by_id = {}
+    sources_by_id = readable_source_cards(root)
 
     results: list[dict[str, Any]] = []
     sources = (

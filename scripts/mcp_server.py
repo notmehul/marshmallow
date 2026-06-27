@@ -33,7 +33,8 @@ from capture import list_candidates, remember
 from marshmallow_workspace import MarshmallowError, default_workspace, ensure_workspace
 from recall import recall_context
 
-PROTOCOL_VERSION = "2025-06-18"
+PROTOCOL_VERSION = "2025-11-25"
+SUPPORTED_PROTOCOL_VERSIONS = (PROTOCOL_VERSION, "2025-06-18")
 SERVER_INFO = {"name": "marshmallow", "version": "0.6.0"}
 DEFAULT_RECALL_LIMIT = 8
 
@@ -98,18 +99,35 @@ def _format_recall(results: list[dict[str, Any]]) -> str:
 def call_tool(name: str, arguments: dict[str, Any], root: Path) -> str:
     """Run a tool and return its text content. Raises MarshmallowError on bad input."""
 
+    if not isinstance(arguments, dict):
+        raise MarshmallowError("tool arguments must be an object")
+
     if name == "recall":
-        query = str(arguments.get("query", "")).strip()
+        query_value = arguments.get("query", "")
+        if not isinstance(query_value, str):
+            raise MarshmallowError("recall query must be a string")
+        query = query_value.strip()
         if not query:
             raise MarshmallowError("recall requires a non-empty query")
-        limit = int(arguments.get("limit", DEFAULT_RECALL_LIMIT))
+        limit = arguments.get("limit", DEFAULT_RECALL_LIMIT)
+        if not isinstance(limit, int) or isinstance(limit, bool):
+            raise MarshmallowError("recall limit must be an integer")
         return _format_recall(recall_context(root, query, limit=limit))
     if name == "remember":
+        note = arguments.get("note", "")
+        why = arguments.get("why")
+        origin = arguments.get("origin")
+        if not isinstance(note, str):
+            raise MarshmallowError("remember note must be a string")
+        if why is not None and not isinstance(why, str):
+            raise MarshmallowError("remember why must be a string")
+        if origin is not None and not isinstance(origin, str):
+            raise MarshmallowError("remember origin must be a string")
         _, candidate_id = remember(
             root,
-            str(arguments.get("note", "")),
-            why=arguments.get("why"),
-            origin=arguments.get("origin"),
+            note,
+            why=why,
+            origin=origin,
         )
         return (
             f"Captured candidate {candidate_id} in the inbox. It is an untrusted note - nothing in "
@@ -139,23 +157,31 @@ def dispatch(request: dict[str, Any], root: Path) -> dict[str, Any] | None:
     request_id = request.get("id")
 
     if method == "initialize":
-        client_version = str((request.get("params") or {}).get("protocolVersion") or PROTOCOL_VERSION)
+        params = request.get("params") or {}
+        client_version = params.get("protocolVersion") if isinstance(params, dict) else None
+        protocol_version = (
+            client_version if client_version in SUPPORTED_PROTOCOL_VERSIONS else PROTOCOL_VERSION
+        )
         return _result(
             request_id,
-            {"protocolVersion": client_version, "capabilities": {"tools": {}}, "serverInfo": SERVER_INFO},
+            {"protocolVersion": protocol_version, "capabilities": {"tools": {}}, "serverInfo": SERVER_INFO},
         )
     if method == "ping":
         return _result(request_id, {})
     if method == "tools/list":
         return _result(request_id, {"tools": TOOLS})
     if method == "tools/call":
-        params = request.get("params") or {}
-        name = str(params.get("name", ""))
-        arguments = params.get("arguments") or {}
         try:
+            params = request.get("params") or {}
+            if not isinstance(params, dict):
+                raise MarshmallowError("tools/call params must be an object")
+            name = params.get("name", "")
+            if not isinstance(name, str):
+                raise MarshmallowError("tool name must be a string")
+            arguments = params.get("arguments") or {}
             text = call_tool(name, arguments, root)
             is_error = False
-        except MarshmallowError as error:
+        except (MarshmallowError, OSError) as error:
             text = f"ERROR: {error}"
             is_error = True
         return _result(request_id, {"content": [{"type": "text", "text": text}], "isError": is_error})

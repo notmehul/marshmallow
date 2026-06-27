@@ -14,7 +14,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from capture import remember  # noqa: E402
 from marshmallow_workspace import atomic_write, ensure_workspace  # noqa: E402
-from mcp_server import TOOL_NAMES, call_tool, dispatch  # noqa: E402
+from mcp_server import PROTOCOL_VERSION, TOOL_NAMES, call_tool, dispatch  # noqa: E402
 
 
 def source_card(source_id: str) -> str:
@@ -62,10 +62,22 @@ class McpDispatchTests(unittest.TestCase):
         return dispatch(message, self.root)
 
     def test_initialize_echoes_protocol_and_advertises_tools(self) -> None:
-        response = self.request("initialize", {"protocolVersion": "2025-06-18"})
-        self.assertEqual("2025-06-18", response["result"]["protocolVersion"])
+        response = self.request("initialize", {"protocolVersion": PROTOCOL_VERSION})
+        self.assertEqual(PROTOCOL_VERSION, response["result"]["protocolVersion"])
         self.assertIn("tools", response["result"]["capabilities"])
         self.assertEqual("marshmallow", response["result"]["serverInfo"]["name"])
+
+    def test_initialize_keeps_compatible_previous_protocol(self) -> None:
+        response = self.request("initialize", {"protocolVersion": "2025-06-18"})
+        self.assertEqual("2025-06-18", response["result"]["protocolVersion"])
+
+    def test_initialize_negotiates_back_to_server_protocol(self) -> None:
+        response = self.request("initialize", {"protocolVersion": "2099-01-01"})
+        self.assertEqual(PROTOCOL_VERSION, response["result"]["protocolVersion"])
+
+    def test_initialize_tolerates_malformed_protocol_version(self) -> None:
+        response = self.request("initialize", {"protocolVersion": ["not", "a", "string"]})
+        self.assertEqual(PROTOCOL_VERSION, response["result"]["protocolVersion"])
 
     def test_tools_list_exposes_only_the_safe_verbs(self) -> None:
         response = self.request("tools/list")
@@ -115,6 +127,17 @@ class McpDispatchTests(unittest.TestCase):
         response = self.request("tools/call", {"name": "recall", "arguments": {}})
         self.assertTrue(response["result"]["isError"])
         self.assertIn("ERROR", response["result"]["content"][0]["text"])
+
+    def test_tools_call_bad_argument_type_is_a_tool_error_not_a_crash(self) -> None:
+        response = self.request(
+            "tools/call",
+            {"name": "recall", "arguments": {"query": "Mani", "limit": "many"}},
+        )
+        self.assertTrue(response["result"]["isError"])
+        self.assertIn("integer", response["result"]["content"][0]["text"])
+
+        follow_up = self.request("tools/list", request_id=2)
+        self.assertEqual({"recall", "remember", "pending"}, {tool["name"] for tool in follow_up["result"]["tools"]})
 
     def test_unknown_tool_is_reported_as_iserror(self) -> None:
         response = self.request("tools/call", {"name": "promote", "arguments": {"id": "x"}})

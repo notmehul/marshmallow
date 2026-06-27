@@ -16,7 +16,12 @@ sys.path.insert(0, str(SCRIPTS))
 
 from harness_adapter import END_MARKER as ADAPTER_END_MARKER  # noqa: E402
 from harness_adapter import START_MARKER as ADAPTER_START_MARKER  # noqa: E402
-from markdown_graph import graph_quality_warnings, validate_workspace, write_user_correction_source  # noqa: E402
+from markdown_graph import (  # noqa: E402
+    graph_quality_warnings,
+    parse_frontmatter,
+    validate_workspace,
+    write_user_correction_source,
+)
 from marshmallow_workspace import atomic_write, ensure_workspace, sha256_bytes, source_status  # noqa: E402
 from skill_overlay import END_MARKER, START_MARKER  # noqa: E402
 
@@ -1145,6 +1150,37 @@ description: Build product strategy and validate decisions with a security-aware
         path = Path(payload["path"])
         self.assertTrue(path.exists())
         self.assertEqual([], [error for error in validate_workspace(self.root) if str(path) in error])
+
+    def test_new_scaffold_collapses_user_metadata_to_one_safe_line(self) -> None:
+        source = self.cli(
+            "new",
+            "source",
+            "safe-source",
+            "--title",
+            "Safe title\nid: injected",
+            "--workspace",
+            str(self.root),
+        )
+        projection = self.cli(
+            "new",
+            "projection",
+            "safe-projection",
+            "--title",
+            "Quarterly\nbrief",
+            "--task",
+            "Prepare Rowan\nstatus: injected",
+            "--workspace",
+            str(self.root),
+        )
+
+        self.assertEqual(0, source.returncode, source.stdout + source.stderr)
+        self.assertEqual(0, projection.returncode, projection.stdout + projection.stderr)
+        source_frontmatter, _ = parse_frontmatter(self.root / "sources/safe-source.md")
+        projection_frontmatter, _ = parse_frontmatter(self.root / "projections/safe-projection.md")
+        self.assertEqual("safe-source", source_frontmatter["id"])
+        self.assertEqual("Safe title id: injected", source_frontmatter["summary"])
+        self.assertEqual("Quarterly brief", projection_frontmatter["title"])
+        self.assertEqual("Prepare Rowan status: injected", projection_frontmatter["task"])
 
     def test_new_node_scaffold_nudges_to_link_a_real_source(self) -> None:
         result = self.cli("new", "node", "my-node", "--workspace", str(self.root))

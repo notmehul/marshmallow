@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -78,6 +79,30 @@ class CaptureLoopTests(unittest.TestCase):
     def test_remember_rejects_empty_note(self) -> None:
         with self.assertRaises(MarshmallowError):
             remember(self.root, "   ")
+
+    def test_remember_preserves_multiline_origin_without_frontmatter_injection(self) -> None:
+        origin = "meeting notes\nstatus: promoted\nid: hijacked"
+        path, candidate_id = remember(self.root, "A useful observation", origin=origin)
+
+        frontmatter, _ = parse_frontmatter(path)
+        self.assertEqual(candidate_id, frontmatter["id"])
+        self.assertEqual("pending", frontmatter["status"])
+        self.assertEqual(origin, frontmatter["origin"])
+
+        plan = promote(self.root, candidate_id, apply=True)
+        source_frontmatter, _ = parse_frontmatter(Path(plan["source_path"]))
+        promoted_frontmatter, _ = parse_frontmatter(path)
+        self.assertEqual(origin, source_frontmatter["pointer"])
+        self.assertEqual("promoted", promoted_frontmatter["status"])
+
+    def test_remember_avoids_same_second_candidate_collisions(self) -> None:
+        with patch("capture.timestamp", return_value="20260627T120000Z"):
+            first_path, first_id = remember(self.root, "Same heading\nfirst detail")
+            second_path, second_id = remember(self.root, "Same heading\nsecond detail")
+
+        self.assertNotEqual(first_id, second_id)
+        self.assertTrue(first_path.exists())
+        self.assertTrue(second_path.exists())
 
     def test_remember_via_cli_reports_nothing_changed_in_graph(self) -> None:
         result = self.cli("remember", "Ship the recall MCP tool first", "--workspace", str(self.root))
@@ -180,6 +205,20 @@ class CitedRecallTests(unittest.TestCase):
         pointers = {c["id"]: c["pointer"] for c in graph_hits[0]["sources"]}
         self.assertEqual("example://source-one", pointers["source-one"])
         self.assertEqual("", pointers["ghost-source"])
+
+    def test_malformed_source_does_not_hide_other_valid_citations(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "sources/broken.md", "not frontmatter\n")
+        atomic_write(self.root / "graph/mani-lead.md", graph_node("mani-lead"))
+
+        result = self.cli("recall", "Mani day-to-day", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        graph_hit = next(item for item in payload["results"] if item["kind"] == "graph")
+        self.assertEqual(
+            [{"id": "source-one", "pointer": "example://source-one"}],
+            graph_hit["sources"],
+        )
 
 
 if __name__ == "__main__":
