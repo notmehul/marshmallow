@@ -220,21 +220,39 @@ graph is the human gate; an autonomous model must not bypass it. Promotion stays
 a deliberate act through the CLI or `/marshmallow:learn`.
 
 In Claude Code the server is auto-registered when you install the plugin. For
-other harnesses, point them at the executable:
+other harnesses, clone the repository, run the following commands from its root,
+and restart or reload the harness:
+
+```bash
+# Codex (user-wide; shared by the CLI and IDE extension)
+codex mcp add marshmallow -- "$PWD/scripts/mcp_server.py"
+
+# Cursor (the app asks you to confirm the new server)
+cursor --add-mcp "{\"name\":\"marshmallow\",\"command\":\"$PWD/scripts/mcp_server.py\"}"
+
+# Gemini CLI (user-wide)
+gemini mcp add --scope user marshmallow "$PWD/scripts/mcp_server.py"
+```
+
+OpenCode uses a local-server entry in `opencode.json`:
 
 ```json
 {
-  "mcpServers": {
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
     "marshmallow": {
-      "command": "/absolute/path/to/marshmallow/scripts/mcp_server.py"
+      "type": "local",
+      "command": ["/absolute/path/to/marshmallow/scripts/mcp_server.py"],
+      "enabled": true
     }
   }
 }
 ```
 
-Codex uses the same command under `[mcp_servers.marshmallow]` in
-`~/.codex/config.toml`. The server creates or verifies `~/.marshmallow/` on
-start and writes nothing durable beyond the untrusted inbox.
+Other stdio MCP clients can use the same executable path as their `command`.
+On first start, the server creates the plain-file workspace skeleton under
+`~/.marshmallow/`. Through MCP, subsequent content is written only by an
+explicit `remember` tool call, and it goes solely to the untrusted inbox.
 
 ## Graph shape
 
@@ -286,15 +304,17 @@ saved as source cards, so corrections stay source-backed too.
 
 ## Supported harnesses
 
-| Harness | Adapter target | Style |
+| Harness | Runtime guidance | MCP registration |
 | --- | --- | --- |
-| Claude Code | `~/.claude/CLAUDE.md` | native `@import` |
-| Codex | `~/.codex/AGENTS.md` | pointer block |
-| Cursor | `./AGENTS.md` | pointer block |
+| Claude Code | `~/.claude/CLAUDE.md` native `@import` | automatic with the plugin |
+| Codex | `~/.codex/AGENTS.md` pointer block | `codex mcp add` |
+| Cursor | `./AGENTS.md` pointer block | `cursor --add-mcp` |
+| Gemini CLI | MCP tool descriptions | `gemini mcp add` |
+| OpenCode | MCP tool descriptions | local entry in `opencode.json` |
 
 The full onboarding skills are built for Claude Code today. Codex and Cursor
-read the same graph and recall packets through the `AGENTS.md` adapter; deeper
-native flows for them are on the roadmap.
+can also read the graph and recall packets directly through an `AGENTS.md`
+adapter. Gemini CLI and OpenCode use the MCP tool surface without an adapter.
 
 ## Try the demos
 
@@ -325,6 +345,7 @@ Requires **Python 3.9+** and the Claude Code CLI for plugin validation.
 - [docs/trust-and-rollback.md](docs/trust-and-rollback.md) — the trust model
 - [UX.md](UX.md) — what good onboarding should feel like
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to help
+- [Agent authoring A/B](evals/agent-authoring/README.md) — compare scaffolded and direct memory authoring
 
 ## Contributing
 

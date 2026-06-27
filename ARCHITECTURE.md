@@ -62,6 +62,11 @@ JSON-RPC) so any harness can reach the loop without the `runtime.md` ritual. It
 is a thin wrapper over the same functions the CLI calls — no second
 implementation of recall or capture.
 
+The server negotiates the latest stable MCP revision and the previously shipped
+revision. Harness-specific setup stays in documentation and native harness
+configuration; Marshmallow does not grow a second installer that edits vendor
+config files.
+
 It exposes only the safe verbs: `recall` (read), `remember` (write to untrusted
 inbox), and `pending` (read). `promote` is intentionally absent: crossing into
 the trusted graph is the human gate, so it is never an autonomous tool call. The
