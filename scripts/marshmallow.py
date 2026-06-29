@@ -17,6 +17,7 @@ from harness_adapter import (
     harness_style,
     update_adapter,
 )
+from mcp_installer import MCP_HARNESSES, mcp_status, update_mcp
 from markdown_graph import (
     SCAFFOLD_KINDS,
     graph_nodes,
@@ -94,10 +95,17 @@ def command_setup(args: argparse.Namespace) -> int:
     action = "applied" if args.apply else "preview"
     print(f"Workspace ready: {root}")
     print(f"Adapter {action} for {args.harness}: {target}")
-    if not args.apply:
-        print("Apply with the same command plus --apply.")
+    if args.harness in MCP_HARNESSES:
+        mcp_code, mcp_message = update_mcp(root, args.harness, approve=args.apply, remove=False)
+        code = max(code, mcp_code)
+        mcp_action = "applied" if args.apply else "preview"
+        print(f"MCP {mcp_action} for {args.harness}: {mcp_status(args.harness)['target']}")
+        if mcp_message:
+            print(mcp_message)
     if message:
         print(message)
+    if not args.apply:
+        print("Apply with the same command plus --apply.")
     return code
 
 
@@ -145,6 +153,7 @@ def command_doctor(args: argparse.Namespace) -> int:
         "codex": status_for(args.home / ".codex" / "AGENTS.md"),
         "cursor": status_for(args.project / "AGENTS.md"),
     }
+    mcp = {name: mcp_status(name) for name in MCP_HARNESSES}
     skills = discover(args.home, args.project, args.additional or [], root)
     try:
         sources = source_cards(root)
@@ -177,6 +186,7 @@ def command_doctor(args: argparse.Namespace) -> int:
         },
         "adapter": adapter,
         "harnesses": harnesses,
+        "mcp": mcp,
         "skills_found": len(skills),
         "recommended_skills": sum(1 for skill in skills if skill["recommended"]),
         "python": platform.python_version(),
@@ -191,6 +201,8 @@ def command_doctor(args: argparse.Namespace) -> int:
         print(f"Indexes: {report['counts']['indexes']}, projections: {report['counts']['projections']}")
         for name, info in harnesses.items():
             print(f"Adapter ({name}): {info['status']} ({info['target']})")
+        for name, info in mcp.items():
+            print(f"MCP ({name}): {info['status']} ({info['target']}, runtime {info['runtime']})")
         print(f"Skills: {report['skills_found']} found, {report['recommended_skills']} recommended")
         print(f"Warnings: {len(warnings)}")
         for error in errors:
@@ -300,6 +312,15 @@ def command_dismiss(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_mcp(args: argparse.Namespace) -> int:
+    action = args.action
+    remove = action == "remove"
+    approve = action == "apply" or (remove and args.approve)
+    code, message = update_mcp(args.workspace, args.harness, approve=approve, remove=remove)
+    print(message)
+    return code
+
+
 def command_adapter(args: argparse.Namespace) -> int:
     action = args.action
     remove = action == "remove"
@@ -358,8 +379,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Harness to connect. codex writes ~/.codex/AGENTS.md; cursor writes ./AGENTS.md.",
     )
     setup.add_argument("--target", type=Path, help="Override the adapter target file.")
-    setup.add_argument("--apply", action="store_true", help="Write the adapter instead of printing only the preview.")
+    setup.add_argument("--apply", action="store_true", help="Write the adapter and MCP registration instead of previewing.")
     setup.set_defaults(func=command_setup)
+
+    mcp = subparsers.add_parser("mcp", help="Preview, apply, or remove harness MCP registration.")
+    add_workspace(mcp)
+    mcp.add_argument("action", choices=("preview", "apply", "remove"))
+    mcp.add_argument("--harness", choices=MCP_HARNESSES, required=True, help="Harness to register MCP for.")
+    mcp.add_argument("--approve", action="store_true", help="Apply MCP removal after previewing it.")
+    mcp.set_defaults(func=command_mcp)
 
     new = subparsers.add_parser(
         "new",

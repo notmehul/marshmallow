@@ -67,6 +67,10 @@ class OnboardingContractTests(unittest.TestCase):
         mode = (ROOT / "scripts/marshmallow.py").stat().st_mode
         self.assertTrue(mode & stat.S_IXUSR)
 
+    def test_mcp_server_is_executable_for_plugin_registration(self) -> None:
+        mode = (ROOT / "scripts/mcp_server.py").stat().st_mode
+        self.assertTrue(mode & stat.S_IXUSR)
+
     def test_learning_skill_is_selective_and_does_not_rewrite_harness_files(self) -> None:
         skill = (ROOT / "skills/learn/SKILL.md").read_text()
 
@@ -113,7 +117,11 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("Source-backed recall for AI agents.", readme)
         self.assertIn("scripts/marshmallow.py setup --harness codex", readme)
         self.assertIn("scripts/marshmallow.py setup --harness cursor", readme)
+        self.assertIn("scripts/marshmallow.py mcp preview --harness codex", readme)
         self.assertIn('scripts/marshmallow.py recall "<query>"', readme)
+        self.assertIn(".claude-plugin/plugin.json", readme)
+        self.assertIn(".codex-plugin/plugin.json", readme)
+        self.assertIn("inline MCP configuration", readme)
         self.assertIn('codex mcp add marshmallow -- "$PWD/scripts/mcp_server.py"', readme)
         self.assertIn('cursor --add-mcp', readme)
         self.assertIn('gemini mcp add --scope user marshmallow', readme)
@@ -123,7 +131,7 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("Skills contain a pointer", architecture)
         self.assertIn("recall packets", architecture)
         self.assertIn("There is no central state file.", architecture)
-        self.assertIn("The `setup` CLI is a thin onboarding convenience", architecture)
+        self.assertIn("The `setup` CLI remains a clone-based fallback", architecture)
         self.assertIn("Alignment-Aware Recall", architecture)
         self.assertIn("20% of the response token budget", architecture)
         self.assertIn("No required `workspace.json`.", trust)

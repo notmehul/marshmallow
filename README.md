@@ -13,7 +13,7 @@ act.
 
 [![tests](https://github.com/notmehul/marshmallow/actions/workflows/test.yml/badge.svg)](https://github.com/notmehul/marshmallow/actions/workflows/test.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![works with: Claude Code · Codex · Cursor](https://img.shields.io/badge/works%20with-Claude%20Code%20·%20Codex%20·%20Cursor-blue.svg)](#supported-harnesses)
+[![native plugins: Claude Code · Codex](https://img.shields.io/badge/native%20plugins-Claude%20Code%20·%20Codex-blue.svg)](#supported-harnesses)
 
 </div>
 
@@ -104,28 +104,52 @@ Nothing durable is written without your explicit approval.
 Later, teach it more with `/marshmallow:learn`, find context with `recall`, and
 retune skills with `/marshmallow:tune` when a reusable skill should change.
 
-### Codex & Cursor
+### Codex
 
-Marshmallow's graph and recall packets are plain files. Codex and Cursor can
-read the same context through an `AGENTS.md` adapter.
+Add the repository as a Codex marketplace:
 
-For Codex:
+```bash
+codex plugin marketplace add notmehul/marshmallow
+```
+
+Restart Codex, open `/plugins`, select the **Marshmallow** marketplace, and
+install the plugin. The native Codex bundle uses `.codex-plugin/plugin.json`,
+loads the shared skills, shows the bundled Marshy presentation assets, and
+starts the bundled server from its inline MCP configuration.
+
+The native Claude Code and Codex manifests share the same `skills/`, `scripts/`,
+and local workspace. Each skill explains how non-Claude hosts resolve the plugin
+root before running its commands.
+
+### Clone-based setup
+
+The native plugins are the primary install path. From a repository clone, the
+guided fallback can install the `AGENTS.md` adapter and a stable global MCP
+runtime after preview:
 
 ```bash
 scripts/marshmallow.py setup --harness codex
 scripts/marshmallow.py setup --harness codex --apply
+scripts/marshmallow.py mcp preview --harness codex
+scripts/marshmallow.py mcp apply --harness codex
 ```
 
-For Cursor, run this from the project you want Cursor to read:
+### Cursor (experimental)
+
+Cursor is not currently shipped as a native Marshmallow plugin. The generic
+`AGENTS.md` adapter and manual MCP registration remain available for testing.
+Run adapter commands from the project Cursor should read:
 
 ```bash
 scripts/marshmallow.py setup --harness cursor
 scripts/marshmallow.py setup --harness cursor --apply
+scripts/marshmallow.py mcp preview --harness cursor
+scripts/marshmallow.py mcp apply --harness cursor
 ```
 
-`setup` creates or verifies `~/.marshmallow/`, previews the adapter, and only
-writes the `AGENTS.md` block when you pass `--apply`. Prefer the lower-level
-commands when you want to inspect each step separately:
+`setup` creates or verifies `~/.marshmallow/`, previews both changes, and writes
+only when you pass `--apply`. Use the lower-level adapter commands when you want
+to inspect that change separately:
 
 ```bash
 scripts/marshmallow.py init
@@ -167,6 +191,7 @@ The skills call one public CLI. You can run it directly too:
 ```bash
 scripts/marshmallow.py init
 scripts/marshmallow.py setup --harness codex|cursor [--apply]
+scripts/marshmallow.py mcp preview|apply|remove --harness cursor|codex
 scripts/marshmallow.py new source|node|index|projection|overlay <id> [--title ...] [--task ...] [--force]
 scripts/marshmallow.py doctor
 scripts/marshmallow.py scan-skills
@@ -233,9 +258,25 @@ It exposes three **safe** tools:
 graph is the human gate; an autonomous model must not bypass it. Promotion stays
 a deliberate act through the CLI or `/marshmallow:learn`.
 
-In Claude Code the server is auto-registered when you install the plugin. For
-other harnesses, clone the repository, run the following commands from its root,
-and restart or reload the harness:
+Claude Code and Codex auto-register the same server from their native plugin
+bundles. Claude Code declares it in `.claude-plugin/plugin.json`; Codex declares
+it inline in `.codex-plugin/plugin.json`. Both launch the same
+`scripts/mcp_server.py` entry point.
+
+Outside a plugin bundle, `setup --harness codex|cursor --apply` installs a
+stable runtime copy under
+`~/.local/share/marshmallow/scripts/` and registers MCP in the harness-native
+config files (`~/.codex/config.toml` or `~/.cursor/mcp.json`) after explicit
+approval. Cursor support on this path is experimental:
+
+```bash
+scripts/marshmallow.py setup --harness codex --apply
+scripts/marshmallow.py setup --harness cursor --apply
+scripts/marshmallow.py mcp apply --harness codex
+scripts/marshmallow.py mcp apply --harness cursor
+```
+
+Manual one-liners still work if you prefer native harness commands from a clone:
 
 ```bash
 # Codex (user-wide; shared by the CLI and IDE extension)
@@ -331,15 +372,15 @@ saved as source cards, so corrections stay source-backed too.
 
 | Harness | Runtime guidance | MCP registration |
 | --- | --- | --- |
-| Claude Code | `~/.claude/CLAUDE.md` native `@import` | automatic with the plugin |
-| Codex | `~/.codex/AGENTS.md` pointer block | `codex mcp add` |
-| Cursor | `./AGENTS.md` pointer block | `cursor --add-mcp` |
+| Claude Code | `~/.claude/CLAUDE.md` native `@import` | native `.claude-plugin/plugin.json` |
+| Codex | `~/.codex/AGENTS.md` pointer block | native `.codex-plugin/plugin.json` with inline MCP configuration |
+| Cursor (experimental) | `./AGENTS.md` pointer block | `setup --harness cursor --apply` or `cursor --add-mcp` |
 | Gemini CLI | MCP tool descriptions | `gemini mcp add` |
 | OpenCode | MCP tool descriptions | local entry in `opencode.json` |
 
-The full onboarding skills are built for Claude Code today. Codex and Cursor
-can also read the graph and recall packets directly through an `AGENTS.md`
-adapter. Gemini CLI and OpenCode use the MCP tool surface without an adapter.
+Claude Code and Codex are native plugin targets. Cursor retains an experimental
+adapter and manual MCP path. Gemini CLI and OpenCode use the MCP tool surface
+without a plugin.
 
 ## Try the demos
 

@@ -8,6 +8,10 @@ allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "AskUserQu
 
 # Marshmallow Learn
 
+Claude Code expands `${CLAUDE_PLUGIN_ROOT}` in the commands below. In other
+plugin hosts, resolve the plugin root as the directory two levels above this
+`SKILL.md` and substitute that absolute path before running a command.
+
 Use this skill only when the user explicitly asks Marshmallow to learn,
 remember, save, or update personal recall context, or approves a proposed
 learning update. Do not ingest ordinary sessions automatically.

@@ -1,0 +1,46 @@
+{
+  "name": "marshmallow",
+  "version": "0.7.0",
+  "description": "Build a local source-backed recall context runtime for Codex agents.",
+  "author": {
+    "name": "Marshmallow contributors",
+    "url": "https://github.com/notmehul/marshmallow"
+  },
+  "homepage": "https://github.com/notmehul/marshmallow",
+  "repository": "https://github.com/notmehul/marshmallow",
+  "license": "MIT",
+  "keywords": [
+    "personalization",
+    "memory",
+    "local-first",
+    "agent",
+    "skills",
+    "context"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "marshmallow": {
+      "command": "./scripts/mcp_server.py"
+    }
+  },
+  "interface": {
+    "displayName": "Marshmallow",
+    "shortDescription": "Local source-backed recall for Codex",
+    "longDescription": "Marshmallow gives Codex source-backed context about people, projects, decisions, and working rules without a hosted memory service.",
+    "developerName": "Marshmallow contributors",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "brandColor": "#D946EF",
+    "composerIcon": "./assets/marsh-avatar-01.png",
+    "logo": "./assets/marsh-avatar-01.png",
+    "logoDark": "./assets/marsh-avatar-01.png",
+    "screenshots": [
+      "./assets/marshy-hero.png"
+    ],
+    "defaultPrompt": [
+      "Recall context relevant to my current task",
+      "Remember this as an untrusted candidate",
+      "Show the notes awaiting review"
+    ]
+  }
+}

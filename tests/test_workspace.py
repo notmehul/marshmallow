@@ -473,22 +473,40 @@ title: Home
 
     def test_setup_previews_codex_onboarding_without_touching_agents_md(self) -> None:
         root = self.temp_path / "fresh-marshmallow"
-        target = self.temp_path / "home/.codex/AGENTS.md"
+        home = self.temp_path / "home"
+        target = home / ".codex/AGENTS.md"
+        env = os.environ.copy()
+        env["HOME"] = str(home)
 
-        result = self.cli("setup", "--workspace", str(root), "--harness", "codex", "--target", str(target))
+        result = self.cli(
+            "setup",
+            "--workspace",
+            str(root),
+            "--harness",
+            "codex",
+            "--target",
+            str(target),
+            env=env,
+        )
 
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         self.assertTrue((root / "runtime.md").is_file())
         self.assertFalse(target.exists())
+        self.assertFalse((home / ".cursor/mcp.json").exists())
+        self.assertFalse((home / ".local/share/marshmallow/scripts/mcp_server.py").exists())
         self.assertIn("Workspace ready:", result.stdout)
         self.assertIn("Adapter preview for codex", result.stdout)
+        self.assertIn("MCP preview for codex", result.stdout)
         self.assertIn("Apply with the same command plus --apply.", result.stdout)
         self.assertIn(f"+{ADAPTER_START_MARKER}", result.stdout)
         self.assertIn("Marshmallow source-backed recall", result.stdout)
 
     def test_setup_apply_connects_cursor_and_writes_backup_record(self) -> None:
         root = self.temp_path / "fresh-marshmallow"
-        target = self.temp_path / "project/AGENTS.md"
+        home = self.temp_path / "home"
+        target = home / "project/AGENTS.md"
+        env = os.environ.copy()
+        env["HOME"] = str(home)
 
         result = self.cli(
             "setup",
@@ -499,6 +517,7 @@ title: Home
             "--target",
             str(target),
             "--apply",
+            env=env,
         )
 
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
@@ -506,6 +525,8 @@ title: Home
         self.assertIn(ADAPTER_START_MARKER, installed)
         self.assertIn("Read `", installed)
         self.assertIn(str((root / "runtime.md").resolve()), installed)
+        self.assertTrue((home / ".cursor/mcp.json").is_file())
+        self.assertTrue((home / ".local/share/marshmallow/scripts/mcp_server.py").is_file())
         records = sorted((root / "backups/adapters").glob("*/record.json"))
         self.assertEqual(1, len(records))
         record = json.loads(records[0].read_text())

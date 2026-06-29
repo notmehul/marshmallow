@@ -8,6 +8,10 @@ allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "AskUserQu
 
 # Marshmallow Start
 
+Claude Code expands `${CLAUDE_PLUGIN_ROOT}` in the commands below. In other
+plugin hosts, resolve the plugin root as the directory two levels above this
+`SKILL.md` and substitute that absolute path before running a command.
+
 Marshmallow turns a small set of user-provided context into source-backed recall
 nodes, a short Claude runtime adapter, and optional skill overlays. Keep the
 first run useful and inspectable. Do not turn it into a framework setup.
@@ -102,9 +106,12 @@ Apply only after explicit approval:
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter apply
 ```
 
-If the user also works in Codex or Cursor, offer the same adapter for `AGENTS.md`
-(`--harness codex` writes `~/.codex/AGENTS.md`; `--harness cursor` writes the
-project `./AGENTS.md`). It uses the identical preview/approve/rollback shape.
+Codex installs this shared procedure through its native plugin. From a clone,
+offer the same `AGENTS.md` adapter with `--harness codex`; it writes
+`~/.codex/AGENTS.md`. Cursor is an experimental target: `--harness cursor`
+writes the project `./AGENTS.md`. Both clone-based paths keep the same
+preview/approve/rollback shape, and `setup --harness codex|cursor --apply` also
+applies MCP registration after explicit approval.
 
 ## Optional First Tune
 

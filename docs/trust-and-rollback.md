@@ -23,7 +23,9 @@ must explicitly approve adapter installs, skill rewrites, and rollback applies.
 
 ## Adapter
 
-One-command setup for Codex or Cursor:
+Claude Code and Codex plugins register MCP without editing global harness
+configuration. One-command setup remains a clone-based fallback for Codex and
+an experimental path for Cursor:
 
 ```bash
 scripts/marshmallow.py setup --harness codex
@@ -32,9 +34,25 @@ scripts/marshmallow.py setup --harness cursor
 scripts/marshmallow.py setup --harness cursor --apply
 ```
 
-`setup` creates or verifies `~/.marshmallow/` and then uses the same adapter
-preview/apply path below. Without `--apply`, it does not write the target
-`AGENTS.md`.
+`setup` creates or verifies `~/.marshmallow/`, previews the adapter and MCP
+registration, and writes only when you pass `--apply`.
+Without `--apply`, it does not write the target `AGENTS.md` or harness MCP config.
+
+MCP-only preview/apply:
+
+```bash
+scripts/marshmallow.py mcp preview --harness codex
+scripts/marshmallow.py mcp apply --harness codex
+scripts/marshmallow.py mcp preview --harness cursor
+scripts/marshmallow.py mcp apply --harness cursor
+scripts/marshmallow.py mcp remove --harness cursor --approve
+```
+
+Apply copies the stdio server to `~/.local/share/marshmallow/scripts/` and
+writes a backup record under `~/.marshmallow/backups/mcp/` before changing
+`~/.codex/config.toml` or `~/.cursor/mcp.json`. It records the selected
+Marshmallow workspace in the MCP environment and refuses to replace an existing
+server named `marshmallow` with a different configuration.
 
 Preview:
 

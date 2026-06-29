@@ -50,10 +50,18 @@ outrank recalled personal guidance. The legacy `recall_context()` function
 continues to return the original list shape for internal callers; CLI and MCP
 use the composed response.
 
-The `setup` CLI is a thin onboarding convenience for non-Claude harnesses: it
-creates or verifies the workspace, then delegates to the same reversible adapter
-installer used by `adapter preview/apply`. It does not introduce a second state
-file or bypass adapter approval.
+The native Claude Code and Codex plugins share one runtime, one set of
+procedures, and one MCP server. Their thin manifests stay harness-specific:
+`.claude-plugin/plugin.json` uses Claude's plugin-root contract, while
+`.codex-plugin/plugin.json` uses inline MCP configuration and Codex presentation
+assets. Shared skills explain how non-Claude hosts resolve the plugin root
+before running commands.
+
+The `setup` CLI remains a clone-based fallback. It creates or verifies the
+workspace, then delegates to the same reversible adapter installer used by
+`adapter preview/apply`. It does not introduce a second state file or bypass
+adapter approval. Cursor uses this experimental path; it is not a native plugin
+target.
 
 ## Capture Loop
 
@@ -101,9 +109,12 @@ is a thin wrapper over the same functions the CLI calls — no second
 implementation of recall or capture.
 
 The server negotiates the latest stable MCP revision and the previously shipped
-revision. Harness-specific setup stays in documentation and native harness
-configuration; Marshmallow does not grow a second installer that edits vendor
-config files.
+revision. Claude Code and Codex register it from their native plugin manifests.
+Clone-based setup uses each harness's config shape, with preview/apply/remove
+backed by Marshmallow backup records. `setup --harness codex|cursor --apply`
+copies the stdio server to `~/.local/share/marshmallow/scripts/` and writes
+user-wide MCP config after explicit approval. Cursor support on this path is
+experimental.
 
 It exposes only the safe verbs: `recall` (read), `remember` (write to untrusted
 inbox), and `pending` (read). `promote` is intentionally absent: crossing into
@@ -117,6 +128,10 @@ Claude Code skills call the single executable CLI at
 `${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py`. The skill frontmatter allowlists
 that exact Bash prefix, plus `rg` and the file tools needed to stage user
 approved material.
+
+Codex discovers the canonical `skills/` directory. Each procedure explains how
+to resolve the absolute plugin root when Claude's environment variable is not
+available. The procedures remain single-source; only path resolution differs.
 
 Do not route plugin skills through `python3 ${CLAUDE_PLUGIN_ROOT}/...` or broad
 `Bash(python3:*)` permissions. Direct executable calls keep the harness
