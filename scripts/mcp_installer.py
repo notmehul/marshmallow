@@ -27,6 +27,8 @@ MCP_RUNTIME_FILES = (
     "mcp_server.py",
     "capture.py",
     "recall.py",
+    "record_access.py",
+    "managed_state.py",
     "markdown_graph.py",
     "marshmallow_workspace.py",
     "safety.py",

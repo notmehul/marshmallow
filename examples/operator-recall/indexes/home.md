@@ -1,7 +1,7 @@
 ---
 id: home
 title: Operator Recall Home
-graph_ids: [meera-founder, mani-investor, loomline-company, delay-fundraise-until-retention, mani-loomline-relationship]
+graph_ids: [retention-proof-plan, meera-founder, mani-investor, loomline-company, delay-fundraise-until-retention, mani-loomline-relationship]
 labels: [home, operator-recall]
 updated: 2026-06-14
 ---
@@ -10,6 +10,8 @@ updated: 2026-06-14
 
 ## Start Here
 
+- [[retention-proof-plan]] - active operational hub for the six-week retention
+  proof cycle.
 - [[delay-fundraise-until-retention]] - decision recall for why Loomline is not
   raising in June 2026.
 - [[mani-loomline-relationship]] - relationship context for the investor update.

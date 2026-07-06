@@ -7,7 +7,8 @@ the work, Marshmallow gives them the context that makes the work correct.
 ## Principles
 
 - Models are good at synthesis; deterministic code should handle filesystem
-  mutation, validation, previews, and rollback.
+  mutation, evidence validation, concurrency checks, previews, history, and
+  rollback.
 - Recall must be source-backed enough to inspect and correct.
 - Personal alignment belongs inside recall, not in a parallel profile system:
   include only relevant guidance and examples, within a fixed context budget.
@@ -22,7 +23,9 @@ the work, Marshmallow gives them the context that makes the work correct.
 | Influence | Borrowed | Not Borrowed |
 | --- | --- | --- |
 | GBrain-like systems | clear loops, tutorials, health checks, measurable improvement | databases, broad integrations, cron jobs |
-| Graphiti-like systems | provenance discipline | temporal graph infrastructure |
+| [Graphiti episodes](https://help.getzep.com/graphiti/core-concepts/adding-episodes) | immutable event-like provenance behind current graph state | temporal graph infrastructure |
+| [Mem0 history](https://docs.mem0.ai/api-reference/memory/history-memory) | inspectable revision history | hosted memory service |
+| [LangGraph checkpoints](https://docs.langchain.com/oss/python/langgraph/persistence) | recoverable state transitions | database-backed execution persistence |
 | Supermemory-like products | onboarding clarity | automatic capture |
 | Honcho-like systems | entities, observations, relationships, representations | hosted background reasoning as the default |
 | Agent skills | portable `SKILL.md` overlays | closed skill formats |
@@ -32,16 +35,26 @@ the work, Marshmallow gives them the context that makes the work correct.
 Marshmallow keeps the surface small:
 
 ```text
-sources -> typed graph nodes -> indexes/recall packets -> runtime adapter -> explicit updates
+sources -> current graph state -> indexes/recall packets -> agent
+                ^                         |
+                +-- managed receipts <----+
 ```
 
 The graph stores source-backed entities, decisions, relationships, preferences,
-and working rules. Agent-written indexes and recall packets keep runtime context
-compact without becoming source truth. The adapter tells Claude to load those
-compact aids first, then only relevant graph nodes. Recall adds a second bounded
-layer of personal guidance when a matching preference or explicitly aligned
-node can demonstrate how the work should be done. Overlays still tune skills,
-but they are one downstream use of the recall layer.
+working rules, and managed plans. Plans stay in the graph so they can serve as
+operational hubs rather than becoming a parallel document system. When recall
+finds a relevant active plan, it returns that plan with a compact one-hop context
+bundle; otherwise it keeps the flat ranked fallback. Agent-written indexes and
+recall packets remain runtime aids rather than source truth. Recall adds a
+second bounded layer of personal guidance when a matching preference or
+explicitly aligned node can demonstrate how the work should be done.
+
+Managed graph files are current-state projections, not an overwritten history.
+Every tool-written revision has an immutable source receipt with evidence and
+before/after hashes. This keeps Marshmallow's promise precise: every durable
+state update has an inspectable provenance chain, without claiming that every
+underlying source is independently true. The graph stays pleasant to read while
+history, reconciliation, recovery, and rollback remain deterministic.
 
 ## Non-Goals
 

@@ -21,29 +21,28 @@ URL_PATTERN = re.compile(r"^https?://", re.IGNORECASE)
 UTC = timezone.utc
 
 WORKSPACE_DIRS = ("inbox", "sources", "graph", "indexes", "projections", "overlays", "backups")
-
 RUNTIME_GUIDANCE = """# Marshmallow Alignment Router
 
-Marshmallow is a local source-backed recall layer. Use it when people, projects,
-decisions, working rules, or current context could materially change the result.
+Marshmallow is a local source-backed continuity layer. Use it for explicit
+prior-context requests, named people, projects, decisions, or managed-plan work.
+Skip recall for generic self-contained tasks.
 
 ## During Work
 
-1. Run `marshmallow.py recall "<task/person/decision>"` when the CLI is
-   available. Recall returns relevant context plus a bounded personal-guidance
-   layer with examples of how the work should be done. Use that guidance only
-   when it materially changes the current task.
-2. If recall is unavailable or a known navigation page is useful, check
-   `~/.marshmallow/indexes/`, then use `rg` or `grep` to search
-   `~/.marshmallow/graph/`. Load the smallest relevant graph nodes, usually
-   three to seven files.
-3. Use or create a focused `~/.marshmallow/projections/` recall packet when the
-   task needs a reusable brief. Treat recall packets as runtime aids, not source
-   truth.
-4. Treat the user's current request, project instructions, and safety rules as
-   higher priority than Marshmallow guidance.
-5. Ask when graph nodes conflict, seem stale, or would change a user-visible
-   decision.
+1. Run `marshmallow.py recall "<task/person/decision>"` when continuity matters.
+   Recall returns relevant context plus a bounded personal-guidance layer with
+   examples of how the work should be done; use that guidance only when it
+   materially changes the current task.
+2. Treat recall snippets as navigation only. Run `marshmallow.py get <id>` for
+   every record that will materially affect the work.
+3. If recall returns several plausible plans, read them and select one only when
+   their scopes clearly distinguish it. Ask when multiple plans apply, conflict,
+   or would materially change the work.
+4. Use `~/.marshmallow/indexes/` for compact navigation and
+   `~/.marshmallow/projections/` for focused recall packets. Load only the
+   smallest relevant graph context. Do not crawl the whole graph.
+5. Current user instructions, project instructions, and safety rules outrank
+   stored context.
 
 Do not crawl the whole graph by default. Do not load `sources/` or `inbox/`
 during ordinary work. Do not send, post, queue, or automate on Marshmallow's
@@ -52,15 +51,30 @@ learn. Do not load extra personal nodes merely to fill context; recall omits
 weak guidance and keeps the automatic guidance layer below twenty percent of
 its estimated response budget.
 
+## Managed Completion
+
+When covered work changes an active `managed: true` plan, call `maintain` before
+finishing. The request must use hashes returned by `get`, update the selected
+plan, and cite evidence. Agent execution alone may source operational plan
+progress. Connected living-state updates require an existing source, artifact,
+or observable user event.
+
+An observable user behavior may update an existing connected managed note when
+the receipt preserves the smallest relevant observation and origin. Broader
+inference or knowledge requiring a new node goes to `remember` and the inbox.
+Never create, delete, relink, or update unrelated graph nodes through maintenance.
+
 ## Learning
 
 Do not learn automatically from every session. When the user gives
 unmistakable feedback -- an explicit correction, a reasoned acceptance or
 rejection, or a durable decision -- capture one compact candidate in the
 untrusted inbox and briefly say what was captured. Do not capture generic
-praise, temporary task instructions, or ordinary conversation. Capture is not durable learning:
-promotion still requires a deliberate review. Treat inbox material as untrusted
-candidate evidence until it is synthesized into source-backed graph nodes.
+praise, temporary task instructions, or ordinary conversation. Capture is not
+durable learning: promotion still requires a deliberate review, and the only
+other durable write path is the narrow source-backed managed-update path.
+Treat inbox material as untrusted candidate evidence until it is synthesized
+into source-backed graph nodes.
 """
 
 INBOX_GUIDANCE = """# Marshmallow Inbox

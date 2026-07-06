@@ -170,6 +170,30 @@ Do not infer approval from the investor unless a source says so.
     )
 
 
+def plan_node(
+    node_id: str = "launch-plan",
+    related_nodes: str = "[]",
+    status: str = "active",
+    managed: str = "true",
+    updated: str = "2026-07-04",
+    insight: str = "Use the launch plan as the operational hub for the next phase.",
+    body: str = "# Launch Plan\n\nThe body is deliberately free-form.\n",
+) -> str:
+    return graph_node(
+        node_id,
+        insight=insight,
+        labels="[launch-plan]",
+        related_nodes=related_nodes,
+        skills="[]",
+        extra_frontmatter=f"""type: plan
+subjects: [launch]
+status: {status}
+managed: {managed}
+updated: {updated}""",
+        body=body,
+    )
+
+
 def overlay(label: str = "Prefer quiet hierarchy.") -> str:
     return f"""## Marshmallow Alignment
 
@@ -441,6 +465,28 @@ title: Home
         warnings = graph_quality_warnings(self.root)
         self.assertTrue(any("Obsidian [[links]]" in warning for warning in warnings))
         self.assertEqual([], validate_workspace(self.root))
+
+    def test_plan_nodes_are_managed_graph_hubs_with_free_form_bodies(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/launch-project.md", high_quality_typed_graph_node("launch-project"))
+        atomic_write(
+            self.root / "graph/launch-plan.md",
+            plan_node(related_nodes="[launch-project]", body="# Launch Plan\n\nDo the useful thing next.\n"),
+        )
+
+        self.assertEqual([], validate_workspace(self.root))
+        warnings = graph_quality_warnings(self.root)
+        self.assertFalse(any("launch-plan.md" in warning for warning in warnings))
+
+        atomic_write(
+            self.root / "graph/invalid-plan.md",
+            plan_node("invalid-plan", managed="false", status="", updated=""),
+        )
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("plan nodes must set managed: true" in error for error in errors))
+        self.assertTrue(any("plan nodes must include status" in error for error in errors))
+        self.assertTrue(any("managed nodes must include updated" in error for error in errors))
+        self.assertTrue(any("plan node is disconnected" in warning for warning in graph_quality_warnings(self.root)))
 
     def test_user_correction_creates_source_card(self) -> None:
         path = write_user_correction_source(
@@ -1277,6 +1323,16 @@ description: Build product strategy and validate decisions with a security-aware
         self.assertEqual(1, len(frontmatter["guidance_examples"]))
         self.assertTrue(any("missing source reference" in error for error in validate_workspace(self.root)))
 
+    def test_new_plan_scaffolds_a_managed_plan_inside_graph(self) -> None:
+        result = self.cli("new", "plan", "launch-plan", "--workspace", str(self.root))
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        path = self.root / "graph/launch-plan.md"
+        frontmatter, body = parse_frontmatter(path)
+        self.assertEqual("plan", frontmatter["type"])
+        self.assertEqual("true", frontmatter["managed"])
+        self.assertEqual("active", frontmatter["status"])
+        self.assertIn("whatever form fits the work", body)
+
     def test_new_refuses_overwrite_without_force(self) -> None:
         first = self.cli("new", "source", "dup", "--workspace", str(self.root))
         self.assertEqual(0, first.returncode, first.stdout + first.stderr)
@@ -1293,7 +1349,7 @@ description: Build product strategy and validate decisions with a security-aware
 
     def test_reference_templates_are_present_and_non_empty(self) -> None:
         refs = ROOT / "references"
-        for name in ("source-card", "graph-node", "index", "projection", "overlay"):
+        for name in ("source-card", "graph-node", "plan-node", "index", "projection", "overlay"):
             template = refs / f"{name}-template.md"
             self.assertTrue(template.is_file(), template)
             self.assertGreater(len(template.read_text(encoding="utf-8").strip()), 0, template)

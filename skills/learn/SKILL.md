@@ -79,12 +79,13 @@ inferring taste, values, or personality.
    frontmatter — this emits every required field and the expected body sections:
 
    ```bash
-   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" new source|node|index|projection <id>
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" new source|node|plan|index|projection <id>
    ```
 
    Then fill in the `TODO` placeholders. Full field references live in
    `${CLAUDE_PLUGIN_ROOT}/references/` (`source-card-template.md`,
-   `graph-node-template.md`, `index-template.md`, `projection-template.md`).
+   `graph-node-template.md`, `plan-node-template.md`, `index-template.md`,
+   `projection-template.md`).
 
 5. Create or update source cards in `~/.marshmallow/sources/`
    (`new source <source-id>`). To turn an inbox candidate into a source card
@@ -109,13 +110,25 @@ inferring taste, values, or personality.
    qualify automatically; use `alignment: true` for another node type or
    `alignment: false` to opt out of automatic guidance.
 
+   Use `new plan <plan-id>` when the user wants a durable operational plan.
+   Plans stay in `graph/`, retain a free-form body, link to their context through
+   `related_nodes`, and opt into task-triggered maintenance with `managed: true`.
+   Write a precise `insight` and `applies_to` scope: recall uses that compact
+   metadata and graph context rather than arbitrary words in the plan body.
+
+   Do not directly overwrite an existing managed plan or connected managed node
+   to record completed work. Run recall, get the complete selected records and
+   hashes, then use a maintenance request. Agent execution can support plan
+   progress; connected living-state changes require an existing source,
+   inspectable artifact, or observable user event. Broader inference or any new
+   node remains an inbox/promotion task.
+
    If the new durable knowledge makes future navigation easier, update a
    compact page in `~/.marshmallow/indexes/` (`new index <id>`). If the user is
    preparing for a specific meeting, workflow, handoff, or agent task, write a
    focused recall packet in `~/.marshmallow/projections/`
    (`new projection <id>`). Do not create extra domain folders, generated graph
-   files, deterministic projection generators, or durable source-plan files by
-   default.
+   files, separate plan folders, or deterministic projection generators.
 
 7. Keep weak, conflicting, or context-dependent evidence explicit. Ask the user
    one focused question when the distinction changes future behavior.
@@ -141,6 +154,7 @@ Run recall for the likely next task when useful:
 
 ```bash
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<task|person|decision>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" get "<selected-record-id>" --json
 ```
 
 Explain what changed, which source cards back it, what recall can now find, and

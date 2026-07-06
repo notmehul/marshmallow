@@ -8,7 +8,7 @@ from typing import Any
 
 from markdown_graph import graph_nodes, list_field, parse_frontmatter, section_text
 from marshmallow_workspace import MarshmallowError
-from recall import compact, recall_context, score_record, tokenize
+from recall import compact, recall_bundle, score_record, tokenize
 from recall_budget import (
     DEFAULT_TOKEN_BUDGET,
     GUIDANCE_BUDGET_SHARE,
@@ -180,9 +180,10 @@ def recall_with_personal_guidance(
     # the same record never spends the budget twice.
     guidance_ids = {item["id"] for item in guidance}
     context_budget = token_budget - guidance_tokens
+    inner = recall_bundle(root, query, limit=limit)
     raw_results = [
         result
-        for result in recall_context(root, query, limit=limit)
+        for result in inner["results"]
         if not (result["kind"] == "graph" and result["id"] in guidance_ids)
     ]
     results, context_tokens = fit_context(raw_results, context_budget)
@@ -191,6 +192,7 @@ def recall_with_personal_guidance(
 
     return {
         "results": results,
+        "plan_context": inner["plan_context"],
         "personal_guidance": guidance,
         "budget": {
             "token_budget": token_budget,

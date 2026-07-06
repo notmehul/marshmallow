@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""A stdlib-only MCP server exposing the safe half of the Marshmallow loop.
+"""A stdlib-only MCP server exposing Marshmallow's bounded agent loop.
 
 The whole point is zero resistance for any model: instead of a runtime.md ritual
-the agent must remember to follow, it sees three self-describing tools. The tool
+the agent must remember to follow, it sees self-describing tools. The tool
 descriptions ARE the instructions, so a non-Claude harness gets the same "recall
 before you act, capture instead of forgetting" behavior with no extra wiring.
 
-Only the safe verbs are exposed:
+Only bounded verbs are exposed:
 
-- ``recall``   - read source-backed context plus bounded guidance (read-only).
+- ``recall``   - navigate source-backed context plus bounded guidance (read-only).
+- ``get``      - read one complete recalled record (read-only).
+- ``history``  - inspect managed revisions (read-only).
+- ``maintain`` - update only pre-authorized managed graph state.
 - ``remember`` - capture into the untrusted inbox (never touches the graph).
 - ``pending``  - list candidates awaiting human review (read-only).
 
@@ -30,12 +33,14 @@ from pathlib import Path
 from typing import Any
 
 from capture import list_candidates, remember
+from managed_state import apply_maintenance, maintenance_history
 from marshmallow_workspace import MarshmallowError, default_workspace, ensure_workspace
 from personal_guidance import recall_with_personal_guidance
+from record_access import get_record
 
 PROTOCOL_VERSION = "2025-11-25"
 SUPPORTED_PROTOCOL_VERSIONS = (PROTOCOL_VERSION, "2025-06-18")
-SERVER_INFO = {"name": "marshmallow", "version": "0.6.0"}
+SERVER_INFO = {"name": "marshmallow", "version": "0.7.0"}
 DEFAULT_RECALL_LIMIT = 8
 DEFAULT_PENDING_LIMIT = 20
 
@@ -43,10 +48,11 @@ TOOLS: list[dict[str, Any]] = [
     {
         "name": "recall",
         "description": (
-            "Recall source-backed context about a person, project, decision, or working rule "
-            "BEFORE you draft, decide, or act. Returns relevant facts with citations plus a tightly "
-            "bounded personal-guidance layer showing how the work should be done. Use it whenever "
-            "prior context or personal judgment could change your answer."
+            "Recall source-backed continuity for explicit prior-context requests, named people, "
+            "projects or decisions, and managed-plan work. Skip generic self-contained tasks. "
+            "May return one selected plan or several candidates, plus a tightly bounded "
+            "personal-guidance layer showing how the work should be done. Snippets are navigation "
+            "aids; call get before using a matched record."
         ),
         "inputSchema": {
             "type": "object",
@@ -55,6 +61,137 @@ TOOLS: list[dict[str, Any]] = [
                 "limit": {"type": "integer", "description": "Maximum results (default 8)."},
             },
             "required": ["query"],
+        },
+    },
+    {
+        "name": "get",
+        "description": (
+            "Read one complete record returned by recall, including its full Markdown body, "
+            "content hash, source citations, graph links, and managed-lineage status."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "Record id returned by recall."},
+                "kind": {
+                    "type": "string",
+                    "enum": ["graph", "source", "index", "projection", "recall-packet"],
+                    "description": "Required only when an id is ambiguous across record kinds.",
+                },
+            },
+            "required": ["id"],
+        },
+    },
+    {
+        "name": "history",
+        "description": "Read immutable managed-update receipts for one graph node. Read-only.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"id": {"type": "string", "description": "Managed graph node id."}},
+            "required": ["id"],
+        },
+    },
+    {
+        "name": "maintain",
+        "description": (
+            "After completing work under a recalled managed plan, atomically update that existing "
+            "plan and eligible one-hop managed nodes. Requires expected hashes and evidence, creates "
+            "an immutable source receipt, and cannot create, delete, or relink graph nodes."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "enum": ["update", "reconcile"],
+                    "description": (
+                        "Use update for semantic changes. Reconcile only records current bytes and "
+                        "updates must contain id and expected_hash only."
+                    ),
+                },
+                "plan_id": {"type": "string", "description": "Selected active managed plan id."},
+                "selection_reason": {
+                    "type": "string",
+                    "description": "Why this plan covers the completed work.",
+                },
+                "outcome": {"type": "string", "description": "Short factual summary of what changed."},
+                "actor": {"type": "string", "description": "Agent and session identifier."},
+                "updates": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {"type": "string"},
+                            "expected_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                            "body": {
+                                "type": "string",
+                                "description": "Complete replacement Markdown body.",
+                            },
+                            "insight": {"type": "string"},
+                            "status": {
+                                "type": "string",
+                                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                            },
+                        },
+                        "required": ["id", "expected_hash"],
+                        "additionalProperties": False,
+                    },
+                },
+                "evidence": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "kind": {
+                                        "type": "string",
+                                        "enum": ["agent-execution", "artifact"],
+                                    },
+                                    "pointer": {"type": "string"},
+                                    "summary": {"type": "string"},
+                                },
+                                "required": ["kind", "pointer", "summary"],
+                                "additionalProperties": False,
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "kind": {"type": "string", "enum": ["existing-source"]},
+                                    "source_id": {"type": "string"},
+                                },
+                                "required": ["kind", "source_id"],
+                                "additionalProperties": False,
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "kind": {"type": "string", "enum": ["user-event"]},
+                                    "pointer": {"type": "string", "description": "Session and turn origin."},
+                                    "summary": {"type": "string"},
+                                    "observation": {
+                                        "type": "string",
+                                        "description": "Smallest relevant observation.",
+                                    },
+                                },
+                                "required": ["kind", "pointer", "summary", "observation"],
+                                "additionalProperties": False,
+                            },
+                        ]
+                    },
+                },
+            },
+            "required": [
+                "plan_id",
+                "selection_reason",
+                "outcome",
+                "actor",
+                "updates",
+                "evidence",
+            ],
+            "additionalProperties": False,
         },
     },
     {
@@ -91,10 +228,21 @@ def _format_recall(bundle: dict[str, Any]) -> str:
     guidance = bundle["personal_guidance"]
     if not results and not guidance:
         return "No matching source-backed context found."
-    lines: list[str] = ["Relevant context:"] if results else []
+    lines: list[str] = []
+    plan_context = bundle["plan_context"]
+    if plan_context["state"] == "selected":
+        lines.append(f"Plan-centered context: {plan_context['selected_id']}")
+    elif plan_context["state"] == "candidates":
+        ids = ", ".join(item["id"] for item in plan_context["candidates"])
+        lines.append(f"Plan candidates (call get before selecting): {ids}")
+    if results:
+        lines.append("Relevant context:")
     for result in results:
         label = result["title"] or result["insight"] or result["task"] or result["id"]
-        lines.append(f"- [{result['kind']}] {label}")
+        reason = f"/{result['match_reason']}" if result.get("bundle_id") else ""
+        lines.append(f"- [{result['kind']}{reason}] id={result['id']} — {label}")
+        if result.get("lineage_status") in {"broken", "drifted"}:
+            lines.append(f"    WARNING: managed lineage is {result['lineage_status']}; reconcile before maintenance")
         if result["snippet"]:
             lines.append(f"    {result['snippet']}")
         for citation in result.get("sources", []):
@@ -125,6 +273,21 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> str:
         if not isinstance(limit, int) or isinstance(limit, bool):
             raise MarshmallowError("recall limit must be an integer")
         return _format_recall(recall_with_personal_guidance(root, query, limit=limit))
+    if name == "get":
+        record_id = arguments.get("id", "")
+        kind = arguments.get("kind")
+        if not isinstance(record_id, str) or not record_id.strip():
+            raise MarshmallowError("get requires a non-empty id")
+        if kind is not None and not isinstance(kind, str):
+            raise MarshmallowError("get kind must be a string")
+        return json.dumps(get_record(root, record_id.strip(), kind=kind), indent=2, sort_keys=True)
+    if name == "history":
+        node_id = arguments.get("id", "")
+        if not isinstance(node_id, str) or not node_id.strip():
+            raise MarshmallowError("history requires a non-empty id")
+        return json.dumps({"id": node_id.strip(), "history": maintenance_history(root, node_id.strip())}, indent=2)
+    if name == "maintain":
+        return json.dumps(apply_maintenance(root, arguments, apply=True), indent=2, sort_keys=True)
     if name == "remember":
         note = arguments.get("note", "")
         why = arguments.get("why")

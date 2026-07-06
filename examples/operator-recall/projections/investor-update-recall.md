@@ -2,7 +2,7 @@
 id: investor-update-recall
 title: Investor Update Recall
 task: Prepare a short investor update and explain why Loomline is not raising this month.
-graph_ids: [meera-founder, mani-investor, loomline-company, delay-fundraise-until-retention, mani-loomline-relationship]
+graph_ids: [retention-proof-plan, meera-founder, mani-investor, loomline-company, delay-fundraise-until-retention, mani-loomline-relationship]
 labels: [recall-packet, investor-update]
 updated: 2026-06-14
 ---
@@ -16,6 +16,7 @@ in June 2026.
 
 ## Load First
 
+- [[retention-proof-plan]] - active plan and revisit condition.
 - [[delay-fundraise-until-retention]] - decision and revisit condition.
 - [[mani-loomline-relationship]] - the useful investor dynamic.
 - [[mani-investor]] - preferred update format.

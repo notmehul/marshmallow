@@ -79,24 +79,27 @@ For each candidate, answer:
 Promote only what will improve future work:
 
 - source cards under `~/.marshmallow/sources/`
-- source-backed entities, decisions, relationships, preferences, or working
-  rules under `~/.marshmallow/graph/`
+- source-backed entities, decisions, relationships, preferences, working rules,
+  or managed plans under `~/.marshmallow/graph/`
 - compact navigation pages under `~/.marshmallow/indexes/` when the graph needs
   a faster starting point
 - task-shaped recall packets under `~/.marshmallow/projections/` when a
   meeting, workflow, handoff, or agent task needs reusable context
 
-Use [source-card-template](source-card-template.md) and
-[graph-node-template](graph-node-template.md). Use [index-template](index-template.md)
+Use [source-card-template](source-card-template.md),
+[graph-node-template](graph-node-template.md), and
+[plan-node-template](plan-node-template.md). Use [index-template](index-template.md)
 and [projection-template](projection-template.md) only when those runtime aids
 make future agent work faster. Create 3-7 high-signal nodes for onboarding, not
-exhaustive coverage. Each node should fit roughly one screen.
+exhaustive coverage. Ordinary nodes should fit roughly one screen; plan bodies
+remain free-form.
 
 Every node needs source support. User corrections count as sources when saved
 as `user-correction-YYYYMMDD...` source cards. Use `type` only as a retrieval
-hint: `entity`, `decision`, `relationship`, or `preference`. Do not force a
-starter taxonomy. Do not create extra domain folders, generated graph files, or
-durable source-plan files by default.
+hint: `entity`, `decision`, `relationship`, or `preference`. A user-approved
+operational plan uses `type: plan`, `status: active`, and `managed: true`. Keep
+plans in `graph/`. Do not force a starter taxonomy, separate plan folder, or
+plan-body structure.
 
 When a node should change how future work is done, add one concise `guidance`
 line and up to three short `guidance_examples`. Preference nodes qualify
@@ -111,6 +114,7 @@ Run:
 ```bash
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" doctor
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<task|person|decision>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" get "<selected-record-id>" --json
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" scan-skills --project "$PWD"
 ```
 
@@ -120,6 +124,12 @@ guidance returned with recall as bounded personal-guidance examples of how the
 work should be done.
 Recommend skill tuning only when a judgment-sensitive skill should change real
 work.
+
+Treat recall as navigation. If recall surfaces several plans, get each complete
+record and choose only when their scopes clearly distinguish one; ask when more
+than one applies, conflicts, or would materially change the work. Explain that
+future covered plan work ends with a hash-checked `maintain` call, producing an
+immutable update receipt rather than silently overwriting state.
 
 Do not require graph approval before useful recall. The graph is inspectable
 substrate, not a mandatory checkpoint. If the user corrects a record, revise the
@@ -135,8 +145,9 @@ Preview the user-level Claude Code adapter:
 
 Explain that the adapter adds one replaceable import block to
 `~/.claude/CLAUDE.md`. Future sessions use that imported router to run recall or
-check indexes before loading the smallest relevant graph nodes or recall
-packets. Neither sources nor inbox files are loaded into ordinary prompts.
+get complete records before loading the smallest relevant graph context. Managed
+work follows `recall → get → maintain`. Neither sources nor inbox files are
+loaded into ordinary prompts.
 
 Keep this diff for the rewrite gate. If the user is also tuning skills, include
 the adapter and named skill files in one explicit approval request. If the user
@@ -183,3 +194,9 @@ After onboarding, respond to:
 Align persistently through recall and direct graph-node search. Learn
 selectively. Do not ingest ordinary sessions, copy raw session logs into the
 graph, automate actions, or retune skills in the background.
+
+Do not directly overwrite an existing managed node after covered work. Use the
+managed maintenance request so the update receives evidence, concurrency checks,
+history, backups, and a source receipt. Observable user behavior may update an
+existing connected managed note only when the smallest relevant observation and
+origin are preserved; broader inference belongs in the inbox.

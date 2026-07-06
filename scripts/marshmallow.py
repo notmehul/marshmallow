@@ -29,8 +29,16 @@ from markdown_graph import (
     validate_workspace,
 )
 from capture import dismiss, list_candidates, promote, remember
+from managed_state import (
+    apply_maintenance,
+    incomplete_transaction_warnings,
+    maintenance_history,
+    recover_incomplete_transactions,
+    rollback_maintenance,
+)
 from marshmallow_workspace import MarshmallowError, atomic_write, default_workspace, ensure_workspace, require_workspace
 from personal_guidance import recall_with_personal_guidance
+from record_access import KIND_ALIASES, get_record
 from skill_overlay import apply_overlay, create_starter_skill, rollback_overlay
 from skill_scanner import discover
 
@@ -52,6 +60,8 @@ def runtime_guidance_warnings(root: Path) -> list[str]:
     text = runtime.read_text(encoding="utf-8")
     expected = (
         "recall",
+        "get",
+        "maintain",
         "indexes/",
         "projections/",
         "bounded personal-guidance",
@@ -61,8 +71,8 @@ def runtime_guidance_warnings(root: Path) -> list[str]:
     if all(fragment in text for fragment in expected):
         return []
     return [
-        f"{runtime}: runtime guidance may be stale; update it to use alignment-aware recall, "
-        "task-shaped context, and visible capture of unmistakable feedback"
+        f"{runtime}: runtime guidance may be stale; update it to describe alignment-aware recall, "
+        "get, maintain, and visible capture of unmistakable feedback"
     ]
 
 
@@ -140,6 +150,7 @@ def command_doctor(args: argparse.Namespace) -> int:
             f"{root / 'inbox'}: {len(pending_candidates)} candidates await review; "
             "run `pending --limit 20` and curate a small batch"
         )
+    warnings.extend(incomplete_transaction_warnings(root))
 
     def status_for(target: Path) -> dict[str, str]:
         try:
@@ -228,16 +239,35 @@ def command_recall(args: argparse.Namespace) -> int:
     if not results and not guidance:
         print("No matching context found.")
         return 0
+    plan_context = bundle["plan_context"]
+    if plan_context["state"] == "selected":
+        print(f"Plan-centered context: {plan_context['selected_id']}")
+    elif plan_context["state"] == "candidates":
+        candidate_ids = ", ".join(item["id"] for item in plan_context["candidates"])
+        print(f"Plan candidates (read before selecting): {candidate_ids}")
     if results:
         print("Relevant context:")
     for result in results:
         label = result["title"] or result["insight"] or result["task"] or result["id"]
         print(f"{result['score']:>3} {result['kind']} {result['id']} - {label}")
         print(f"    {result['path']}")
-        if result["type"] or result["subjects"]:
+        if result["type"] or result["status"] or result["managed"] or result["subjects"]:
             subjects = ", ".join(result["subjects"])
-            metadata = ", ".join(item for item in (result["type"], subjects) if item)
+            metadata = ", ".join(
+                item
+                for item in (
+                    result["type"],
+                    result["status"],
+                    "managed" if result["managed"] else "",
+                    subjects,
+                )
+                if item
+            )
             print(f"    {metadata}")
+        if result["bundle_id"]:
+            print(f"    reason: {result['match_reason']}")
+        if result["lineage_status"] in {"broken", "drifted"}:
+            print(f"    WARNING: managed lineage is {result['lineage_status']}; reconcile before maintenance")
         if result["snippet"]:
             print(f"    {result['snippet']}")
         for citation in result.get("sources", []):
@@ -248,6 +278,74 @@ def command_recall(args: argparse.Namespace) -> int:
             print(f"  - {item['guidance']} [{item['id']}]")
             if item["example"]:
                 print(f"    Example: {item['example']}")
+    return 0
+
+
+def command_get(args: argparse.Namespace) -> int:
+    result = get_record(args.workspace, args.id, kind=args.kind)
+    if args.json:
+        json_print(result)
+        return 0
+    print(f"{result['kind']} {result['id']} ({result['content_hash']})")
+    print(f"Path: {result['path']}")
+    print(f"Lineage: {result['lineage']['status']}")
+    for citation in result["sources"]:
+        print(f"Source: {citation['id']} ({citation['pointer'] or 'unresolved'})")
+    print()
+    print(result["body"].rstrip())
+    return 0
+
+
+def _request_payload(path: Path) -> dict[str, object]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise MarshmallowError(f"Maintain request is not valid JSON: {error}") from error
+    if not isinstance(payload, dict):
+        raise MarshmallowError("Maintain request must be a JSON object")
+    return payload
+
+
+def command_maintain(args: argparse.Namespace) -> int:
+    if args.action == "rollback":
+        if not args.receipt_id:
+            raise MarshmallowError("maintain rollback requires a receipt id")
+        result = rollback_maintenance(
+            args.workspace,
+            args.receipt_id,
+            actor=args.actor,
+            apply=args.apply,
+        )
+    elif args.action == "recover":
+        result = recover_incomplete_transactions(args.workspace, apply=args.apply)
+    else:
+        if args.request is None:
+            raise MarshmallowError(f"maintain {args.action} requires --request")
+        request = _request_payload(args.request)
+        if args.action == "reconcile":
+            request["mode"] = "reconcile"
+        result = apply_maintenance(
+            args.workspace,
+            request,
+            apply=args.action == "apply" or (args.action == "reconcile" and args.apply),
+        )
+    json_print(result)
+    return 0
+
+
+def command_history(args: argparse.Namespace) -> int:
+    history = maintenance_history(args.workspace, args.id)
+    if args.json:
+        json_print({"id": args.id, "history": history})
+        return 0
+    if not history:
+        print(f"No managed update history for {args.id}.")
+        return 0
+    for item in history:
+        rollback = f" rollback-of={item['rollback_of']}" if item["rollback_of"] else ""
+        print(f"{item['captured']} {item['id']} - {item['summary']}{rollback}")
+        print(f"    actor: {item['actor']}")
+        print(f"    evidence: {', '.join(item['evidence_kinds'])}")
     return 0
 
 
@@ -391,7 +489,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     new = subparsers.add_parser(
         "new",
-        help="Scaffold a valid source, node, index, projection, or overlay skeleton.",
+        help="Scaffold a valid source, node, plan, index, projection, or overlay skeleton.",
     )
     add_workspace(new)
     new.add_argument("kind", choices=SCAFFOLD_KINDS, help="What to scaffold.")
@@ -417,12 +515,43 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument("--additional", type=Path, action="append", default=[])
     scan.set_defaults(func=command_scan_skills)
 
-    recall = subparsers.add_parser("recall", help="Find source-backed context for a task, entity, or decision.")
+    recall = subparsers.add_parser(
+        "recall",
+        help="Find source-backed context, centered on a relevant active plan when one exists.",
+    )
     add_workspace(recall)
     recall.add_argument("query", help="Task, person, decision, or topic to find context for.")
     recall.add_argument("--json", action="store_true")
     recall.add_argument("--limit", type=int, default=10)
     recall.set_defaults(func=command_recall)
+
+    get_parser = subparsers.add_parser(
+        "get",
+        help="Read one complete graph node, source, index, or recall packet with citations and hash.",
+    )
+    add_workspace(get_parser)
+    get_parser.add_argument("id", help="Record id returned by recall.")
+    get_parser.add_argument("--kind", choices=tuple(KIND_ALIASES), help="Disambiguate duplicate ids.")
+    get_parser.add_argument("--json", action="store_true")
+    get_parser.set_defaults(func=command_get)
+
+    maintain = subparsers.add_parser(
+        "maintain",
+        help="Preview/apply source-backed managed state, reconcile drift, rollback, or recover.",
+    )
+    add_workspace(maintain)
+    maintain.add_argument("action", choices=("preview", "apply", "reconcile", "rollback", "recover"))
+    maintain.add_argument("receipt_id", nargs="?", help="Receipt id for rollback.")
+    maintain.add_argument("--request", type=Path, help="JSON maintenance request for preview/apply/reconcile.")
+    maintain.add_argument("--actor", default="user:cli", help="Actor recorded for rollback.")
+    maintain.add_argument("--apply", action="store_true", help="Apply reconcile, rollback, or recovery.")
+    maintain.set_defaults(func=command_maintain)
+
+    history = subparsers.add_parser("history", help="Show source-backed revision history for a managed node.")
+    add_workspace(history)
+    history.add_argument("id", help="Managed graph node id.")
+    history.add_argument("--json", action="store_true")
+    history.set_defaults(func=command_history)
 
     remember_parser = subparsers.add_parser(
         "remember",

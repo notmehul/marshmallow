@@ -30,10 +30,12 @@ deterministic checklist skills unless the user explicitly asks.
 
 ## Draft Overlay
 
-Use recall first, then check compact indexes and graph nodes directly:
+Use recall to navigate, then get every selected node in full before it affects
+the overlay:
 
 ```bash
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<skill|topic|label>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" get "<selected-node-id>" --kind graph --json
 rg -n "<skill|topic|label>" ~/.marshmallow/indexes
 rg -n "<skill|topic|label>" ~/.marshmallow/graph
 ```
