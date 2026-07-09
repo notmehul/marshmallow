@@ -81,12 +81,42 @@ python3 evals/retrieval-quality/run_eval.py \
   --queries evals/retrieval-quality/queries.jsonl --json report.json
 ```
 
+## Scale Sweep
+
+`scale_workspace.py` grows 200/1000/5000-node tiers from the seed. Tiers are
+regenerated on demand and never committed (same `--rng-seed` gives a
+byte-identical tree), so generate them outside the repo:
+
+```sh
+python3 evals/retrieval-quality/scale_workspace.py \
+  --seed-workspace evals/retrieval-quality/seed \
+  --target-nodes 1000 --rng-seed 7 --out /tmp/tier1000
+
+python3 evals/retrieval-quality/run_eval.py \
+  --workspace /tmp/tier1000 \
+  --queries evals/retrieval-quality/queries.jsonl --json report.json
+```
+
+Mechanism: the seed's 100 nodes (plus raw material, source cards, index, and
+projections) are copied byte-identical, then whole 100-node parallel universes
+are cloned around them as near-miss distractors — structural vocabulary
+(piers, gates, vendors, berths, drills) is kept while entity names are
+re-coined with partial token overlap (shared first names, `P9-GATE` becomes
+`P14-GATE`, `Turnstile Dynamics` becomes e.g. `Turnbuckle Dynamics`). Every
+planted-fact anchor is mutated in clones (dates shift by whole weeks,
+quantities and spec codes change, anchor phrases are re-worded), so clones can
+attract lexical retrieval but never contain a labeled fact — queries stay
+answerable exactly as labeled, only against the original universe.
+`--target-nodes` must therefore be a multiple of 100 (whole universes), at
+least 200. Generation fails loudly if any anchor survives in a clone or the
+tier is not doctor-clean; every tier passes `validate_workspace` and
+`graph_quality_warnings` with zero errors and zero warnings by construction.
+Property tests live in `tests/test_scale_workspace.py`.
+
 ## Coming In Later Steps
 
 Per the design's build order (`docs/plans/2026-07-08-retrieval-quality-eval-design.md`):
 
-- `scale_workspace.py` — deterministic seeded scaler for 200/1k/5k-node
-  distractor tiers.
 - `baseline.json` + CI job — pinned seed-tier scores with a two-point
   regression tolerance.
 - Sweep findings and competitor adapters (Honcho, GBrain, Mem0).
