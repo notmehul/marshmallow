@@ -133,10 +133,56 @@ python3 evals/retrieval-quality/run_eval.py \
   --baseline evals/retrieval-quality/baseline.json   # exit 1 on drift
 ```
 
+## Sweep Findings (2026-07-09, rng-seed 7, k=5)
+
+| nodes | direct recall / prec / MRR | paraphrase recall / prec / MRR | mean ms/query |
+| ----- | -------------------------- | ------------------------------ | ------------- |
+| 100   | 1.000 / .905 / 1.000       | .863 / .585 / .850             | 28            |
+| 200   | 1.000 / .725 / 1.000       | .850 / .335 / .606             | 54            |
+| 1000  | .988 / .625 / 1.000        | .413 / .095 / .338             | 254           |
+| 5000  | .988 / .610 / 1.000        | .363 / .085 / .322             | 1268          |
+
+What the curve says:
+
+- **Direct phrasing is scale-proof.** When the query shares the node's coined
+  vocabulary, lexical scoring stays near-perfect at 5000 nodes (MRR 1.0
+  throughout). Phrase and metadata bonuses dominate distractor noise.
+- **Paraphrase collapses, and the knee is early.** Rewording a query to share
+  few tokens with its target costs 24 MRR points at just 200 nodes
+  (.85 → .61) and 51 points by 1000 (.34); recall halves by 1000
+  (.86 → .41), then the curve nearly plateaus to 5000. This is the lexical
+  ceiling: it is not a 10k-node problem, it starts one clone-universe in.
+- **Precision erodes steadily** (.905 → .61) as near-miss clones fill the
+  top-k even when the right node still ranks first.
+- **Latency grows linearly** with corpus size (recall scans every file):
+  28 ms → 1.27 s per query at 5000 nodes. Interactive at hundreds of nodes,
+  noticeable at low thousands.
+- **Negative metrics are flat by construction** — clone vocabulary never
+  touches negative-query tokens, so the sweep does not stress negatives.
+  Treat the seed-tier negative numbers (junk scoring within ~28% of true
+  positives) as the honest signal, and the sweep's as untested, not stable.
+
+Implication: for a deliberately small curated graph (tens to low hundreds of
+nodes) queried by agents that echo the graph's own vocabulary, lexical recall
+holds. The realistic agent case — queries phrased differently from the stored
+insight — degrades early enough that any future "ever-expanding graph"
+direction needs semantic retrieval or vocabulary-bridging (aliases, indexes)
+first. This table is the evidence base for that decision.
+
+Caveats for anyone citing these numbers: distractors are systematic clone
+mutations, not independently authored content; paraphrase variants come from
+one LLM's phrasing distribution; latency is one machine (Apple silicon,
+local SSD). Cross-tool claims should rest on the seed tier only, per the
+design.
+
+Reproduce: generate tiers with `--rng-seed 7` as shown above; identical bytes,
+identical scores.
+
 ## Coming In Later Steps
 
 Per the design's build order (`docs/plans/2026-07-08-retrieval-quality-eval-design.md`):
 
-- Sweep findings (200/1k/5k degradation analysis).
 - Competitor adapters (Honcho, GBrain, Mem0) — phase two, after the
   Marshmallow baseline exists.
+- Plan-activation and lineage-gate metrics activate when plan-centered
+  recall (PR #4) merges; re-pin `baseline.json` then.
