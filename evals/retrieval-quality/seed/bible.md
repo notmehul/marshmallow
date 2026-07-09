@@ -1,0 +1,225 @@
+# HarborLine Regional Ferry — Universe Bible
+
+**Evaluation window:** 2026-04-20 through 2026-06-12 (eight calendar weeks)  
+**Operator:** Juno Castillo — Senior Terminal Operations Manager, HarborLine Regional Ferry  
+**Domain:** Multi-pier passenger ferry terminal operations — berth scheduling, vessel refit windows, contractor access, safety drills, and fare-system cutovers across four active piers and six vessels.
+
+---
+
+## Operator Profile
+
+**Juno Castillo** runs day-to-day terminal readiness for HarborLine's commuter and tourist routes. Juno owns cross-pier schedules, contractor staging rules, passenger-facing disruption notices (via Jessamine Lee), and three standing operational plans. Juno reports informally to Elena Vasquez on fleet-impacting work and coordinates daily with pier leads, Victor Dunn on infrastructure projects, and Marcus Holt on sailings.
+
+Juno's working memory spans vendor slip dates, which Elena owns which pier, near-duplicate Pier 9 project codes (P9-GATE vs P9-GANG), and manually maintained coverage matrices that no longer match their source notes.
+
+---
+
+## People (13)
+
+| Name | Role | Relationship to Juno |
+|------|------|----------------------|
+| **Juno Castillo** | Senior Terminal Operations Manager | Operator (self) |
+| **Elena Vasquez** | Fleet Maintenance Director | Juno's escalation path for drydock and sea trials; co-signs SG-REFIT milestones |
+| **Elena Crane** | Pier 7 Passenger Services Manager | Juno's peer on passenger impact; owns P7-RAMP commuter messaging |
+| **Marcus Holt** | Master Scheduler | Juno coordinates berth swaps and sailing diversions with Marcus |
+| **Priya Nandakumar** | Safety & Compliance Lead | Juno implements Priya's drill rules and load-test gates |
+| **Derek Blunt** | Drydock & Vendor Liaison | Juno's primary contact for Turnstile Dynamics and Bridgeway Hoist |
+| **Fatima Okonkwo** | Access Systems & HarborPass Admin | Juno requests badge batches and migration windows from Fatima |
+| **Glenn Wexler** | Procurement Finance Controller | Juno routes change orders and contingencies through Glenn |
+| **Hana Suzuki** | Pier 3 Site Superintendent | Juno directs partial closures and dive inspections with Hana |
+| **Victor Hale** | Chief Engineer, MV Seaglass | Juno schedules crane and berth time around Victor Hale's refit sequence |
+| **Victor Dunn** | Pier Infrastructure Program Manager | Juno aligns P9-GATE and P9-GANG staging with Victor Dunn |
+| **Cal Donner** | Night Harbormaster | Juno sets after-hours lighting and staging rules with Cal |
+| **Jessamine Lee** | Passenger Communications | Juno approves outage notices Jessamine publishes |
+
+**Disambiguation note:** Two **Elenas** — Vasquez (fleet/drydock) vs Crane (Pier 7 passengers). Two **Victors** — Hale (MV Seaglass engineering) vs Dunn (Pier 9 infrastructure).
+
+---
+
+## Projects (6)
+
+| Codename | Full name | Lead | Near-duplicate pair |
+|----------|-----------|------|---------------------|
+| **P9-GATE** | Pier-9 Gate Retrofit | Victor Dunn | **Pair A** — shares Pier 9 berth, gate/gangway jargon, contractor badges, lighting |
+| **P9-GANG** | Pier-9 Gangway Replacement | Victor Dunn | **Pair A** — adjacent codenames, overlapping hydraulic and staging vocabulary |
+| **SG-REFIT** | MV Seaglass Engine-Room Refit | Elena Vasquez | — |
+| **HP-MIGRATE** | HarborPass 2.0 Ticketing Migration | Fatima Okonkwo | — |
+| **SSB-DRILL** | Storm Surge Barrier Drill Series | Priya Nandakumar | — |
+| **P7-RAMP** | Pier 7 Accessibility Ramp Install | Elena Crane | — |
+
+**Lexical overlap (P9-GATE / P9-GANG):** Both artifacts reference "pier 9 retrofit," "berth closure," "contractor staging," "hydraulic hose," "mock-up inspection," and "night lighting" — retrieval must use codename, vendor name, or component (gate lane vs gangway width) to disambiguate.
+
+---
+
+## Timeline (Week by Week)
+
+### Week 1 — 2026-04-20 to 2026-04-24
+Spring surge begins. Juno activates the **Q2 Terminal Readiness Playbook**. Pier 3 float switch fails; Hana Suzuki orders partial berth closure and dive inspection overtime. Victor Dunn circulates the still-active **Pier 9 Single-Contractor Plan** naming Kelwick Marine. P9-GATE and P9-GANG scopes are introduced as parallel Pier 9 workstreams.
+
+### Week 2 — 2026-04-27 to 2026-05-01
+Vendors split: Derek Blunt confirms **Turnstile Dynamics** (gates) and **Bridgeway Hoist** (gangway). An early email **incorrectly lists the SG-REFIT crane booking as 2026-05-12** (see Contradiction). P9-GATE redesign holds at four fare lanes. Elena Crane specifies 6061-T6 grating for P7-RAMP. Hana completes Pier 3 float switch replacement.
+
+### Week 3 — 2026-05-04 to 2026-05-08
+Victor Dunn **supersedes the Pier 9 Single-Contractor Plan** on 2026-05-06 after gate and gangway scopes diverge. Glenn Wexler sets P9-GATE change-order cap at $18,400. Derek negotiates 12% off Bridgeway mobilization. P9-GANG hydraulic hose spec locked as SAE 100R2AT (not gate project's R1AT). Elena Vasquez approves SG-REFIT drydock window from 2026-05-18. Cal Donner logs unauthorized vehicle at Pier 9 staging.
+
+### Week 4 — 2026-05-11 to 2026-05-15
+Fatima issues 14 temporary P9-GATE contractor badges. Victor Dunn ties Pier 9 **night lighting** to P9-GATE only. Marcus bans back-to-back gate/gangway shifts on the same berth. Glenn rejects $62,000 gangway contingency as duplicate. Bridgeway gangway delivery holds **2026-05-21**. Juno declares P9-GATE critical path on 2026-05-13. Marcus diverts Friday Harbor run to Pier 5 on 2026-05-15 for ramp work. HarborPass go-live target set for 2026-06-02. SSB-DRILL dates confirmed.
+
+### Week 5 — 2026-05-18 to 2026-05-22
+Drydock opens; **crane booking corrected to 2026-05-19** (fixing week-2 error). Victor Dunn inspects P9-GANG mock-up (2.4 m width). Turnstile Dynamics slips gate delivery to **2026-05-28**. Priya mandates 45-minute life-vest checks and gangway load-test certificate. Fuel-line purge sequence dispute resolved in Elena Vasquez's favor. Fatima requires rollback token test before migration. Source notes for storm coverage specify 4 deckhands per pier.
+
+### Week 6 — 2026-05-25 to 2026-05-29
+SSB-DRILL simulation weekends continue. Juno **manually edits** Storm Surge Weekend Coverage Matrix to **3 deckhands per pier** (drift from source). Jessamine drafts HarborPass outage notice (Jun 1 22:00 – Jun 2 06:00). Elena Crane escalates Surfside Condos noise complaint. SG-REFIT sea trial scheduled 2026-06-05.
+
+### Week 7 — 2026-06-01 to 2026-06-05
+HarborPass migration completes **2026-06-02 at 05:47**. Legacy barcode readers remain at Pier 7 until 2026-06-12. Cal Donner puts Pier 9 floodlights in maintenance mode for gate commissioning. Final SSB-DRILL simulation weekend (Jun 7 falls on Sunday; prep occurs this week).
+
+### Week 8 — 2026-06-08 to 2026-06-12
+Juno signs Pier 7 ramp handover to Elena Crane on 2026-06-10. Priya's SSB-DRILL after-action review due 2026-06-11. **MV Seaglass returns to revenue service 2026-06-12** after SG-REFIT. Q2 playbook closeout and badge deactivation for Pier 9 contractors.
+
+---
+
+## Standing Plans (Operator-Owned)
+
+### 1. ACTIVE — Q2 Terminal Readiness Playbook
+- **Owner:** Juno Castillo  
+- **Status:** Active for entire window  
+- **Purpose:** Cross-pier checklist for berth closures, passenger notices, badge counts, and sailings alignment during Q2 construction and migration.  
+- **Referenced in:** Week 1 kickoff through week 8 closeout.
+
+### 2. INACTIVE — Pier 9 Single-Contractor Plan
+- **Owner:** Juno Castillo (custodian); authored by Victor Dunn  
+- **Status:** Superseded **2026-05-06** (week 3)  
+- **Why inactive:** Gate automation (Turnstile Dynamics) and gangway replacement (Bridgeway Hoist) diverged in schedule, liability, and hydraulic specs; a single Kelwick Marine envelope could not cover both scopes.  
+- **Superseded by:** Split vendor plan under Q2 Terminal Readiness Playbook, tracked as P9-GATE and P9-GANG.
+
+### 3. MANUALLY EDITED — Storm Surge Weekend Coverage Matrix
+- **Owner:** Juno Castillo  
+- **Status:** Active but **drifted from source**  
+- **Source notes (week 5):** 4 deckhands rostered per pier during each simulation weekend.  
+- **Drift (week 6):** Juno hand-edited matrix to **3 deckhands per pier**, citing volunteer pool realism; edit not back-propagated to Priya's official SSB-DRILL packet. Retrieval comparing "source notes" vs "working matrix" should surface the mismatch.
+
+---
+
+## Planted Facts (F01–F48)
+
+| ID | Claim | Anchors | Where |
+|----|-------|---------|-------|
+| **F01** | Juno Castillo owns the active Q2 Terminal Readiness Playbook. | `q2 terminal readiness`, `terminal readiness playbook`, `juno castillo` | Week 1; Juno |
+| **F02** | Pier-9 Gate Retrofit codename is P9-GATE. | `p9-gate`, `pier-9 gate retrofit`, `gate retrofit` | Week 1; Victor Dunn; P9-GATE |
+| **F03** | Pier-9 Gangway Replacement codename is P9-GANG. | `p9-gang`, `pier-9 gangway replacement`, `gangway replacement` | Week 1; Victor Dunn; P9-GANG |
+| **F04** | Turnstile Dynamics is the P9-GATE vendor. | `turnstile dynamics`, `gate vendor`, `p9-gate vendor` | Week 2; Derek Blunt; P9-GATE |
+| **F05** | Bridgeway Hoist is the P9-GANG vendor. | `bridgeway hoist`, `gangway vendor`, `p9-gang vendor` | Week 2; Derek Blunt; P9-GANG |
+| **F06** | The superseded Pier 9 Single-Contractor Plan named Kelwick Marine for all Pier 9 work. | `kelwick marine`, `single-contractor plan`, `pier 9 single-contractor` | Weeks 1–3; Victor Dunn; P9-GATE, P9-GANG |
+| **F07** | Victor Dunn superseded the single-contractor plan on 2026-05-06 because gate and gangway scopes diverged. | `superseded single-contractor`, `scope divergence`, `2026-05-06` | Week 3; Victor Dunn; P9-GATE, P9-GANG |
+| **F08** | HarborPass 2.0 go-live target date is 2026-06-02. | `harborpass 2.0`, `go-live 2026-06-02`, `june 2 go-live` | Week 4; Fatima Okonkwo; HP-MIGRATE |
+| **F09** | Pier 3 float switch failure on 2026-04-22 triggered partial berth closure. | `float switch failure`, `pier 3 berth closure`, `2026-04-22` | Week 1; Hana Suzuki; Pier 3 |
+| **F10** | Hana Suzuki authorized dive inspection overtime on 2026-04-23. | `dive inspection overtime`, `pier 3 overtime`, `2026-04-23` | Week 1; Hana Suzuki; Pier 3 |
+| **F11** | Elena Vasquez approved SG-REFIT drydock window starting 2026-05-18. | `sg-refit drydock`, `drydock window 2026-05-18`, `seaglass drydock` | Week 3; Elena Vasquez; SG-REFIT |
+| **F12** | Victor Hale requires spare thrust bearing delivery before hull penetration on SG-REFIT. | `thrust bearing`, `hull penetration`, `victor hale` | Week 3; Victor Hale; SG-REFIT |
+| **F13** | SG-REFIT crane booking date is **2026-05-19** (ground truth; see Contradiction). | `crane booking 2026-05-19`, `seaglass crane`, `may 19 crane` | Weeks 2 (wrong), 5 (correct); Victor Hale; SG-REFIT |
+| **F14** | Priya Nandakumar mandated life-vest spot checks every 45 minutes during SSB-DRILL. | `life-vest spot checks`, `45 minutes`, `ssb-drill` | Week 5; Priya; SSB-DRILL |
+| **F15** | SSB-DRILL has three simulation weekends: 2026-05-24, 2026-05-31, and 2026-06-07. | `storm surge barrier drill`, `may 24 drill`, `three simulation weekends` | Weeks 4–7; SSB-DRILL |
+| **F16** | Juno manually edited Storm Surge Weekend Coverage Matrix to 3 deckhands per pier. | `weekend coverage matrix`, `3 deckhands`, `manually edited` | Week 6; Juno; SSB-DRILL |
+| **F17** | Source notes for the coverage matrix originally specified 4 deckhands per pier. | `source notes`, `4 deckhands`, `coverage matrix` | Week 5; Juno; SSB-DRILL |
+| **F18** | P7-RAMP aluminum grating spec is grade 6061-T6 per Elena Crane. | `6061-t6`, `aluminum grating`, `pier 7 ramp` | Week 2; Elena Crane; P7-RAMP |
+| **F19** | P7-RAMP installation cannot block commuter rush before 09:30. | `commuter rush`, `09:30 cutoff`, `pier 7 ramp` | Week 3; Elena Crane, Marcus Holt; P7-RAMP |
+| **F20** | Marcus Holt shifted the Friday Harbor run to Pier 5 on 2026-05-15 for ramp work. | `friday harbor run`, `pier 5 diversion`, `2026-05-15` | Week 4; Marcus Holt; P7-RAMP |
+| **F21** | Glenn Wexler capped P9-GATE change orders at $18,400 without VP sign-off. | `change order cap`, `$18400`, `p9-gate` | Week 3; Glenn Wexler; P9-GATE |
+| **F22** | P9-GANG mock-up gangway width is 2.4 meters. | `mock-up gangway`, `2.4 meters`, `gangway width` | Weeks 4–5; Victor Dunn; P9-GANG |
+| **F23** | P9-GATE fare gate lane count remains 4 lanes after redesign. | `4 lanes`, `fare gate lane`, `p9-gate redesign` | Week 2; Victor Dunn; P9-GATE |
+| **F24** | Turnstile Dynamics gate delivery slipped to 2026-05-28 from 2026-05-21. | `gate delivery slip`, `2026-05-28`, `may 28 delivery` | Week 5; Derek Blunt; P9-GATE |
+| **F25** | Bridgeway Hoist gangway delivery remains on 2026-05-21. | `gangway delivery`, `2026-05-21`, `bridgeway delivery` | Week 4; Derek Blunt; P9-GANG |
+| **F26** | Jessamine Lee's passenger notice covers HarborPass outage 2026-06-01 22:00 through 2026-06-02 06:00. | `harborpass outage`, `june 1 22:00`, `passenger notice` | Week 6; Jessamine Lee; HP-MIGRATE |
+| **F27** | Fatima Okonkwo requires rollback token test completion before HarborPass migration. | `rollback token test`, `harborpass migration`, `fatima okonkwo` | Week 5; Fatima Okonkwo; HP-MIGRATE |
+| **F28** | Cal Donner logged an unauthorized vehicle at Pier 9 staging on 2026-05-07. | `unauthorized vehicle`, `pier 9 staging`, `cal donner` | Week 3; Cal Donner; P9-GATE, P9-GANG |
+| **F29** | Fatima Okonkwo issued 14 temporary contractor badges for P9-GATE for the week of 2026-05-11. | `14 contractor badges`, `temporary badges`, `p9-gate` | Week 4; Fatima Okonkwo; P9-GATE |
+| **F30** | Elena Vasquez's fuel-line purge sequence was adopted over Victor Hale's alternative on SG-REFIT. | `fuel line purge`, `vasquez sequence adopted`, `sg-refit` | Week 5; Elena Vasquez, Victor Hale; SG-REFIT |
+| **F31** | Derek Blunt negotiated a 12% discount on Bridgeway Hoist mobilization fee. | `12% discount`, `mobilization fee`, `bridgeway hoist` | Week 3; Derek Blunt; P9-GANG |
+| **F32** | Pier 9 night lighting upgrade is tied to P9-GATE, not P9-GANG. | `night lighting upgrade`, `pier 9 lighting`, `p9-gate` | Week 4; Victor Dunn; P9-GATE |
+| **F33** | SSB-DRILL uses codename "Highwater" in radio traffic. | `highwater codename`, `radio traffic`, `ssb-drill` | Week 5; Priya; SSB-DRILL |
+| **F34** | Marcus Holt banned back-to-back gangway and gate contractor shifts on the same Pier 9 berth. | `back-to-back shifts`, `pier 9 berth`, `contractor shift ban` | Week 4; Marcus Holt; P9-GATE, P9-GANG |
+| **F35** | Hana Suzuki completed Pier 3 float switch replacement on 2026-04-28. | `float switch replacement`, `pier 3 complete`, `2026-04-28` | Week 2; Hana Suzuki; Pier 3 |
+| **F36** | SG-REFIT post-refit sea trial is scheduled for 2026-06-05. | `sea trial`, `2026-06-05`, `seaglass trial` | Week 6; Victor Hale; SG-REFIT |
+| **F37** | Glenn Wexler rejected Victor Dunn's $62,000 gangway contingency as duplicate of P9-GATE contingency. | `$62000 contingency`, `gangway contingency`, `duplicate contingency` | Week 4; Glenn Wexler; P9-GANG |
+| **F38** | HarborPass 2.0 retains legacy barcode readers at Pier 7 only until 2026-06-12. | `legacy barcode`, `pier 7 readers`, `june 12 sunset` | Week 7; Fatima Okonkwo; HP-MIGRATE |
+| **F39** | Victor Dunn inspected the P9-GANG mock-up on 2026-05-20 with 2.4 m width confirmed. | `mock-up inspection`, `2026-05-20`, `width confirmed` | Week 5; Victor Dunn; P9-GANG |
+| **F40** | Elena Crane escalated a P7-RAMP noise complaint from Surfside Condos on 2026-05-27. | `surfside condos`, `noise complaint`, `pier 7 ramp` | Week 6; Elena Crane; P7-RAMP |
+| **F41** | Juno Castillo declared P9-GATE the critical path on 2026-05-13. | `critical path`, `p9-gate`, `2026-05-13` | Week 4; Juno; P9-GATE |
+| **F42** | P9-GANG hydraulic hose spec is SAE 100R2AT, not the P9-GATE SAE 100R1AT spec. | `sae 100r2at`, `hydraulic hose`, `p9-gang spec` | Week 3; Victor Dunn; P9-GANG |
+| **F43** | Priya Nandakumar required a gangway load test certificate before passenger use on P9-GANG. | `load test certificate`, `gangway load test`, `passenger use` | Week 5; Priya; P9-GANG |
+| **F44** | Cal Donner switched Pier 9 floodlight circuit to maintenance mode on 2026-06-03 for gate commissioning. | `floodlight circuit`, `maintenance mode`, `gate commissioning` | Week 7; Cal Donner; P9-GATE |
+| **F45** | HarborPass migration go-live completed on 2026-06-02 at 05:47. | `go-live 05:47`, `harborpass completed`, `june 2 migration` | Week 7; Fatima Okonkwo; HP-MIGRATE |
+| **F46** | Priya Nandakumar owns the SSB-DRILL final after-action review due 2026-06-11. | `after-action review`, `2026-06-11`, `ssb-drill final` | Week 8; Priya; SSB-DRILL |
+| **F47** | Juno Castillo signed off Pier 7 ramp handover to Elena Crane on 2026-06-10. | `ramp handover`, `2026-06-10`, `pier 7 handover` | Week 8; Juno, Elena Crane; P7-RAMP |
+| **F48** | MV Seaglass returned to revenue service on 2026-06-12 after SG-REFIT. | `revenue service`, `2026-06-12`, `seaglass returned` | Week 8; Elena Vasquez; SG-REFIT |
+
+---
+
+## Contradiction
+
+| Field | Value |
+|-------|-------|
+| **Affected fact** | **F13** — SG-REFIT crane booking date |
+| **Ground truth** | **2026-05-19** |
+| **Wrong statement** | **2026-05-12** — appears in artifact **R08** (week 2, 2026-04-29 email from Marcus Holt forwarding Victor Hale's preliminary crane quote) |
+| **Correction** | **2026-05-19** — artifact **R22** (week 5, 2026-05-19 meeting notes: drydock morning sync confirms crane on berth) |
+| **Why plausible** | Marcus conflated crane booking with an earlier pier crane availability survey on May 12; Victor Hale corrects once drydock opens. |
+
+---
+
+## Artifact Ledger (R01–R40)
+
+| Row | Date | Kind | Slug | People present | Fact IDs | One-line summary |
+|-----|------|------|------|----------------|----------|------------------|
+| **R01** | 2026-04-20 | meeting-notes | q2-kickoff-terminal | Juno, Marcus, Hana, Victor Dunn | F01, F02, F03, F06 | Juno activates Q2 playbook; Victor Dunn presents Kelwick single-contractor envelope for Pier 9 gate and gangway. |
+| **R02** | 2026-04-21 | email | pier3-berth-hold | Hana, Juno | F09 | Hana emails partial closure list; Juno asks Jessamine to hold passenger tweet pending dive scope. |
+| **R03** | 2026-04-22 | chat-log | float-switch-panic | Hana, Juno, Cal | F09 | Slack thread on float switch alarm; Cal offers night pump watch. |
+| **R04** | 2026-04-23 | session-fragment | dive-crew-ot-approval | Juno, Hana, Glenn | F10 | Juno approves OT in workforce tool; Glenn auto-routes to weekly OT report. |
+| **R05** | 2026-04-24 | meeting-notes | pier9-dual-scope-intro | Juno, Victor Dunn, Derek | F02, F03 | Victor Dunn splits gate retrofit vs gangway replacement talking points; still under Kelwick plan. |
+| **R06** | 2026-04-27 | email | vendor-split-announcement | Derek, Juno, Victor Dunn | F04, F05 | Derek introduces Turnstile Dynamics and Bridgeway Hoist as separate Pier 9 vendors. |
+| **R07** | 2026-04-28 | meeting-notes | pier3-switch-complete | Hana, Juno | F35 | Hana confirms float switch replacement done; Juno clears berth hold for May 1 sailings. |
+| **R08** | 2026-04-29 | email | seaglass-crane-prelim | Marcus, Victor Hale, Juno | F13 (wrong: states **2026-05-12**), F12 | **Contradiction row:** Marcus forwards crane quote citing May 12 booking; thrust bearing lead time noted. |
+| **R09** | 2026-04-30 | chat-log | p7-grating-spec | Elena Crane, Juno | F18 | Elena Crane specifies 6061-T6 grating; Juno asks about commuter rush window. |
+| **R10** | 2026-05-01 | session-fragment | gate-lane-redesign | Victor Dunn, Juno | F23 | Victor Dunn confirms four fare gate lanes after redesign mock-up. |
+| **R11** | 2026-05-04 | meeting-notes | procurement-week-open | Glenn, Derek, Juno | F21 | Glenn sets P9-GATE change-order cap; Derek mentions Bridgeway mobilization quote. |
+| **R12** | 2026-05-05 | email | bridgeway-discount-confirm | Derek, Glenn | F31 | Derek confirms 12% mobilization discount; Glenn logs savings code. |
+| **R13** | 2026-05-06 | meeting-notes | single-contractor-superseded | Victor Dunn, Juno, Derek | F06, F07 | Victor Dunn formally retires Kelwick single-contractor plan; split vendor track begins. |
+| **R14** | 2026-05-07 | chat-log | pier9-staging-intrusion | Cal, Juno, Fatima | F28 | Cal reports unauthorized van in Pier 9 staging; Fatima revokes temp plate. |
+| **R15** | 2026-05-08 | email | gangway-hose-spec | Victor Dunn, Priya | F42 | Victor Dunn emails SAE 100R2AT hose spec for P9-GANG; warns against gate R1AT reuse. |
+| **R16** | 2026-05-11 | session-fragment | badge-batch-p9-gate | Fatima, Juno | F29 | Fatima prints 14 contractor badges; Juno assigns Turnstile crew windows. |
+| **R17** | 2026-05-12 | meeting-notes | pier9-lighting-scope | Victor Dunn, Cal, Juno | F32 | Night lighting upgrade explicitly bound to P9-GATE; Cal requests circuit map. |
+| **R18** | 2026-05-13 | chat-log | critical-path-declaration | Juno, Marcus, Victor Dunn | F41 | Juno declares P9-GATE critical path; Marcus reorders berth closures. |
+| **R19** | 2026-05-14 | email | gangway-delivery-hold | Derek, Victor Dunn | F25 | Bridgeway confirms gangway delivery still 2026-05-21 despite gate slip rumors. |
+| **R20** | 2026-05-15 | meeting-notes | friday-harbor-diversion | Marcus, Elena Crane, Juno | F19, F20 | Ramp work forces Friday Harbor run to Pier 5; 09:30 commuter cutoff reinforced. |
+| **R21** | 2026-05-18 | email | drydock-window-opens | Elena Vasquez, Victor Hale, Juno | F11 | Elena Vasquez opens SG-REFIT drydock; thrust bearing on hand. |
+| **R22** | 2026-05-19 | meeting-notes | drydock-morning-sync | Victor Hale, Elena Vasquez, Juno, Marcus | F13 (correct: **2026-05-19**), F30 | **Correction row:** crane confirmed on berth May 19; fuel purge sequence dispute raised. |
+| **R23** | 2026-05-20 | session-fragment | gangway-mockup-inspection | Victor Dunn, Priya | F22, F39 | Victor Dunn measures 2.4 m mock-up width; Priya previews load test paperwork. |
+| **R24** | 2026-05-21 | chat-log | gangway-arrival-day | Derek, Victor Dunn, Marcus | F25, F34 | Gangway delivery day; Marcus enforces no back-to-back gate crew on same berth. |
+| **R25** | 2026-05-22 | email | gate-delivery-slip | Derek, Juno, Victor Dunn | F24 | Turnstile Dynamics slips gate delivery to 2026-05-28; Juno updates playbook. |
+| **R26** | 2026-05-25 | meeting-notes | highwater-drill-prep | Priya, Juno, Cal | F15, F33 | SSB-DRILL "Highwater" radio codename walkthrough; first simulation weekend approaching. |
+| **R27** | 2026-05-26 | email | rollback-token-gate | Fatima, Juno | F27, F08 | Fatima blocks HarborPass cutover until rollback token test passes; cites Jun 2 target. |
+| **R28** | 2026-05-27 | chat-log | surfside-noise-escalation | Elena Crane, Juno | F40 | Elena Crane forwards Surfside Condos noise complaint; Juno schedules quiet hours. |
+| **R29** | 2026-05-28 | session-fragment | coverage-matrix-source | Priya, Juno | F17, F14 | Priya shares source notes: 4 deckhands per pier; 45-minute life-vest checks. |
+| **R30** | 2026-05-29 | meeting-notes | coverage-matrix-drift | Juno, Priya, Marcus | F16 | Juno admits manual edit to 3 deckhands per pier; Priya unaware of drift. |
+| **R31** | 2026-06-01 | email | harborpass-outage-notice-draft | Jessamine, Juno, Fatima | F26 | Jessamine drafts outage window Jun 1 22:00 – Jun 2 06:00 for passenger boards. |
+| **R32** | 2026-06-02 | chat-log | harborpass-golive | Fatima, Juno, Jessamine | F45, F08 | Migration completes 05:47; Jessamine posts all-clear at Pier 3 and Pier 5. |
+| **R33** | 2026-06-03 | session-fragment | pier9-floodlight-maintenance | Cal, Victor Dunn | F44 | Cal switches floodlight circuit for P9-GATE commissioning; gangway lane stays lit. |
+| **R34** | 2026-06-04 | meeting-notes | legacy-reader-sunset | Fatima, Elena Crane | F38 | Pier 7 legacy barcode readers remain until Jun 12; Elena Crane confirms signage. |
+| **R35** | 2026-06-05 | email | seaglass-sea-trial | Victor Hale, Elena Vasquez | F36 | Sea trial complete; Elena Vasquez approves return-to-service checklist draft. |
+| **R36** | 2026-06-08 | meeting-notes | q2-closeout-preview | Juno, Glenn, Victor Dunn | F37, F21 | Glenn recounts rejected gangway contingency; Juno reviews open P9-GATE punch list. |
+| **R37** | 2026-06-09 | chat-log | gangway-load-cert | Priya, Victor Dunn | F43 | Priya files gangway load test certificate; clears passenger boarding test. |
+| **R38** | 2026-06-10 | session-fragment | pier7-ramp-handover | Juno, Elena Crane | F47 | Juno signs ramp handover; Elena Crane accepts Pier 7 accessibility ramp. |
+| **R39** | 2026-06-11 | email | highwater-after-action | Priya, Juno | F46 | Priya sends SSB-DRILL after-action review due today; Juno attaches edited coverage matrix. |
+| **R40** | 2026-06-12 | meeting-notes | seaglass-revenue-return | Elena Vasquez, Victor Hale, Juno, Marcus | F48 | MV Seaglass returns to revenue service; Marcus restores Friday Harbor berth at Pier 7. |
+
+---
+
+## Retrieval Stress Notes (for dataset authors)
+
+1. **Elena disambiguation:** "Elena approved drydock" → Vasquez (F11); "Elena escalated noise" → Crane (F40).  
+2. **Victor disambiguation:** "Victor on thrust bearing" → Hale (F12); "Victor on mock-up width" → Dunn (F39).  
+3. **P9 near-duplicates:** Delivery dates F24 (gate May 28) vs F25 (gangway May 21); hose specs F42; lighting F32 vs gangway load test F43.  
+4. **Plan drift:** Compare F17 (4 deckhands, source) vs F16 (3 deckhands, edited matrix).  
+5. **Contradiction:** Treat F13 as 2026-05-19; downgrade R08 May 12 claim unless question asks what early email stated.  
+6. **Inactive plan:** F06 references Kelwick; F07 marks supersession — do not treat Kelwick as active vendor after week 3.

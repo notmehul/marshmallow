@@ -1,0 +1,402 @@
+Here are the ten graph node files for this batch:
+
+=== FILE: evals/retrieval-quality/seed/graph/victor-dunn.md ===
+---
+id: victor-dunn
+insight: Victor Dunn superseded single-contractor Pier 9 planning on 2026-05-06 after scope divergence split P9-GATE and P9-GANG into separate vendor tracks.
+type: entity
+subjects: [victor-dunn, p9-gate, p9-gang]
+source_ids: [2026-05-06-single-contractor-superseded]
+related_nodes: [decision-supersede-single-contractor, plan-pier9-single-contractor, p9-gate-retrofit, p9-gang-replacement]
+labels: [infrastructure, pier-9]
+updated: 2026-05-06
+---
+
+# Victor Dunn
+
+## Current Model
+
+Victor Dunn is Pier Infrastructure Program Manager and Juno's counterpart for P9-GATE and P9-GANG staging alignment. On **2026-05-06** he formally retired the Kelwick Marine **pier 9 single-contractor** envelope after **scope divergence** between gate automation and gangway replacement made a single liability rider untenable. Victor's **superseded single-contractor** track now splits execution to Turnstile Dynamics (P9-GATE) and Bridgeway Hoist (P9-GANG) under the Q2 Terminal Readiness Playbook. Kelwick Marine remains named on the old plan for audit trail only.
+
+## Evidence
+
+- `2026-05-06-single-contractor-superseded` - Victor Dunn formally retired the **pier 9 single-contractor** envelope effective **2026-05-06**; his slide title literally said "**scope divergence**" as gate and gangway schedules, liability, and hydraulic specs could no longer share one Kelwick Marine mobilization envelope.
+
+## Use In Work
+
+- Route Pier 9 infrastructure scope questions, staging windows, and vendor split decisions through Victor Dunn rather than the inactive Kelwick single-contractor plan.
+- When gate vs gangway artifacts overlap (lighting, hoses, badges), use codename and vendor name to disambiguate before proposing berth changes.
+
+## Limits
+
+Victor Dunn does not manage MV Seaglass engineering (Victor Hale) or set procurement change-order caps (Glenn Wexler). Do not treat Kelwick Marine as the active Pier 9 vendor after 2026-05-06.
+
+## Connections
+
+- [[decision-supersede-single-contractor]] - Formal decision record for retiring the single-contractor plan on scope divergence.
+- [[plan-pier9-single-contractor]] - The inactive Kelwick Marine plan Victor superseded.
+- [[p9-gate-retrofit]] - Gate automation workstream split out after supersession.
+- [[p9-gang-replacement]] - Gangway replacement workstream split out after supersession.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/cal-donner.md ===
+---
+id: cal-donner
+insight: Cal Donner logged an unauthorized vehicle in pier 9 staging on 2026-05-07, triggering cone-line documentation for Victor Dunn's incident folder.
+type: entity
+subjects: [cal-donner, pier-9]
+source_ids: [2026-05-07-pier9-staging-intrusion]
+related_nodes: [rel-cal-night-operations, berth-9b-staging, victor-dunn, fatima-okonkwo]
+labels: [night-operations, security]
+updated: 2026-05-07
+---
+
+# Cal Donner
+
+## Current Model
+
+Cal Donner is Night Harbormaster and partners with Juno on after-hours lighting and staging rules at the piers. On **2026-05-07** **cal donner** logged an **unauthorized vehicle** — a white panel van with no contractor decal parked inside **pier 9 staging** west apron — in the night book after finding the engine off and nobody around. Fatima Okonkwo revoked the van's expired out-of-state temp commercial plate, which did not match Turnstile Dynamics or Bridgeway Hoist contractor lists. Cal was asked to drop a cone line and photograph the scene for Victor Dunn's incident folder.
+
+## Evidence
+
+- `2026-05-07-pier9-staging-intrusion` - Night Slack thread: **cal donner** reports a white panel van inside **pier 9 staging** west apron with no contractor decal, flags it as an **unauthorized vehicle**, and Fatima Okonkwo revokes the out-of-state temp plate that does not match Turnstile or Bridgeway vendor lists.
+
+## Use In Work
+
+- Route after-hours Pier 9 staging anomalies and unauthorized access reports through Cal Donner's night book before adjusting contractor badge or berth windows.
+- Coordinate cone-line documentation and photo evidence with Cal when staging intrusions affect P9-GATE or P9-GANG contractor access lists.
+
+## Limits
+
+Cal Donner does not issue contractor badges (Fatima Okonkwo) or set P9-GATE procurement caps. A single logged intrusion does not by itself change vendor delivery dates or gangway load-test gates.
+
+## Connections
+
+- [[rel-cal-night-operations]] - Relationship node for Cal's night harbormaster and after-hours pier duties.
+- [[berth-9b-staging]] - Staging area where the unauthorized vehicle was found on the west apron.
+- [[victor-dunn]] - Pier infrastructure lead who receives incident-folder documentation from Cal.
+- [[fatima-okonkwo]] - Access admin who revoked the unauthorized vehicle's temp commercial plate.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/jessamine-lee.md ===
+---
+id: jessamine-lee
+insight: Jessamine Lee's passenger notice covers the HarborPass outage from june 1 22:00 through 2026-06-02 06:00 pending Juno and Fatima approval.
+type: entity
+subjects: [jessamine-lee, harborpass]
+source_ids: [2026-06-01-harborpass-outage-notice-draft]
+related_nodes: [rel-jessamine-passenger-comms, hp-migrate, harborpass-2-0, decision-outage-notice-window]
+labels: [passenger-comms, outage-notice]
+updated: 2026-06-01
+---
+
+# Jessamine Lee
+
+## Current Model
+
+Jessamine Lee owns passenger communications for HarborLine and publishes disruption notices Juno approves. Her draft **passenger notice** for the **HarborPass outage** sets a six-hour cutover window: **june 1 22:00** local through **2026-06-02 06:00**, covering all staffed fare piers with terminal boards, SMS, and a web alert carrying **HarborPass 2.0** branding. Jessamine held publication pending Juno and Fatima Okonkwo green-light after the rollback token gate cleared. She noted that if cutover slips past 06:00 she will need a revised notice.
+
+## Evidence
+
+- `2026-06-01-harborpass-outage-notice-draft` - Jessamine Lee draft email sets the **HarborPass outage** window from **june 1 22:00** through **2026-06-02 06:00** (six hours) across all staffed fare piers, with web alert FAQ under **HarborPass 2.0** branding and a note to revise the **passenger notice** if cutover slips past 06:00.
+
+## Use In Work
+
+- Route HarborPass migration outage copy and terminal-board alerts through Jessamine Lee's passenger notice draft rather than ad hoc pier-level tweets.
+- Hold external publication until Juno approves and Fatima clears the rollback token gate, even if outage copy is drafted.
+
+## Limits
+
+Jessamine Lee does not administer HarborPass systems or run rollback token tests (Fatima Okonkwo). The notice covers the planned outage window only; actual go-live completed at 05:47 on June 2.
+
+## Connections
+
+- [[rel-jessamine-passenger-comms]] - Relationship node linking Jessamine to passenger-facing communications duties.
+- [[hp-migrate]] - HarborPass 2.0 migration project the outage notice supports.
+- [[harborpass-2-0]] - Fare system branding cited in the outage web alert.
+- [[decision-outage-notice-window]] - Decision record for the Jun 1–2 six-hour outage window.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/p9-gate-retrofit.md ===
+---
+id: p9-gate-retrofit
+insight: Pier-9 Gate Retrofit codename P9-GATE keeps 4 lanes per fare gate lane after p9-gate redesign with no fifth-lane squeeze on gate retrofit scope.
+type: entity
+subjects: [p9-gate, pier-9]
+source_ids: [2026-04-20-q2-kickoff-terminal, 2026-04-24-pier9-dual-scope-intro, 2026-05-01-gate-lane-redesign]
+related_nodes: [p9-gang-replacement, victor-dunn, turnstile-dynamics, rel-p9-gate-vs-p9-gang]
+labels: [pier-9, gate-retrofit]
+updated: 2026-05-01
+---
+
+# P9-Gate Retrofit
+
+## Current Model
+
+The **Pier-9 Gate Retrofit** project tracks under codename **P9-GATE** and covers fare lane automation, gate automation, and night lighting circuit upgrades at Pier 9. Introduced at Q2 kickoff still under the Kelwick single-contractor envelope, the **gate retrofit** scope split to Turnstile Dynamics after Victor Dunn superseded unified contracting on 2026-05-06. Victor Dunn's **p9-gate redesign** mock-up review on 2026-05-01 confirmed **4 lanes** after redesign review — each **fare gate lane** width matches the playbook passenger flow table with no fifth-lane squeeze. Gangway staging on P9-GANG remains on a separate calendar.
+
+## Evidence
+
+- `2026-04-20-q2-kickoff-terminal` - Week-1 kickoff introduces **Pier-9 Gate Retrofit** as **P9-GATE** (fare lanes, Turnstile-adjacent scope) rolling up under Victor Dunn's Pier 9 Single-Contractor Plan with Kelwick Marine as vendor of record.
+- `2026-04-24-pier9-dual-scope-intro` - Victor Dunn splits whiteboard columns for **Pier-9 Gate Retrofit** (four preliminary fare lanes, gate automation, night lighting) vs gangway work; **P9-GATE** codename goes live in the terminal readiness playbook tracker.
+- `2026-05-01-gate-lane-redesign` - Victor Dunn confirms **p9-gate redesign** mock-up holds **4 lanes** after redesign review with no fifth-lane squeeze; Juno verifies each **fare gate lane** width against the playbook passenger flow table.
+
+## Use In Work
+
+- Disambiguate Pier 9 artifacts by codename P9-GATE and component (fare gate lane count, night lighting) rather than generic "pier 9 retrofit" language shared with P9-GANG.
+- Hold gate lane layout to four fare lanes per the redesign mock-up unless Victor Dunn and Turnstile Dynamics reopen the squeeze review.
+
+## Limits
+
+P9-GATE does not own gangway hydraulic hose specs (SAE 100R2AT on P9-GANG) or Bridgeway Hoist delivery dates. Gate delivery later slipped to 2026-05-28, separate from gangway May 21 hold.
+
+## Connections
+
+- [[p9-gang-replacement]] - Adjacent Pier 9 workstream sharing staging vocabulary but separate codename and vendor.
+- [[victor-dunn]] - Infrastructure program manager who confirmed lane redesign and split vendor tracks.
+- [[turnstile-dynamics]] - P9-GATE gate automation vendor after procurement split.
+- [[rel-p9-gate-vs-p9-gang]] - Relationship node for disambiguating near-duplicate Pier 9 scopes.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/p9-gang-replacement.md ===
+---
+id: p9-gang-replacement
+insight: Pier-9 Gangway Replacement codename P9-GANG has mock-up gangway width of 2.4 meters confirmed at gangway width inspection on 2026-05-20.
+type: entity
+subjects: [p9-gang, pier-9]
+source_ids: [2026-04-20-q2-kickoff-terminal, 2026-04-24-pier9-dual-scope-intro, 2026-05-20-gangway-mockup-inspection]
+related_nodes: [p9-gate-retrofit, victor-dunn, bridgeway-hoist, rel-p9-gate-vs-p9-gang]
+labels: [pier-9, gangway]
+updated: 2026-05-20
+---
+
+# P9-Gang Replacement
+
+## Current Model
+
+The **Pier-9 Gangway Replacement** project tracks under codename **P9-GANG** and covers the hydraulic gangway module, load test hooks, and hose spec at Pier 9. Q2 kickoff introduced **gangway replacement** scope overlapping gate staging vocabulary but under its own codename in the terminal readiness playbook. Victor Dunn inspected the **mock-up gangway** on 2026-05-20 and confirmed **gangway width** at **2.4 meters** within tolerance on Bridgeway drawing rev C, with SAE 100R2AT hose verified on tag. Priya Nandakumar previewed load test certificate paperwork — passenger use remains blocked until signed.
+
+## Evidence
+
+- `2026-04-20-q2-kickoff-terminal` - Kickoff notes list **Pier-9 Gangway Replacement** as **P9-GANG** (hydraulic gangway, staging overlap with gate side) under the Kelwick Marine single-contractor envelope pending procurement split.
+- `2026-04-24-pier9-dual-scope-intro` - Victor Dunn's dual-scope session separates **Pier-9 Gangway Replacement** (hydraulic gangway module, load test hooks, hose spec TBD) from gate work; **P9-GANG** codename is live in the playbook tracker.
+- `2026-05-20-gangway-mockup-inspection` - Tape measure run on the **mock-up gangway** records span **2.4 meters** within tolerance; Victor Dunn confirms **width confirmed** on Bridgeway drawing rev C at the **mock-up inspection** dated **2026-05-20**.
+
+## Use In Work
+
+- Use P9-GANG codename and gangway width (2.4 m) to disambiguate Pier 9 retrieval hits that otherwise match gate retrofit language.
+- Block passenger boarding on the new gangway until Priya files the load test certificate even after mock-up width is confirmed.
+
+## Limits
+
+P9-GANG night lighting stays on the existing circuit — the Pier 9 lighting upgrade is tied to P9-GATE only. Hydraulic hose is SAE 100R2AT, not the P9-GATE SAE 100R1AT spec.
+
+## Connections
+
+- [[p9-gate-retrofit]] - Adjacent Pier 9 gate workstream sharing berth and staging vocabulary.
+- [[victor-dunn]] - Program manager who measured and confirmed mock-up gangway width.
+- [[bridgeway-hoist]] - Gangway vendor delivering the 2.4 m module.
+- [[rel-p9-gate-vs-p9-gang]] - Relationship node for near-duplicate Pier 9 scope disambiguation.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/sg-refit.md ===
+---
+id: sg-refit
+insight: SG-REFIT seaglass drydock opened with drydock window 2026-05-18 per Elena Vasquez and post-refit sea trial on 2026-06-05 seaglass trial complete.
+type: entity
+subjects: [sg-refit, mv-seaglass]
+source_ids: [2026-05-18-drydock-window-opens, 2026-06-05-seaglass-sea-trial]
+related_nodes: [elena-vasquez, victor-hale, mv-seaglass, rel-victor-hale-sg-refit]
+labels: [fleet-refit, drydock]
+updated: 2026-06-05
+---
+
+# SG-Refit
+
+## Current Model
+
+**SG-REFIT** is the MV Seaglass engine-room refit led by Elena Vasquez with Victor Hale as Chief Engineer. Elena Vasquez opened the **sg-refit drydock** on **2026-05-18** — **drydock window 2026-05-18** starts with berth 4 heavy-lift zone reserved Seaglass-only through refit **sea trial**. Victor Hale confirmed spare thrust bearing staged port-side before hull penetration sign-off. The post-refit **seaglass trial** finished on **2026-06-05** with full-power harbor loop, rudder hard-over checks, and engine-room temps within spec; Elena received a draft return-to-service checklist.
+
+## Evidence
+
+- `2026-05-18-drydock-window-opens` - Elena Vasquez email declares **SG-REFIT drydock** officially open; **drydock window 2026-05-18** starts with berth 4 heavy-lift zone Seaglass-only, Victor Hale confirming thrust bearing port-side before hull penetration clearance.
+- `2026-06-05-seaglass-sea-trial` - Victor Hale reports **seaglass trial** finished morning **2026-06-05** with full-power harbor loop and rudder checks; **sea trial** complete with fuel-line purge per Elena Vasquez approved order and return-to-service checklist draft attached.
+
+## Use In Work
+
+- Schedule berth 4 and crane windows around SG-REFIT drydock and sea trial dates before slotting revenue sailings for MV Seaglass.
+- Escalate fleet-impacting drydock and return-to-service milestones to Elena Vasquez, not Pier 7 passenger lead Elena Crane.
+
+## Limits
+
+SG-REFIT does not govern Pier 9 gate or gangway work. An early email cited crane booking 2026-05-12; ground truth crane on berth is 2026-05-19 per drydock morning sync.
+
+## Connections
+
+- [[elena-vasquez]] - Fleet Maintenance Director who approved the drydock window and purge sequence.
+- [[victor-hale]] - Chief Engineer who gated hull work and completed the sea trial run.
+- [[mv-seaglass]] - Vessel undergoing the engine-room refit sequence.
+- [[rel-victor-hale-sg-refit]] - Relationship node linking Victor Hale to SG-REFIT engineering.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/hp-migrate.md ===
+---
+id: hp-migrate
+insight: HarborPass 2.0 targeted june 2 go-live on go-live 2026-06-02 and harborpass completed at go-live 05:47 on the june 2 migration track.
+type: entity
+subjects: [harborpass, hp-migrate]
+source_ids: [2026-05-26-rollback-token-gate, 2026-06-02-harborpass-golive]
+related_nodes: [harborpass-2-0, fatima-okonkwo, jessamine-lee, decision-hp-golive-target]
+labels: [ticketing, migration]
+updated: 2026-06-02
+---
+
+# HP-Migrate
+
+## Current Model
+
+**HP-MIGRATE** is the HarborPass 2.0 ticketing migration project administered by Fatima Okonkwo. Fatima reaffirmed the published **go-live 2026-06-02** target — the **june 2 go-live** date Jessamine Lee could cite externally once rollback token tests cleared. Production cutover on **june 2 migration** completed with **harborpass completed** logged at **go-live 05:47**; **HarborPass 2.0** went live with rollback token test artifacts archived. Pier 7 retains legacy barcode readers until 2026-06-12 sunset.
+
+## Evidence
+
+- `2026-05-26-rollback-token-gate` - Fatima Okonkwo hard-gates **HarborPass migration** on rollback token test while still targeting **HarborPass 2.0** **go-live 2026-06-02** as the published **june 2 go-live** date for external passenger notice copy once she clears the hold.
+- `2026-06-02-harborpass-golive` - HarborOps war-room log records **harborpass completed** at **go-live 05:47** on the **june 2 migration** track; **HarborPass 2.0** is live with Q2 playbook milestone checked and Pier 7 legacy reader sunset still Jun 12.
+
+## Use In Work
+
+- Treat 2026-06-02 05:47 as the actual HarborPass 2.0 completion time when aligning post-cutover berth operations and passenger all-clear boards.
+- Do not schedule Pier 7 legacy reader removal before 2026-06-12 even though production cutover finished June 2.
+
+## Limits
+
+HP-MIGRATE does not cover P9-GATE gate lane commissioning or SG-REFIT drydock windows. Rollback token test failure in staging blocked cutover until resolved — target date alone did not authorize go-live.
+
+## Connections
+
+- [[harborpass-2-0]] - Fare system product migrated under this project.
+- [[fatima-okonkwo]] - Access Systems admin who gated migration on rollback token test.
+- [[jessamine-lee]] - Passenger comms lead who published outage notice and all-clear boards.
+- [[decision-hp-golive-target]] - Decision record for the published June 2 go-live target.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/ssb-drill.md ===
+---
+id: ssb-drill
+insight: SSB-DRILL storm surge barrier drill runs three simulation weekends including may 24 drill with Highwater codename in radio traffic on ssb-drill channels.
+type: entity
+subjects: [ssb-drill, priya-nandakumar]
+source_ids: [2026-05-25-highwater-drill-prep]
+related_nodes: [priya-nandakumar, simulation-weekends, decision-highwater-codename, rel-juno-priya-drill-alignment]
+labels: [safety-drill, storm-surge]
+updated: 2026-05-25
+---
+
+# SSB-Drill
+
+## Current Model
+
+**SSB-DRILL** is the Storm Surge Barrier Drill Series owned by Priya Nandakumar with Juno implementing drill rules across piers. The **storm surge barrier drill** schedule locks **three simulation weekends**: 2026-05-24 (completed), 2026-05-31, and 2026-06-07. Priya established **Highwater codename** as the official call sign for **radio traffic** during **ssb-drill** events — no project numbers on open channels. The **may 24 drill** weekend is done; prep for May 31 continued through week 6. Life-vest spot checks run every 45 minutes per Priya's packet.
+
+## Evidence
+
+- `2026-05-25-highwater-drill-prep` - Priya Nandakumar confirms **three simulation weekends** locked — May 24 (done), May 31, Jun 7 — for the **storm surge barrier drill** series; official **Highwater codename** governs **radio traffic** during **ssb-drill** events with no project numbers on open channels, and life-vest protocol set at 45-minute spot checks.
+
+## Use In Work
+
+- Use "Highwater" on radio channels during SSB-DRILL simulation weekends rather than project codenames or pier numbers.
+- Align weekend berth staffing with Priya's official SSB-DRILL packet, not Juno's manually edited coverage matrix, when comparing deckhand counts.
+
+## Limits
+
+SSB-DRILL does not authorize Pier 9 contractor badge batches or HarborPass cutover windows. Juno's working coverage matrix showing 3 deckhands per pier drifted from Priya's source notes specifying 4 deckhands.
+
+## Connections
+
+- [[priya-nandakumar]] - Safety & Compliance Lead who owns drill rules and after-action review.
+- [[simulation-weekends]] - Entity for the three scheduled drill weekend dates.
+- [[decision-highwater-codename]] - Decision record establishing the Highwater radio call sign.
+- [[rel-juno-priya-drill-alignment]] - Relationship node for Juno implementing Priya's drill requirements.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/p7-ramp.md ===
+---
+id: p7-ramp
+insight: P7-RAMP pier 7 ramp uses 6061-t6 aluminum grating per Elena Crane and cannot block commuter rush boarding before 09:30 cutoff.
+type: entity
+subjects: [p7-ramp, pier-7]
+source_ids: [2026-04-30-p7-grating-spec, 2026-05-15-friday-harbor-diversion]
+related_nodes: [elena-crane, pier-7, rel-elena-crane-p7-ramp, decision-friday-harbor-diversion]
+labels: [accessibility, pier-7]
+updated: 2026-05-15
+---
+
+# P7-Ramp
+
+## Current Model
+
+**P7-RAMP** is the Pier 7 Accessibility Ramp Install project owned by Elena Crane for passenger impact messaging. Materials submittal locks **aluminum grating** at grade **6061-t6** per **elena crane** unless corrosion thread reopens — mock-up panel arrived Pier 7 after sign-off. Ramp installation on the **pier 7 ramp** cannot block **commuter rush** boarding before the **09:30 cutoff**; contractors must clear the approach by 09:15. On 2026-05-15 Marcus Holt shifted the Friday Harbor run to Pier 5 so ramp work would not interfere with morning sailings.
+
+## Evidence
+
+- `2026-04-30-p7-grating-spec` - Elena Crane locks **pier 7 ramp** materials at **aluminum grating** grade **6061-t6** on the fab shop submittal; discusses quiet windows before morning sailings and avoids grinder work before 0830 when passenger queue backs up.
+- `2026-05-15-friday-harbor-diversion` - Pier 7 ops huddle reinforces that **pier 7 ramp** work cannot block **commuter rush** boarding before **09:30 cutoff** with contractors clearing the approach by 09:15; Friday Harbor run diverted to Pier 5 for the day.
+
+## Use In Work
+
+- Spec Pier 7 ramp grating as 6061-T6 aluminum unless Elena Crane explicitly reopens the corrosion thread.
+- Schedule ramp contractor work after the 09:30 commuter rush cutoff and coordinate sailing diversions with Marcus Holt when approach clearance is not possible.
+
+## Limits
+
+P7-RAMP does not set P9-GATE fare lane counts or SG-REFIT drydock windows. Noise complaints from Surfside Condos (escalated 2026-05-27) may impose additional quiet-hour constraints beyond the 09:30 boarding cutoff.
+
+## Connections
+
+- [[elena-crane]] - Pier 7 Passenger Services Manager who specified grating and owns commuter messaging.
+- [[pier-7]] - Pier where the accessibility ramp is installed.
+- [[rel-elena-crane-p7-ramp]] - Relationship node linking Elena Crane to P7-RAMP ownership.
+- [[decision-friday-harbor-diversion]] - Decision to shift Friday Harbor sailings to Pier 5 during ramp work.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/graph/harborline-regional-ferry.md ===
+---
+id: harborline-regional-ferry
+insight: HarborLine Regional Ferry operates multi-pier commuter and tourist ferry terminal readiness across four active piers and six vessels in Q2 2026.
+type: entity
+subjects: [harborline-regional-ferry]
+source_ids: [2026-04-20-q2-kickoff-terminal]
+related_nodes: [juno-castillo, plan-q2-terminal-readiness, pier-9, pier-7]
+labels: [operator, ferry]
+updated: 2026-04-20
+---
+
+# HarborLine Regional Ferry
+
+## Current Model
+
+HarborLine Regional Ferry is the multi-pier passenger ferry operator running commuter and tourist routes across four active piers and six vessels during the Q2 2026 evaluation window. Week-1 kickoff under Juno Castillo activated the Q2 Terminal Readiness Playbook to coordinate berth scheduling, vessel refit windows, contractor access, safety drills, and fare-system cutovers. Spring surge construction spans Pier 9 gate and gangway retrofits, MV Seaglass refit, HarborPass 2.0 migration, storm surge barrier drills, and Pier 7 accessibility ramp installation.
+
+## Evidence
+
+- `2026-04-20-q2-kickoff-terminal` - Week-1 kickoff meeting for HarborLine terminal operations: Juno Castillo activates the Q2 Terminal Readiness Playbook, introduces P9-GATE and P9-GANG Pier 9 workstreams under Victor Dunn's single-contractor plan, and frames spring surge readiness across active piers and fleet sailings.
+
+## Use In Work
+
+- Frame all Q2 terminal readiness, cross-pier scheduling, and passenger-disruption coordination as HarborLine Regional Ferry operations governed by Juno's Q2 playbook.
+- Treat pier-specific projects (P9-GATE, P9-GANG, P7-RAMP, SG-REFIT, HP-MIGRATE, SSB-DRILL) as workstreams within this operator context rather than standalone entities.
+
+## Limits
+
+This node captures the operator entity only — it does not hold planted fact anchors for specific dates, vendors, or technical specs. Retrieve project-level nodes for codenames, delivery slips, and approval decisions.
+
+## Connections
+
+- [[juno-castillo]] - Senior Terminal Operations Manager who runs day-to-day readiness for HarborLine.
+- [[plan-q2-terminal-readiness]] - Active cross-pier playbook governing the Q2 evaluation window.
+- [[pier-9]] - Primary construction pier for parallel gate and gangway retrofits.
+- [[pier-7]] - Pier hosting accessibility ramp install and legacy HarborPass reader sunset.
+=== END FILE ===
+
+---
+
+I'm in **Ask mode**, so these are ready to copy but were not written to disk. Switch to **Agent mode** if you want them saved under `evals/retrieval-quality/seed/graph/`.

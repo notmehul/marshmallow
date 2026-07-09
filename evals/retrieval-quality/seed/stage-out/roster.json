@@ -1,0 +1,1781 @@
+[
+ {
+  "id": "juno-castillo",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F01",
+    "claim": "Juno Castillo owns the active Q2 Terminal Readiness Playbook.",
+    "anchors": [
+     "q2 terminal readiness",
+     "terminal readiness playbook",
+     "juno castillo"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal"
+  ]
+ },
+ {
+  "id": "elena-vasquez",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F11",
+    "claim": "Elena Vasquez approved SG-REFIT drydock window starting 2026-05-18.",
+    "anchors": [
+     "sg-refit drydock",
+     "drydock window 2026-05-18",
+     "seaglass drydock"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-18-drydock-window-opens"
+  ]
+ },
+ {
+  "id": "elena-crane",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F18",
+    "claim": "P7-RAMP aluminum grating spec is grade 6061-T6 per Elena Crane.",
+    "anchors": [
+     "6061-t6",
+     "aluminum grating",
+     "pier 7 ramp"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-30-p7-grating-spec"
+  ]
+ },
+ {
+  "id": "marcus-holt",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F20",
+    "claim": "Marcus Holt shifted the Friday Harbor run to Pier 5 on 2026-05-15 for ramp work.",
+    "anchors": [
+     "friday harbor run",
+     "pier 5 diversion",
+     "2026-05-15"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-15-friday-harbor-diversion"
+  ]
+ },
+ {
+  "id": "priya-nandakumar",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F14",
+    "claim": "Priya Nandakumar mandated life-vest spot checks every 45 minutes during SSB-DRILL.",
+    "anchors": [
+     "life-vest spot checks",
+     "45 minutes",
+     "ssb-drill"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-28-coverage-matrix-source"
+  ]
+ },
+ {
+  "id": "derek-blunt",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F31",
+    "claim": "Derek Blunt negotiated a 12% discount on Bridgeway Hoist mobilization fee.",
+    "anchors": [
+     "12% discount",
+     "mobilization fee",
+     "bridgeway hoist"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-05-bridgeway-discount-confirm"
+  ]
+ },
+ {
+  "id": "fatima-okonkwo",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F29",
+    "claim": "Fatima Okonkwo issued 14 temporary contractor badges for P9-GATE for the week of 2026-05-11.",
+    "anchors": [
+     "14 contractor badges",
+     "temporary badges",
+     "p9-gate"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-11-badge-batch-p9-gate"
+  ]
+ },
+ {
+  "id": "glenn-wexler",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F21",
+    "claim": "Glenn Wexler capped P9-GATE change orders at $18,400 without VP sign-off.",
+    "anchors": [
+     "change order cap",
+     "$18400",
+     "p9-gate"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-04-procurement-week-open",
+   "2026-06-08-q2-closeout-preview"
+  ]
+ },
+ {
+  "id": "hana-suzuki",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F10",
+    "claim": "Hana Suzuki authorized dive inspection overtime on 2026-04-23.",
+    "anchors": [
+     "dive inspection overtime",
+     "pier 3 overtime",
+     "2026-04-23"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-23-dive-crew-ot-approval"
+  ]
+ },
+ {
+  "id": "victor-hale",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F12",
+    "claim": "Victor Hale requires spare thrust bearing delivery before hull penetration on SG-REFIT.",
+    "anchors": [
+     "thrust bearing",
+     "hull penetration",
+     "victor hale"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-29-seaglass-crane-prelim"
+  ]
+ },
+ {
+  "id": "victor-dunn",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F07",
+    "claim": "Victor Dunn superseded the single-contractor plan on 2026-05-06 because gate and gangway scopes diverged.",
+    "anchors": [
+     "superseded single-contractor",
+     "scope divergence",
+     "2026-05-06"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-06-single-contractor-superseded"
+  ]
+ },
+ {
+  "id": "cal-donner",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F28",
+    "claim": "Cal Donner logged an unauthorized vehicle at Pier 9 staging on 2026-05-07.",
+    "anchors": [
+     "unauthorized vehicle",
+     "pier 9 staging",
+     "cal donner"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-07-pier9-staging-intrusion"
+  ]
+ },
+ {
+  "id": "jessamine-lee",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F26",
+    "claim": "Jessamine Lee's passenger notice covers HarborPass outage 2026-06-01 22:00 through 2026-06-02 06:00.",
+    "anchors": [
+     "harborpass outage",
+     "june 1 22:00",
+     "passenger notice"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-01-harborpass-outage-notice-draft"
+  ]
+ },
+ {
+  "id": "p9-gate-retrofit",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F02",
+    "claim": "Pier-9 Gate Retrofit codename is P9-GATE.",
+    "anchors": [
+     "p9-gate",
+     "pier-9 gate retrofit",
+     "gate retrofit"
+    ]
+   },
+   {
+    "id": "F23",
+    "claim": "P9-GATE fare gate lane count remains 4 lanes after redesign.",
+    "anchors": [
+     "4 lanes",
+     "fare gate lane",
+     "p9-gate redesign"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal",
+   "2026-04-24-pier9-dual-scope-intro",
+   "2026-05-01-gate-lane-redesign"
+  ]
+ },
+ {
+  "id": "p9-gang-replacement",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F03",
+    "claim": "Pier-9 Gangway Replacement codename is P9-GANG.",
+    "anchors": [
+     "p9-gang",
+     "pier-9 gangway replacement",
+     "gangway replacement"
+    ]
+   },
+   {
+    "id": "F22",
+    "claim": "P9-GANG mock-up gangway width is 2.4 meters.",
+    "anchors": [
+     "mock-up gangway",
+     "2.4 meters",
+     "gangway width"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal",
+   "2026-04-24-pier9-dual-scope-intro",
+   "2026-05-20-gangway-mockup-inspection"
+  ]
+ },
+ {
+  "id": "sg-refit",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F11",
+    "claim": "Elena Vasquez approved SG-REFIT drydock window starting 2026-05-18.",
+    "anchors": [
+     "sg-refit drydock",
+     "drydock window 2026-05-18",
+     "seaglass drydock"
+    ]
+   },
+   {
+    "id": "F36",
+    "claim": "SG-REFIT post-refit sea trial is scheduled for 2026-06-05.",
+    "anchors": [
+     "sea trial",
+     "2026-06-05",
+     "seaglass trial"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-18-drydock-window-opens",
+   "2026-06-05-seaglass-sea-trial"
+  ]
+ },
+ {
+  "id": "hp-migrate",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F08",
+    "claim": "HarborPass 2.0 go-live target date is 2026-06-02.",
+    "anchors": [
+     "harborpass 2.0",
+     "go-live 2026-06-02",
+     "june 2 go-live"
+    ]
+   },
+   {
+    "id": "F45",
+    "claim": "HarborPass migration go-live completed on 2026-06-02 at 05:47.",
+    "anchors": [
+     "go-live 05:47",
+     "harborpass completed",
+     "june 2 migration"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-26-rollback-token-gate",
+   "2026-06-02-harborpass-golive"
+  ]
+ },
+ {
+  "id": "ssb-drill",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F15",
+    "claim": "SSB-DRILL has three simulation weekends: 2026-05-24, 2026-05-31, and 2026-06-07.",
+    "anchors": [
+     "storm surge barrier drill",
+     "may 24 drill",
+     "three simulation weekends"
+    ]
+   },
+   {
+    "id": "F33",
+    "claim": "SSB-DRILL uses codename \"Highwater\" in radio traffic.",
+    "anchors": [
+     "highwater codename",
+     "radio traffic",
+     "ssb-drill"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-25-highwater-drill-prep"
+  ]
+ },
+ {
+  "id": "p7-ramp",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F18",
+    "claim": "P7-RAMP aluminum grating spec is grade 6061-T6 per Elena Crane.",
+    "anchors": [
+     "6061-t6",
+     "aluminum grating",
+     "pier 7 ramp"
+    ]
+   },
+   {
+    "id": "F19",
+    "claim": "P7-RAMP installation cannot block commuter rush before 09:30.",
+    "anchors": [
+     "commuter rush",
+     "09:30 cutoff",
+     "pier 7 ramp"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-30-p7-grating-spec",
+   "2026-05-15-friday-harbor-diversion"
+  ]
+ },
+ {
+  "id": "harborline-regional-ferry",
+  "type": "entity",
+  "facts": [],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal"
+  ]
+ },
+ {
+  "id": "kelwick-marine",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F06",
+    "claim": "The superseded Pier 9 Single-Contractor Plan named Kelwick Marine for all Pier 9 work.",
+    "anchors": [
+     "kelwick marine",
+     "single-contractor plan",
+     "pier 9 single-contractor"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal",
+   "2026-05-06-single-contractor-superseded"
+  ]
+ },
+ {
+  "id": "turnstile-dynamics",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F04",
+    "claim": "Turnstile Dynamics is the P9-GATE vendor.",
+    "anchors": [
+     "turnstile dynamics",
+     "gate vendor",
+     "p9-gate vendor"
+    ]
+   },
+   {
+    "id": "F24",
+    "claim": "Turnstile Dynamics gate delivery slipped to 2026-05-28 from 2026-05-21.",
+    "anchors": [
+     "gate delivery slip",
+     "2026-05-28",
+     "may 28 delivery"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-27-vendor-split-announcement",
+   "2026-05-22-gate-delivery-slip"
+  ]
+ },
+ {
+  "id": "bridgeway-hoist",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F05",
+    "claim": "Bridgeway Hoist is the P9-GANG vendor.",
+    "anchors": [
+     "bridgeway hoist",
+     "gangway vendor",
+     "p9-gang vendor"
+    ]
+   },
+   {
+    "id": "F25",
+    "claim": "Bridgeway Hoist gangway delivery remains on 2026-05-21.",
+    "anchors": [
+     "gangway delivery",
+     "2026-05-21",
+     "bridgeway delivery"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-27-vendor-split-announcement",
+   "2026-05-14-gangway-delivery-hold",
+   "2026-05-21-gangway-arrival-day"
+  ]
+ },
+ {
+  "id": "surfside-condos",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F40",
+    "claim": "Elena Crane escalated a P7-RAMP noise complaint from Surfside Condos on 2026-05-27.",
+    "anchors": [
+     "surfside condos",
+     "noise complaint",
+     "pier 7 ramp"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-27-surfside-noise-escalation"
+  ]
+ },
+ {
+  "id": "pier-3",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F09",
+    "claim": "Pier 3 float switch failure on 2026-04-22 triggered partial berth closure.",
+    "anchors": [
+     "float switch failure",
+     "pier 3 berth closure",
+     "2026-04-22"
+    ]
+   },
+   {
+    "id": "F35",
+    "claim": "Hana Suzuki completed Pier 3 float switch replacement on 2026-04-28.",
+    "anchors": [
+     "float switch replacement",
+     "pier 3 complete",
+     "2026-04-28"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-21-pier3-berth-hold",
+   "2026-04-22-float-switch-panic",
+   "2026-04-28-pier3-switch-complete"
+  ]
+ },
+ {
+  "id": "pier-5",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F20",
+    "claim": "Marcus Holt shifted the Friday Harbor run to Pier 5 on 2026-05-15 for ramp work.",
+    "anchors": [
+     "friday harbor run",
+     "pier 5 diversion",
+     "2026-05-15"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-15-friday-harbor-diversion"
+  ]
+ },
+ {
+  "id": "pier-7",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F38",
+    "claim": "HarborPass 2.0 retains legacy barcode readers at Pier 7 only until 2026-06-12.",
+    "anchors": [
+     "legacy barcode",
+     "pier 7 readers",
+     "june 12 sunset"
+    ]
+   },
+   {
+    "id": "F47",
+    "claim": "Juno Castillo signed off Pier 7 ramp handover to Elena Crane on 2026-06-10.",
+    "anchors": [
+     "ramp handover",
+     "2026-06-10",
+     "pier 7 handover"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-04-legacy-reader-sunset",
+   "2026-06-10-pier7-ramp-handover"
+  ]
+ },
+ {
+  "id": "pier-9",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F32",
+    "claim": "Pier 9 night lighting upgrade is tied to P9-GATE, not P9-GANG.",
+    "anchors": [
+     "night lighting upgrade",
+     "pier 9 lighting",
+     "p9-gate"
+    ]
+   },
+   {
+    "id": "F34",
+    "claim": "Marcus Holt banned back-to-back gangway and gate contractor shifts on the same Pier 9 berth.",
+    "anchors": [
+     "back-to-back shifts",
+     "pier 9 berth",
+     "contractor shift ban"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-12-pier9-lighting-scope",
+   "2026-05-21-gangway-arrival-day"
+  ]
+ },
+ {
+  "id": "mv-seaglass",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F48",
+    "claim": "MV Seaglass returned to revenue service on 2026-06-12 after SG-REFIT.",
+    "anchors": [
+     "revenue service",
+     "2026-06-12",
+     "seaglass returned"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-12-seaglass-revenue-return"
+  ]
+ },
+ {
+  "id": "harborpass-2-0",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F08",
+    "claim": "HarborPass 2.0 go-live target date is 2026-06-02.",
+    "anchors": [
+     "harborpass 2.0",
+     "go-live 2026-06-02",
+     "june 2 go-live"
+    ]
+   },
+   {
+    "id": "F38",
+    "claim": "HarborPass 2.0 retains legacy barcode readers at Pier 7 only until 2026-06-12.",
+    "anchors": [
+     "legacy barcode",
+     "pier 7 readers",
+     "june 12 sunset"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-26-rollback-token-gate",
+   "2026-06-02-harborpass-golive",
+   "2026-06-04-legacy-reader-sunset"
+  ]
+ },
+ {
+  "id": "berth-9b-staging",
+  "type": "entity",
+  "facts": [],
+  "source_ids": [
+   "2026-04-24-pier9-dual-scope-intro",
+   "2026-05-07-pier9-staging-intrusion"
+  ]
+ },
+ {
+  "id": "pier-9-night-lighting",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F32",
+    "claim": "Pier 9 night lighting upgrade is tied to P9-GATE, not P9-GANG.",
+    "anchors": [
+     "night lighting upgrade",
+     "pier 9 lighting",
+     "p9-gate"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-12-pier9-lighting-scope"
+  ]
+ },
+ {
+  "id": "drydock-berth-4",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F13",
+    "claim": "SG-REFIT crane booking date is 2026-05-19 (ground truth; see Contradiction).",
+    "anchors": [
+     "crane booking 2026-05-19",
+     "seaglass crane",
+     "may 19 crane"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-29-seaglass-crane-prelim",
+   "2026-05-19-drydock-morning-sync"
+  ]
+ },
+ {
+  "id": "simulation-weekends",
+  "type": "entity",
+  "facts": [
+   {
+    "id": "F15",
+    "claim": "SSB-DRILL has three simulation weekends: 2026-05-24, 2026-05-31, and 2026-06-07.",
+    "anchors": [
+     "storm surge barrier drill",
+     "may 24 drill",
+     "three simulation weekends"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-25-highwater-drill-prep"
+  ]
+ },
+ {
+  "id": "plan-q2-terminal-readiness",
+  "type": "plan",
+  "facts": [
+   {
+    "id": "F01",
+    "claim": "Juno Castillo owns the active Q2 Terminal Readiness Playbook.",
+    "anchors": [
+     "q2 terminal readiness",
+     "terminal readiness playbook",
+     "juno castillo"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal"
+  ],
+  "status": "active"
+ },
+ {
+  "id": "plan-pier9-single-contractor",
+  "type": "plan",
+  "facts": [
+   {
+    "id": "F06",
+    "claim": "The superseded Pier 9 Single-Contractor Plan named Kelwick Marine for all Pier 9 work.",
+    "anchors": [
+     "kelwick marine",
+     "single-contractor plan",
+     "pier 9 single-contractor"
+    ]
+   },
+   {
+    "id": "F07",
+    "claim": "Victor Dunn superseded the single-contractor plan on 2026-05-06 because gate and gangway scopes diverged.",
+    "anchors": [
+     "superseded single-contractor",
+     "scope divergence",
+     "2026-05-06"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal",
+   "2026-05-06-single-contractor-superseded"
+  ],
+  "status": "inactive"
+ },
+ {
+  "id": "plan-storm-surge-coverage-matrix",
+  "type": "plan",
+  "facts": [
+   {
+    "id": "F16",
+    "claim": "Juno manually edited Storm Surge Weekend Coverage Matrix to 3 deckhands per pier.",
+    "anchors": [
+     "weekend coverage matrix",
+     "3 deckhands",
+     "manually edited"
+    ]
+   },
+   {
+    "id": "F17",
+    "claim": "Source notes for the coverage matrix originally specified 4 deckhands per pier.",
+    "anchors": [
+     "source notes",
+     "4 deckhands",
+     "coverage matrix"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-29-coverage-matrix-drift",
+   "2026-05-28-coverage-matrix-source"
+  ],
+  "status": "drifted"
+ },
+ {
+  "id": "decision-vendor-split",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F04",
+    "claim": "Turnstile Dynamics is the P9-GATE vendor.",
+    "anchors": [
+     "turnstile dynamics",
+     "gate vendor",
+     "p9-gate vendor"
+    ]
+   },
+   {
+    "id": "F05",
+    "claim": "Bridgeway Hoist is the P9-GANG vendor.",
+    "anchors": [
+     "bridgeway hoist",
+     "gangway vendor",
+     "p9-gang vendor"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-27-vendor-split-announcement"
+  ]
+ },
+ {
+  "id": "decision-supersede-single-contractor",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F07",
+    "claim": "Victor Dunn superseded the single-contractor plan on 2026-05-06 because gate and gangway scopes diverged.",
+    "anchors": [
+     "superseded single-contractor",
+     "scope divergence",
+     "2026-05-06"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-06-single-contractor-superseded"
+  ]
+ },
+ {
+  "id": "decision-crane-booking-corrected",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F13",
+    "claim": "SG-REFIT crane booking date is 2026-05-19 (ground truth; see Contradiction).",
+    "anchors": [
+     "crane booking 2026-05-19",
+     "seaglass crane",
+     "may 19 crane"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-29-seaglass-crane-prelim",
+   "2026-05-19-drydock-morning-sync"
+  ]
+ },
+ {
+  "id": "decision-drydock-window",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F11",
+    "claim": "Elena Vasquez approved SG-REFIT drydock window starting 2026-05-18.",
+    "anchors": [
+     "sg-refit drydock",
+     "drydock window 2026-05-18",
+     "seaglass drydock"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-18-drydock-window-opens"
+  ]
+ },
+ {
+  "id": "decision-gate-delivery-slip",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F24",
+    "claim": "Turnstile Dynamics gate delivery slipped to 2026-05-28 from 2026-05-21.",
+    "anchors": [
+     "gate delivery slip",
+     "2026-05-28",
+     "may 28 delivery"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-22-gate-delivery-slip"
+  ]
+ },
+ {
+  "id": "decision-gangway-delivery-hold",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F25",
+    "claim": "Bridgeway Hoist gangway delivery remains on 2026-05-21.",
+    "anchors": [
+     "gangway delivery",
+     "2026-05-21",
+     "bridgeway delivery"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-14-gangway-delivery-hold",
+   "2026-05-21-gangway-arrival-day"
+  ]
+ },
+ {
+  "id": "decision-change-order-cap",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F21",
+    "claim": "Glenn Wexler capped P9-GATE change orders at $18,400 without VP sign-off.",
+    "anchors": [
+     "change order cap",
+     "$18400",
+     "p9-gate"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-04-procurement-week-open",
+   "2026-06-08-q2-closeout-preview"
+  ]
+ },
+ {
+  "id": "decision-reject-gangway-contingency",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F37",
+    "claim": "Glenn Wexler rejected Victor Dunn's $62,000 gangway contingency as duplicate of P9-GATE contingency.",
+    "anchors": [
+     "$62000 contingency",
+     "gangway contingency",
+     "duplicate contingency"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-08-q2-closeout-preview"
+  ]
+ },
+ {
+  "id": "decision-critical-path-p9-gate",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F41",
+    "claim": "Juno Castillo declared P9-GATE the critical path on 2026-05-13.",
+    "anchors": [
+     "critical path",
+     "p9-gate",
+     "2026-05-13"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-13-critical-path-declaration"
+  ]
+ },
+ {
+  "id": "decision-friday-harbor-diversion",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F20",
+    "claim": "Marcus Holt shifted the Friday Harbor run to Pier 5 on 2026-05-15 for ramp work.",
+    "anchors": [
+     "friday harbor run",
+     "pier 5 diversion",
+     "2026-05-15"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-15-friday-harbor-diversion"
+  ]
+ },
+ {
+  "id": "decision-hp-golive-target",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F08",
+    "claim": "HarborPass 2.0 go-live target date is 2026-06-02.",
+    "anchors": [
+     "harborpass 2.0",
+     "go-live 2026-06-02",
+     "june 2 go-live"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-26-rollback-token-gate",
+   "2026-06-02-harborpass-golive"
+  ]
+ },
+ {
+  "id": "decision-rollback-token-gate",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F27",
+    "claim": "Fatima Okonkwo requires rollback token test completion before HarborPass migration.",
+    "anchors": [
+     "rollback token test",
+     "harborpass migration",
+     "fatima okonkwo"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-26-rollback-token-gate"
+  ]
+ },
+ {
+  "id": "decision-legacy-reader-sunset",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F38",
+    "claim": "HarborPass 2.0 retains legacy barcode readers at Pier 7 only until 2026-06-12.",
+    "anchors": [
+     "legacy barcode",
+     "pier 7 readers",
+     "june 12 sunset"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-04-legacy-reader-sunset"
+  ]
+ },
+ {
+  "id": "decision-outage-notice-window",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F26",
+    "claim": "Jessamine Lee's passenger notice covers HarborPass outage 2026-06-01 22:00 through 2026-06-02 06:00.",
+    "anchors": [
+     "harborpass outage",
+     "june 1 22:00",
+     "passenger notice"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-01-harborpass-outage-notice-draft"
+  ]
+ },
+ {
+  "id": "decision-lighting-tied-to-gate",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F32",
+    "claim": "Pier 9 night lighting upgrade is tied to P9-GATE, not P9-GANG.",
+    "anchors": [
+     "night lighting upgrade",
+     "pier 9 lighting",
+     "p9-gate"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-12-pier9-lighting-scope"
+  ]
+ },
+ {
+  "id": "decision-hose-spec-r2at",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F42",
+    "claim": "P9-GANG hydraulic hose spec is SAE 100R2AT, not the P9-GATE SAE 100R1AT spec.",
+    "anchors": [
+     "sae 100r2at",
+     "hydraulic hose",
+     "p9-gang spec"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-08-gangway-hose-spec"
+  ]
+ },
+ {
+  "id": "decision-gate-lane-count",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F23",
+    "claim": "P9-GATE fare gate lane count remains 4 lanes after redesign.",
+    "anchors": [
+     "4 lanes",
+     "fare gate lane",
+     "p9-gate redesign"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-01-gate-lane-redesign"
+  ]
+ },
+ {
+  "id": "decision-grating-spec-6061",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F18",
+    "claim": "P7-RAMP aluminum grating spec is grade 6061-T6 per Elena Crane.",
+    "anchors": [
+     "6061-t6",
+     "aluminum grating",
+     "pier 7 ramp"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-30-p7-grating-spec"
+  ]
+ },
+ {
+  "id": "decision-fuel-purge-adoption",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F30",
+    "claim": "Elena Vasquez's fuel-line purge sequence was adopted over Victor Hale's alternative on SG-REFIT.",
+    "anchors": [
+     "fuel line purge",
+     "vasquez sequence adopted",
+     "sg-refit"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-19-drydock-morning-sync"
+  ]
+ },
+ {
+  "id": "decision-mobilization-discount",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F31",
+    "claim": "Derek Blunt negotiated a 12% discount on Bridgeway Hoist mobilization fee.",
+    "anchors": [
+     "12% discount",
+     "mobilization fee",
+     "bridgeway hoist"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-05-bridgeway-discount-confirm"
+  ]
+ },
+ {
+  "id": "decision-badge-batch-p9-gate",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F29",
+    "claim": "Fatima Okonkwo issued 14 temporary contractor badges for P9-GATE for the week of 2026-05-11.",
+    "anchors": [
+     "14 contractor badges",
+     "temporary badges",
+     "p9-gate"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-11-badge-batch-p9-gate"
+  ]
+ },
+ {
+  "id": "decision-sea-trial-date",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F36",
+    "claim": "SG-REFIT post-refit sea trial is scheduled for 2026-06-05.",
+    "anchors": [
+     "sea trial",
+     "2026-06-05",
+     "seaglass trial"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-05-seaglass-sea-trial"
+  ]
+ },
+ {
+  "id": "decision-revenue-return",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F48",
+    "claim": "MV Seaglass returned to revenue service on 2026-06-12 after SG-REFIT.",
+    "anchors": [
+     "revenue service",
+     "2026-06-12",
+     "seaglass returned"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-12-seaglass-revenue-return"
+  ]
+ },
+ {
+  "id": "decision-ramp-handover",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F47",
+    "claim": "Juno Castillo signed off Pier 7 ramp handover to Elena Crane on 2026-06-10.",
+    "anchors": [
+     "ramp handover",
+     "2026-06-10",
+     "pier 7 handover"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-10-pier7-ramp-handover"
+  ]
+ },
+ {
+  "id": "decision-float-switch-replacement",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F35",
+    "claim": "Hana Suzuki completed Pier 3 float switch replacement on 2026-04-28.",
+    "anchors": [
+     "float switch replacement",
+     "pier 3 complete",
+     "2026-04-28"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-28-pier3-switch-complete"
+  ]
+ },
+ {
+  "id": "decision-dive-overtime",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F10",
+    "claim": "Hana Suzuki authorized dive inspection overtime on 2026-04-23.",
+    "anchors": [
+     "dive inspection overtime",
+     "pier 3 overtime",
+     "2026-04-23"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-23-dive-crew-ot-approval"
+  ]
+ },
+ {
+  "id": "decision-pier3-berth-closure",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F09",
+    "claim": "Pier 3 float switch failure on 2026-04-22 triggered partial berth closure.",
+    "anchors": [
+     "float switch failure",
+     "pier 3 berth closure",
+     "2026-04-22"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-21-pier3-berth-hold",
+   "2026-04-22-float-switch-panic"
+  ]
+ },
+ {
+  "id": "decision-gangway-mockup-inspection",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F39",
+    "claim": "Victor Dunn inspected the P9-GANG mock-up on 2026-05-20 with 2.4 m width confirmed.",
+    "anchors": [
+     "mock-up inspection",
+     "2026-05-20",
+     "width confirmed"
+    ]
+   },
+   {
+    "id": "F22",
+    "claim": "P9-GANG mock-up gangway width is 2.4 meters.",
+    "anchors": [
+     "mock-up gangway",
+     "2.4 meters",
+     "gangway width"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-20-gangway-mockup-inspection"
+  ]
+ },
+ {
+  "id": "decision-drill-weekends",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F15",
+    "claim": "SSB-DRILL has three simulation weekends: 2026-05-24, 2026-05-31, and 2026-06-07.",
+    "anchors": [
+     "storm surge barrier drill",
+     "may 24 drill",
+     "three simulation weekends"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-25-highwater-drill-prep"
+  ]
+ },
+ {
+  "id": "decision-after-action-review",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F46",
+    "claim": "Priya Nandakumar owns the SSB-DRILL final after-action review due 2026-06-11.",
+    "anchors": [
+     "after-action review",
+     "2026-06-11",
+     "ssb-drill final"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-11-highwater-after-action"
+  ]
+ },
+ {
+  "id": "decision-highwater-codename",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F33",
+    "claim": "SSB-DRILL uses codename \"Highwater\" in radio traffic.",
+    "anchors": [
+     "highwater codename",
+     "radio traffic",
+     "ssb-drill"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-25-highwater-drill-prep"
+  ]
+ },
+ {
+  "id": "decision-floodlight-maintenance",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F44",
+    "claim": "Cal Donner switched Pier 9 floodlight circuit to maintenance mode on 2026-06-03 for gate commissioning.",
+    "anchors": [
+     "floodlight circuit",
+     "maintenance mode",
+     "gate commissioning"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-03-pier9-floodlight-maintenance"
+  ]
+ },
+ {
+  "id": "decision-golive-completion",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F45",
+    "claim": "HarborPass migration go-live completed on 2026-06-02 at 05:47.",
+    "anchors": [
+     "go-live 05:47",
+     "harborpass completed",
+     "june 2 migration"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-02-harborpass-golive"
+  ]
+ },
+ {
+  "id": "decision-matrix-manual-edit",
+  "type": "decision",
+  "facts": [
+   {
+    "id": "F16",
+    "claim": "Juno manually edited Storm Surge Weekend Coverage Matrix to 3 deckhands per pier.",
+    "anchors": [
+     "weekend coverage matrix",
+     "3 deckhands",
+     "manually edited"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-29-coverage-matrix-drift"
+  ]
+ },
+ {
+  "id": "rule-life-vest-checks",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F14",
+    "claim": "Priya Nandakumar mandated life-vest spot checks every 45 minutes during SSB-DRILL.",
+    "anchors": [
+     "life-vest spot checks",
+     "45 minutes",
+     "ssb-drill"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-28-coverage-matrix-source"
+  ]
+ },
+ {
+  "id": "rule-commuter-rush-cutoff",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F19",
+    "claim": "P7-RAMP installation cannot block commuter rush before 09:30.",
+    "anchors": [
+     "commuter rush",
+     "09:30 cutoff",
+     "pier 7 ramp"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-15-friday-harbor-diversion"
+  ]
+ },
+ {
+  "id": "rule-back-to-back-shift-ban",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F34",
+    "claim": "Marcus Holt banned back-to-back gangway and gate contractor shifts on the same Pier 9 berth.",
+    "anchors": [
+     "back-to-back shifts",
+     "pier 9 berth",
+     "contractor shift ban"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-21-gangway-arrival-day"
+  ]
+ },
+ {
+  "id": "rule-load-test-certificate",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F43",
+    "claim": "Priya Nandakumar required a gangway load test certificate before passenger use on P9-GANG.",
+    "anchors": [
+     "load test certificate",
+     "gangway load test",
+     "passenger use"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-09-gangway-load-cert"
+  ]
+ },
+ {
+  "id": "rule-thrust-bearing-before-hull",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F12",
+    "claim": "Victor Hale requires spare thrust bearing delivery before hull penetration on SG-REFIT.",
+    "anchors": [
+     "thrust bearing",
+     "hull penetration",
+     "victor hale"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-04-29-seaglass-crane-prelim"
+  ]
+ },
+ {
+  "id": "rule-coverage-source-notes",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F17",
+    "claim": "Source notes for the coverage matrix originally specified 4 deckhands per pier.",
+    "anchors": [
+     "source notes",
+     "4 deckhands",
+     "coverage matrix"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-28-coverage-matrix-source"
+  ]
+ },
+ {
+  "id": "rule-quiet-hours-p7",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F40",
+    "claim": "Elena Crane escalated a P7-RAMP noise complaint from Surfside Condos on 2026-05-27.",
+    "anchors": [
+     "surfside condos",
+     "noise complaint",
+     "pier 7 ramp"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-27-surfside-noise-escalation"
+  ]
+ },
+ {
+  "id": "rule-contractor-staging-access",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F28",
+    "claim": "Cal Donner logged an unauthorized vehicle at Pier 9 staging on 2026-05-07.",
+    "anchors": [
+     "unauthorized vehicle",
+     "pier 9 staging",
+     "cal donner"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-07-pier9-staging-intrusion"
+  ]
+ },
+ {
+  "id": "rule-passenger-notice-approval",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F26",
+    "claim": "Jessamine Lee's passenger notice covers HarborPass outage 2026-06-01 22:00 through 2026-06-02 06:00.",
+    "anchors": [
+     "harborpass outage",
+     "june 1 22:00",
+     "passenger notice"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-06-01-harborpass-outage-notice-draft"
+  ]
+ },
+ {
+  "id": "rule-change-order-routing",
+  "type": "preference",
+  "facts": [
+   {
+    "id": "F21",
+    "claim": "Glenn Wexler capped P9-GATE change orders at $18,400 without VP sign-off.",
+    "anchors": [
+     "change order cap",
+     "$18400",
+     "p9-gate"
+    ]
+   }
+  ],
+  "source_ids": [
+   "2026-05-04-procurement-week-open",
+   "2026-06-08-q2-closeout-preview"
+  ]
+ },
+ {
+  "id": "rule-badge-deactivation-closeout",
+  "type": "preference",
+  "facts": [],
+  "source_ids": [
+   "2026-06-08-q2-closeout-preview"
+  ]
+ },
+ {
+  "id": "rule-codename-disambiguation",
+  "type": "preference",
+  "facts": [],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal",
+   "2026-04-24-pier9-dual-scope-intro"
+  ]
+ },
+ {
+  "id": "rel-juno-elena-vasquez",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-18-drydock-window-opens"
+  ]
+ },
+ {
+  "id": "rel-juno-victor-dunn",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-04-20-q2-kickoff-terminal",
+   "2026-05-13-critical-path-declaration"
+  ]
+ },
+ {
+  "id": "rel-juno-marcus-holt",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-15-friday-harbor-diversion"
+  ]
+ },
+ {
+  "id": "rel-derek-turnstile-dynamics",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-04-27-vendor-split-announcement",
+   "2026-05-22-gate-delivery-slip"
+  ]
+ },
+ {
+  "id": "rel-derek-bridgeway-hoist",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-05-bridgeway-discount-confirm",
+   "2026-05-14-gangway-delivery-hold"
+  ]
+ },
+ {
+  "id": "rel-elena-crane-p7-ramp",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-04-30-p7-grating-spec",
+   "2026-06-10-pier7-ramp-handover"
+  ]
+ },
+ {
+  "id": "rel-victor-hale-sg-refit",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-04-29-seaglass-crane-prelim",
+   "2026-06-05-seaglass-sea-trial"
+  ]
+ },
+ {
+  "id": "rel-fatima-harborpass",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-26-rollback-token-gate",
+   "2026-06-02-harborpass-golive"
+  ]
+ },
+ {
+  "id": "rel-priya-ssb-drill",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-25-highwater-drill-prep",
+   "2026-06-11-highwater-after-action"
+  ]
+ },
+ {
+  "id": "rel-hana-pier-3",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-04-21-pier3-berth-hold",
+   "2026-04-28-pier3-switch-complete"
+  ]
+ },
+ {
+  "id": "rel-cal-night-operations",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-07-pier9-staging-intrusion",
+   "2026-06-03-pier9-floodlight-maintenance"
+  ]
+ },
+ {
+  "id": "rel-jessamine-passenger-comms",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-06-01-harborpass-outage-notice-draft"
+  ]
+ },
+ {
+  "id": "rel-glenn-procurement",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-04-procurement-week-open",
+   "2026-06-08-q2-closeout-preview"
+  ]
+ },
+ {
+  "id": "rel-elena-vasquez-vs-crane",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-18-drydock-window-opens",
+   "2026-05-27-surfside-noise-escalation"
+  ]
+ },
+ {
+  "id": "rel-victor-hale-vs-dunn",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-04-29-seaglass-crane-prelim",
+   "2026-05-20-gangway-mockup-inspection"
+  ]
+ },
+ {
+  "id": "rel-p9-gate-vs-p9-gang",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-04-24-pier9-dual-scope-intro",
+   "2026-05-08-gangway-hose-spec"
+  ]
+ },
+ {
+  "id": "rel-juno-priya-drill-alignment",
+  "type": "relationship",
+  "facts": [],
+  "source_ids": [
+   "2026-05-29-coverage-matrix-drift"
+  ]
+ }
+]

@@ -1,0 +1,29 @@
+
+# Retrieval-Quality Label Audit (Adversarial Re-Verify)
+
+Evidence standard: `evals/retrieval-quality/seed/raw/` only (`bible.md` consulted for intent).  
+Queries audited: 50 (q01–q40 direct; q41–q45 zero-result negatives; q46–q50 lexical-junk traps).  
+Operator context applied: q46–q50 token overlap with graph entities is by design; flag only if answerable from raw. Zero-result probes are q41–q45 only.
+
+---
+
+## Previously flagged queries — re-check summary
+
+| Query | Prior flags | Re-verify result |
+|-------|-------------|------------------|
+| q02 | generic `gate retrofit` alias | **Clean** — aliases are now `p9-gate`, `pier-9 gate retrofit` only; both verbatim in R01/R05 |
+| q03 | generic `gangway replacement` alias | **Clean** — aliases are now `p9-gang`, `pier-9 gangway replacement` only; both verbatim in R01/R05 |
+| q04 | `gangway vendor` / `gate vendor` variants | **Clean** — aliases are now `p9-gate vendor`, `p9-gang vendor`; both verbatim in R06 |
+| q05 | unhyphenated plan aliases; graph misquote | **Clean** — aliases use hyphenated forms present in R13/R24; `plan-pier9-single-contractor` evidence quotes `single-contractor plan` correctly |
+| q07 | Hana-as-authorizer claim | **Clean** — fact 2 claim no longer names Hana; authorization date supported from R04 |
+| q32 | `mock up inspection` (no hyphen) | **Clean** — alias is `mock-up inspection`; verbatim in R23 |
+
+No new discrepancies found on the full q01–q50 pass.
+
+---
+
+**Clean queries (no problems found):** 50
+
+## Verdict
+
+CLEAN

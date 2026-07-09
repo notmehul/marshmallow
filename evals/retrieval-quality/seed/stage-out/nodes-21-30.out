@@ -1,0 +1,401 @@
+I'm in Ask mode, so these are the node contents for you to save (or switch to Agent mode if you want them written to disk).
+
+=== FILE: seed/graph/kelwick-marine.md ===
+---
+id: kelwick-marine
+insight: Kelwick Marine was named on the superseded Pier 9 Single-Contractor Plan for all pier 9 single-contractor work before Victor Dunn split vendors on 2026-05-06.
+type: entity
+subjects: [p9-gate, p9-gang, pier-9]
+source_ids: [2026-04-20-q2-kickoff-terminal, 2026-05-06-single-contractor-superseded]
+related_nodes: [plan-pier9-single-contractor, decision-supersede-single-contractor, victor-dunn, p9-gate-retrofit]
+labels: [vendor, pier-9]
+updated: 2026-05-06
+---
+
+# Kelwick Marine
+
+## Current Model
+
+**Kelwick Marine** was the vendor of record on the inactive **Pier 9 Single-Contractor Plan** — a unified envelope covering both gate retrofit and gangway replacement with shared mobilization, badge pool, and liability rider. Victor Dunn circulated the **single-contractor plan** at Q2 kickoff while P9-GATE and P9-GANG scopes were still introduced as parallel Pier 9 workstreams. Victor Dunn formally retired the **pier 9 single-contractor** track on **2026-05-06** after scope divergence; **Kelwick Marine** remains named on the old plan for audit trail only while execution moved to Turnstile Dynamics (P9-GATE) and Bridgeway Hoist (P9-GANG).
+
+## Evidence
+
+- `2026-04-20-q2-kickoff-terminal` - Week-1 kickoff notes show P9-GATE and P9-GANG still rolling up under Victor Dunn's **Pier 9 Single-Contractor Plan** with **Kelwick Marine** as vendor of record — single mobilization, shared badge pool, one liability rider covering both gate retrofit and gangway replacement.
+- `2026-05-06-single-contractor-superseded` - Victor Dunn formally retired the **pier 9 single-contractor** envelope effective 2026-05-06 citing scope divergence; **Kelwick Marine** remains named on the old **single-contractor plan** for audit trail only while P9-GATE moves to Turnstile Dynamics and P9-GANG to Bridgeway Hoist.
+
+## Use In Work
+
+- Do not quote Kelwick Marine as an active Pier 9 vendor in passenger notices or procurement routing after 2026-05-06 — treat as superseded audit reference only.
+- When retrieving Pier 9 vendor history, distinguish the Kelwick single-contractor era (weeks 1–2) from the split-vendor track under the Q2 Terminal Readiness Playbook.
+
+## Limits
+
+Kelwick Marine does not appear on post-split PO tracks, badge batches, or delivery schedules. Derek Blunt's 2026-04-27 vendor-split email already directed gate and gangway quotes to Turnstile Dynamics and Bridgeway Hoist before formal supersession.
+
+## Connections
+
+- [[plan-pier9-single-contractor]] - Inactive plan that named Kelwick Marine as unified Pier 9 vendor.
+- [[decision-supersede-single-contractor]] - Decision retiring Kelwick envelope after gate and gangway scope divergence.
+- [[victor-dunn]] - Infrastructure program manager who authored and superseded the single-contractor plan.
+- [[p9-gate-retrofit]] - Pier 9 gate scope that was under Kelwick before splitting to Turnstile Dynamics.
+=== END FILE ===
+
+=== FILE: seed/graph/turnstile-dynamics.md ===
+---
+id: turnstile-dynamics
+insight: Turnstile Dynamics is the p9-gate vendor and gate vendor whose gate delivery slip moved to 2026-05-28 may 28 delivery from the prior May 21 window.
+type: entity
+subjects: [p9-gate, pier-9]
+source_ids: [2026-04-27-vendor-split-announcement, 2026-05-22-gate-delivery-slip]
+related_nodes: [p9-gate-retrofit, rel-derek-turnstile-dynamics, decision-gate-delivery-slip, derek-blunt]
+labels: [vendor, gate-retrofit]
+updated: 2026-05-22
+---
+
+# Turnstile Dynamics
+
+## Current Model
+
+**Turnstile Dynamics** is the **P9-GATE** **gate vendor** — assigned gate automation, fare lane hardware, and commissioning support after Derek Blunt's vendor split announcement. As the **p9-gate vendor** of record, Turnstile owns fare gate panels and lane controllers for Pier 9 gate retrofit work. An official **gate delivery slip** moved shipment from the May 21 penciled window to **2026-05-28**; Alicia Varga at Turnstile cited fab backlog, not berth conflict, since Bridgeway Hoist was already on site. The **may 28 delivery** does not change Juno's P9-GATE critical-path declaration from 2026-05-13 — only the date.
+
+## Evidence
+
+- `2026-04-27-vendor-split-announcement` - Derek Blunt assigns **P9-GATE → Turnstile Dynamics** for gate automation, fare lane hardware, and commissioning support; Turnstile is the **p9-gate vendor** going forward with Kelwick staying on old paperwork until Victor Dunn supersedes it.
+- `2026-05-22-gate-delivery-slip` - Derek documents official **gate delivery slip**: fare gate panels and lane controllers ship for **2026-05-28**, not the May 21 window penciled before gangway landed; **May 28 delivery** tied to fab backlog per Alicia Varga, not berth conflict.
+
+## Use In Work
+
+- Route P9-GATE gate automation quotes, badge windows, and commissioning schedules through Turnstile Dynamics — not Kelwick Marine or Bridgeway Hoist.
+- Plan Pier 9 gate crew staging around the 2026-05-28 delivery date while keeping gangway work on the separate May 21 Bridgeway calendar.
+
+## Limits
+
+Turnstile Dynamics does not own P9-GANG gangway fabrication, hydraulic hose specs (SAE 100R2AT), or Bridgeway mobilization discounts. Gate slip was fab-driven; gangway delivery remained firm on 2026-05-21 per Derek's 2026-05-14 hold email.
+
+## Connections
+
+- [[p9-gate-retrofit]] - Pier 9 gate project Turnstile Dynamics executes as assigned vendor.
+- [[rel-derek-turnstile-dynamics]] - Relationship node for Derek Blunt's liaison role with the gate vendor.
+- [[decision-gate-delivery-slip]] - Decision record documenting the May 28 delivery date change.
+- [[derek-blunt]] - Vendor liaison who announced the split and reported the delivery slip.
+=== END FILE ===
+
+=== FILE: seed/graph/bridgeway-hoist.md ===
+---
+id: bridgeway-hoist
+insight: Bridgeway Hoist is the p9-gang vendor and gangway vendor with bridgeway delivery and gangway delivery firm on 2026-05-21 despite gate slip rumors.
+type: entity
+subjects: [p9-gang, pier-9]
+source_ids: [2026-04-27-vendor-split-announcement, 2026-05-14-gangway-delivery-hold, 2026-05-21-gangway-arrival-day]
+related_nodes: [p9-gang-replacement, rel-derek-bridgeway-hoist, decision-gangway-delivery-hold, derek-blunt]
+labels: [vendor, gangway]
+updated: 2026-05-21
+---
+
+# Bridgeway Hoist
+
+## Current Model
+
+**Bridgeway Hoist** is the **P9-GANG** **gangway vendor** — assigned gangway fabrication and hydraulic install after the Pier 9 vendor split. As **p9-gang vendor**, Bridgeway owns the gangway replacement scope on a separate hoist contract and berth window from Turnstile Dynamics. **Gangway delivery** remained firm for **2026-05-21** despite Turnstile gate slip chatter; Derek Blunt confirmed **Bridgeway delivery** details unchanged on 2026-05-14. On arrival day the Bridgeway truck rolled to east apron staging per Victor Dunn's map with berth 9B scheduled gangway AM only.
+
+## Evidence
+
+- `2026-04-27-vendor-split-announcement` - Derek assigns **P9-GANG → Bridgeway Hoist** for gangway fabrication and hydraulic install; **Bridgeway Hoist** owns the **gangway replacement** scope as **p9-gang vendor** on a separate PO track from Turnstile gate work.
+- `2026-05-14-gangway-delivery-hold` - Despite Turnstile slip chatter, **gangway delivery** is still firm for **2026-05-21**; **Bridgeway delivery** details unchanged — gate vendor delay does not push gangway because of different hoist contract and berth window.
+- `2026-05-21-gangway-arrival-day` - Bridgeway truck on site for **gangway delivery** **2026-05-21** with east apron staging; Marcus enforces contractor shift ban — no back-to-back shifts with Turnstile gate crew on the same Pier 9 berth.
+
+## Use In Work
+
+- Schedule P9-GANG gangway crew windows and load-test prep around the firm 2026-05-21 delivery — do not defer gangway staging because Turnstile slipped to May 28.
+- Keep Bridgeway Hoist change orders on the P9-GANG cost code separate from Turnstile Dynamics P9-GATE spend.
+
+## Limits
+
+Bridgeway Hoist does not own P9-GATE fare lane hardware, night lighting commissioning, or gate delivery schedules. Priya Nandakumar still required a gangway load test certificate before passenger boarding tests even after delivery landed.
+
+## Connections
+
+- [[p9-gang-replacement]] - Pier 9 gangway project Bridgeway Hoist executes as assigned vendor.
+- [[rel-derek-bridgeway-hoist]] - Relationship node for Derek Blunt's liaison role with the gangway vendor.
+- [[decision-gangway-delivery-hold]] - Decision affirming May 21 gangway delivery despite gate slip rumors.
+- [[derek-blunt]] - Vendor liaison who negotiated mobilization discount and confirmed delivery hold.
+=== END FILE ===
+
+=== FILE: seed/graph/surfside-condos.md ===
+---
+id: surfside-condos
+insight: Surfside Condos filed a noise complaint about Pier 7 ramp P7-RAMP work that Elena Crane escalated to Juno on 2026-05-27.
+type: entity
+subjects: [p7-ramp, pier-7]
+source_ids: [2026-05-27-surfside-noise-escalation]
+related_nodes: [elena-crane, p7-ramp, pier-7, rule-quiet-hours-p7]
+labels: [stakeholder, noise]
+updated: 2026-05-27
+---
+
+# Surfside Condos
+
+## Current Model
+
+**Surfside Condos** is the adjacent residential building whose representatives escalated a **noise complaint** about early-morning **Pier 7 ramp** grinding during P7-RAMP installation. Elena Crane forwarded the complaint to Juno Castillo on **2026-05-27** with decibel readings attached; residents reported impact tools starting before 0700 and threatened city permit review. Juno scheduled **quiet hours** enforcement — no impact tools before 0800 weekdays and 0900 weekends — while the commuter **09:30 cutoff** for blocking ramp work still applies.
+
+## Evidence
+
+- `2026-05-27-surfside-noise-escalation` - Elena Crane forwards **noise complaint** from **Surfside Condos** re: **pier 7 ramp** work with residents saying grinding started before 0700; building rep attached decibel readings and threatened city permit review; Juno schedules quiet-hours enforcement starting next day.
+
+## Use In Work
+
+- Factor Surfside Condos quiet-hour constraints into P7-RAMP contractor scheduling — impact tools no earlier than 0800 weekdays and 0900 weekends after the 2026-05-27 escalation.
+- Route resident noise complaints about Pier 7 ramp work through Elena Crane for passenger-impact messaging before adjusting contractor windows.
+
+## Limits
+
+Surfside Condos concerns apply to Pier 7 ramp installation noise only — not P9-GATE gate delivery, SG-REFIT drydock, or HarborPass migration outage windows. Decibel readings were described as not catastrophic but sufficient to trigger permit-review threats.
+
+## Connections
+
+- [[elena-crane]] - Pier 7 Passenger Services Manager who escalated the Surfside complaint.
+- [[p7-ramp]] - Accessibility ramp project whose early-morning work triggered the noise complaint.
+- [[pier-7]] - Pier where ramp grinding occurred adjacent to Surfside Condos.
+- [[rule-quiet-hours-p7]] - Standing rule for quiet-hour enforcement after the escalation.
+=== END FILE ===
+
+=== FILE: seed/graph/pier-3.md ===
+---
+id: pier-3
+insight: Pier 3 float switch failure on 2026-04-22 triggered pier 3 berth closure until Hana Suzuki finished float switch replacement and marked pier 3 complete on 2026-04-28.
+type: entity
+subjects: [pier-3]
+source_ids: [2026-04-21-pier3-berth-hold, 2026-04-22-float-switch-panic, 2026-04-28-pier3-switch-complete]
+related_nodes: [hana-suzuki, rel-hana-pier-3, decision-float-switch-replacement, decision-pier3-berth-closure]
+labels: [pier, berth-ops]
+updated: 2026-04-28
+---
+
+# Pier 3
+
+## Current Model
+
+**Pier 3** berths 3A and 3B entered partial closure after a **float switch failure** confirmed on **2026-04-22** when the 3A pump cycled twice in ten minutes then flatlined. Hana Suzuki had pre-announced the **pier 3 berth closure** event starting 2026-04-22 06:00, treating it as a float-switch scenario until dive proved otherwise. **Hana Suzuki** completed the **float switch replacement** with dive lead sign-off on 2026-04-27 19:30; berths cleared for normal ops effective **2026-04-28** 06:00 with **pier 3 complete** logged in the maintenance portal and Q2 playbook pier status set to green.
+
+## Evidence
+
+- `2026-04-21-pier3-berth-hold` - Hana emails berths 3A and 3B out of service starting **2026-04-22** 06:00 for a **float switch failure** scenario; night crew told to treat it as a **pier 3 berth closure** event, not wait-and-see.
+- `2026-04-22-float-switch-panic` - Live Slack thread confirms **float switch failure** — 3A pump cycled twice in 10 min then flatlined; partial closure list executing with Marcus rebuilding the **2026-04-22** sailing grid.
+- `2026-04-28-pier3-switch-complete` - **Float switch replacement** signed off by dive lead 2026-04-27 19:30; berth 3A/3B cleared effective **2026-04-28** 06:00 with Hana marking **pier 3 complete** in the maintenance portal; Marcus slid May 1 commuter turns back to 3A.
+
+## Use In Work
+
+- Treat Pier 3 berths 3A/3B as fully operational after 2026-04-28 unless a new float-switch alarm triggers — the April closure is closed out.
+- Hold passenger-facing posts during future Pier 3 float-switch events until dive scope is confirmed, per the April 21–22 playbook pattern.
+
+## Limits
+
+Pier 3 closure in April was float-switch driven, not related to P7-RAMP, P9-GATE, or HarborPass migration. Dive inspection overtime on 2026-04-23 was authorized separately and is not part of this node's berth-status facts.
+
+## Connections
+
+- [[hana-suzuki]] - Pier 3 Site Superintendent who ordered closure and completed switch replacement.
+- [[rel-hana-pier-3]] - Relationship node linking Hana Suzuki to Pier 3 operations.
+- [[decision-float-switch-replacement]] - Decision record for the completed switch replacement work.
+- [[decision-pier3-berth-closure]] - Decision record for the partial berth closure triggered by float switch failure.
+=== END FILE ===
+
+=== FILE: seed/graph/pier-5.md ===
+---
+id: pier-5
+insight: Marcus Holt shifted the Friday Harbor run to Pier 5 on 2026-05-15 for pier 5 diversion while P7-RAMP work blocked the Pier 7 approach.
+type: entity
+subjects: [pier-5, p7-ramp]
+source_ids: [2026-05-15-friday-harbor-diversion]
+related_nodes: [marcus-holt, p7-ramp, decision-friday-harbor-diversion, pier-7]
+labels: [pier, sailings]
+updated: 2026-05-15
+---
+
+# Pier 5
+
+## Current Model
+
+**Pier 5** served as temporary boarding for the **Friday Harbor run** on **2026-05-15** while **Pier 7 ramp** work blocked the commuter approach. Marcus Holt ordered the **pier 5 diversion** for that day and through the weekend if the noise window slipped, with terminal boards updated by 0700. Contractors on the **pier 7 ramp** had to clear the approach by 09:15 so boarding would not block **commuter rush** before the **09:30 cutoff**. Gangway delivery at Pier 9 remained May 21 per Derek; P9-GATE stayed on critical path per the prior day's call.
+
+## Evidence
+
+- `2026-05-15-friday-harbor-diversion` - Pier 7 ops huddle moves **Friday Harbor run** to **Pier 5** boarding for **2026-05-15** and through weekend if noise window slips; **pier 7 ramp** work cannot block commuter rush before 09:30 cutoff; Marcus to publish **pier 5 diversion** notice to terminal boards by 0700 tomorrow.
+
+## Use In Work
+
+- When P7-RAMP work threatens Pier 7 approach clearance before 09:30, coordinate Friday Harbor boarding diversion to Pier 5 through Marcus Holt before publishing passenger notices.
+- Do not assume Pier 5 diversion is permanent — Marcus restored Friday Harbor boarding at Pier 7 after ramp handover on 2026-06-10.
+
+## Limits
+
+Pier 5 diversion on 2026-05-15 was sailing-specific for the Friday Harbor run during ramp work — not a general Pier 5 closure or HarborPass reader migration event. Pier 5 was already on HarborPass 2.0 rails after the June 2 cutover.
+
+## Connections
+
+- [[marcus-holt]] - Master Scheduler who ordered the Friday Harbor diversion to Pier 5.
+- [[p7-ramp]] - Ramp installation work that forced the temporary boarding shift.
+- [[decision-friday-harbor-diversion]] - Decision record for shifting Friday Harbor sailings to Pier 5.
+- [[pier-7]] - Original Friday Harbor boarding pier restored after ramp handover.
+=== END FILE ===
+
+=== FILE: seed/graph/pier-7.md ===
+---
+id: pier-7
+insight: Pier 7 retains legacy barcode pier 7 readers until june 12 sunset and Juno signed ramp handover pier 7 handover to Elena Crane on 2026-06-10.
+type: entity
+subjects: [pier-7, p7-ramp, harborpass]
+source_ids: [2026-06-04-legacy-reader-sunset, 2026-06-10-pier7-ramp-handover]
+related_nodes: [harborpass-2-0, p7-ramp, juno-castillo, decision-ramp-handover]
+labels: [pier, passenger-services]
+updated: 2026-06-10
+---
+
+# Pier 7
+
+## Current Model
+
+**Pier 7** is the sole remaining legacy HarborPass install site after the June 2 cutover — **legacy barcode** scanners stay on the old stack until **june 12 sunset** with **Pier 7 readers** as the only site not yet on HarborPass 2.0 rails (Piers 3, 5, and 9 already migrated). Separately, Juno Castillo signed **ramp handover** acceptance on **2026-06-10**, with Elena Crane accepting **pier 7 handover** for passenger services and Q2 playbook section 6.4 (P7-RAMP) marked COMPLETE. Marcus Holt planned to restore Friday Harbor boarding at Pier 7 once handover logged.
+
+## Evidence
+
+- `2026-06-04-legacy-reader-sunset` - Fatima confirms **legacy barcode** scanners at Pier 7 stay on old HarborPass stack until **june 12 sunset**; **Pier 7 readers** are the only remaining legacy install site with P3/P5/P9 already on 2.0 rails; Elena Crane to print legacy barcode fallback cards for booth staff.
+- `2026-06-10-pier7-ramp-handover` - Juno signs **ramp handover** acceptance block with **2026-06-10** timestamp; Elena accepts **pier 7 handover** for passenger services; Q2 playbook P7-RAMP section marked COMPLETE; Marcus async to restore Friday Harbor boarding at Pier 7.
+
+## Use In Work
+
+- Do not decommission Pier 7 legacy barcode readers before 2026-06-12 even though HarborPass 2.0 production cutover completed June 2 at 05:47.
+- Treat Pier 7 ramp as passenger-ready after 2026-06-10 handover — commuter rush cutoff signage can come down and Friday Harbor boarding returns here.
+
+## Limits
+
+Pier 7 legacy reader sunset is independent of P7-RAMP construction completion — readers stayed on old stack through Jun 12 by Fatima's explicit instruction. Night lighting and P9-GATE commissioning at Pier 9 do not affect Pier 7 reader schedules.
+
+## Connections
+
+- [[harborpass-2-0]] - Fare system whose legacy Pier 7 readers sunset on 2026-06-12.
+- [[p7-ramp]] - Accessibility ramp project completed with handover on 2026-06-10.
+- [[juno-castillo]] - Terminal ops manager who signed ramp handover acceptance.
+- [[decision-ramp-handover]] - Decision record for the 2026-06-10 Pier 7 ramp handover.
+=== END FILE ===
+
+=== FILE: seed/graph/pier-9.md ===
+---
+id: pier-9
+insight: Pier 9 night lighting upgrade stays on P9-GATE not P9-GANG and Marcus Holt's contractor shift ban blocks back-to-back shifts on the same pier 9 berth.
+type: entity
+subjects: [pier-9, p9-gate, p9-gang]
+source_ids: [2026-05-12-pier9-lighting-scope, 2026-05-21-gangway-arrival-day]
+related_nodes: [p9-gate-retrofit, p9-gang-replacement, rule-back-to-back-shift-ban, decision-lighting-tied-to-gate]
+labels: [pier, contractor-staging]
+updated: 2026-05-21
+---
+
+# Pier 9
+
+## Current Model
+
+**Pier 9** hosts parallel P9-GATE and P9-GANG workstreams sharing berth 9B staging vocabulary. The **night lighting upgrade** budget and commissioning window stay on **P9-GATE** only — **pier 9 lighting** panels on the gate approach feed Turnstile lane sensors while the gangway apron keeps existing sodium fixtures through Bridgeway install. Marcus Holt enforces a **contractor shift ban** on berth 9B: no **back-to-back shifts** with Turnstile gate crew on the same **pier 9 berth** after gangway delivery landed 2026-05-21. Gangway gets east apron until 1400 then clears for night lighting pull on the gate side.
+
+## Evidence
+
+- `2026-05-12-pier9-lighting-scope` - Key decision: **night lighting upgrade** budget and commissioning stay on **P9-GATE** only, not gangway work; **pier 9 lighting** panels on gate approach feed Turnstile lane sensors; gangway apron stays on existing sodium fixtures through Bridgeway install.
+- `2026-05-21-gangway-arrival-day` - Berth 9B schedule gangway AM only with **contractor shift ban** in effect — no **back-to-back shifts** with Turnstile gate crew on the same **pier 9 berth**; gangway gets east apron until 1400 then clears for night lighting pull on gate side.
+
+## Use In Work
+
+- Tag Pier 9 night lighting line items and commissioning under P9-GATE in the Q2 playbook — do not duplicate on P9-GANG cost codes.
+- Stagger Turnstile gate crew and Bridgeway gangway crew on berth 9B per Marcus Holt's shift ban; never schedule back-to-back contractor shifts on the same Pier 9 berth.
+
+## Limits
+
+Pier 9 berth rules here cover lighting scope binding and contractor shift sequencing — not fare gate lane counts (four lanes on P9-GATE) or hydraulic hose specs (SAE 100R2AT on P9-GANG). Cal Donner's 2026-06-03 floodlight maintenance mode for gate commissioning is a separate night-ops action.
+
+## Connections
+
+- [[p9-gate-retrofit]] - Gate project that owns Pier 9 night lighting upgrade scope.
+- [[p9-gang-replacement]] - Gangway project sharing Pier 9 berth but excluded from lighting budget.
+- [[rule-back-to-back-shift-ban]] - Standing rule banning back-to-back gate and gangway shifts on the same berth.
+- [[decision-lighting-tied-to-gate]] - Decision binding night lighting upgrade to P9-GATE only.
+=== END FILE ===
+
+=== FILE: seed/graph/mv-seaglass.md ===
+---
+id: mv-seaglass
+insight: MV Seaglass returned to revenue service on 2026-06-12 with seaglass returned logged after SG-REFIT drydock and sea trial completion.
+type: entity
+subjects: [mv-seaglass, sg-refit]
+source_ids: [2026-06-12-seaglass-revenue-return]
+related_nodes: [sg-refit, victor-hale, elena-vasquez, decision-revenue-return]
+labels: [vessel, fleet]
+updated: 2026-06-12
+---
+
+# MV Seaglass
+
+## Current Model
+
+**MV Seaglass** is HarborLine's refit vessel that cleared SG-REFIT drydock hold and re-entered **revenue service** on **2026-06-12**. Elena Vasquez cleared the refit hold at the Berth 4 briefing; Victor Hale signed the overnight engine-room log with **seaglass returned** logged to master grid active status. Marcus Holt published the **revenue service** row on the master grid and restored **Friday Harbor run** boarding at Pier 7 now that Elena Crane accepted ramp handover on 2026-06-10.
+
+## Evidence
+
+- `2026-06-12-seaglass-revenue-return` - Elena Vasquez clears **MV Seaglass** refit hold and re-enters **revenue service** on **2026-06-12**; Victor Hale signed overnight engine-room log with **seaglass returned** to master grid active status; Marcus restores Friday Harbor boarding at Pier 7 and publishes revenue service row on master grid.
+
+## Use In Work
+
+- Schedule Friday Harbor sailings on MV Seaglass from Pier 7 after 2026-06-12 — the vessel is back on the active revenue grid post-SG-REFIT.
+- Coordinate any future Seaglass berth or crane windows with Victor Hale (engineering) and Elena Vasquez (fleet maintenance), not Victor Dunn (Pier 9 infrastructure).
+
+## Limits
+
+MV Seaglass revenue return does not close P9-GATE punch lists, Pier 9 contractor badge deactivation, or SSB-DRILL after-action review due 2026-06-11. SG-REFIT sea trial on 2026-06-05 preceded but did not itself authorize revenue service — Elena Vasquez cleared that separately on June 12.
+
+## Connections
+
+- [[sg-refit]] - Engine-room refit project that held MV Seaglass out of revenue service.
+- [[victor-hale]] - Chief Engineer who signed the engine-room log before return.
+- [[elena-vasquez]] - Fleet Maintenance Director who cleared the refit hold.
+- [[decision-revenue-return]] - Decision record for 2026-06-12 revenue service restoration.
+=== END FILE ===
+
+=== FILE: seed/graph/harborpass-2-0.md ===
+---
+id: harborpass-2-0
+insight: HarborPass 2.0 targets go-live 2026-06-02 june 2 go-live while legacy barcode pier 7 readers sunset on june 12 sunset at Pier 7 only.
+type: entity
+subjects: [harborpass, hp-migrate]
+source_ids: [2026-05-26-rollback-token-gate, 2026-06-02-harborpass-golive, 2026-06-04-legacy-reader-sunset]
+related_nodes: [hp-migrate, pier-7, fatima-okonkwo, decision-legacy-reader-sunset]
+labels: [ticketing, fare-system]
+updated: 2026-06-04
+---
+
+# HarborPass 2.0
+
+## Current Model
+
+**HarborPass 2.0** is HarborLine's next-generation fare and access system migrated under HP-MIGRATE. Fatima Okonkwo reaffirmed the published **go-live 2026-06-02** target — the **june 2 go-live** date Jessamine Lee could cite externally once rollback token tests cleared. Production cutover completed at 05:47 on June 2 with HarborPass 2.0 live on Piers 3, 5, and 9. **Legacy barcode** scanners remain at Pier 7 only until **june 12 sunset**; **Pier 7 readers** are the sole remaining legacy install site while booth staff carry fallback cards.
+
+## Evidence
+
+- `2026-05-26-rollback-token-gate` - Fatima hard-gates **HarborPass migration** on rollback token test while still targeting **HarborPass 2.0** **go-live 2026-06-02** as the published **june 2 go-live** date Jessamine can cite externally once the hold clears.
+- `2026-06-02-harborpass-golive` - HarborOps war-room records HarborPass 2.0 live at go-live 05:47 on june 2 migration track; Jessamine posts all-clear to Pier 3 and Pier 5 boards; Pier 7 gets legacy barcode note with sunset still Jun 12.
+- `2026-06-04-legacy-reader-sunset` - Fatima confirms **legacy barcode** scanners at Pier 7 stay on old stack until **june 12 sunset**; **Pier 7 readers** are the only remaining legacy install site with P3/P5/P9 already on 2.0 rails.
+
+## Use In Work
+
+- Treat 2026-06-02 as the HarborPass 2.0 go-live target and actual production cutover date when aligning berth operations and passenger outage notices.
+- Keep Pier 7 legacy barcode readers active through 2026-06-12 — do not rip readers early because production cutover finished June 2.
+
+## Limits
+
+HarborPass 2.0 go-live required rollback token test clearance in staging — the published target date alone did not authorize cutover. Legacy reader sunset at Pier 7 is decoupled from the June 2 migration completion time.
+
+## Connections
+
+- [[hp-migrate]] - Migration project administering the HarborPass 2.0 cutover.
+- [[pier-7]] - Sole pier retaining legacy barcode readers until June 12 sunset.
+- [[fatima-okonkwo]] - Access Systems admin who gated migration and set reader sunset.
+- [[decision-legacy-reader-sunset]] - Decision record for Pier 7 legacy reader decommission timing.
+=== END FILE ===

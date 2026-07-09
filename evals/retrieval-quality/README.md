@@ -60,12 +60,31 @@ negatives carry none. The optional `marshmallow` block holds tool-specific
 expectations (`expected_node_ids`, `expected_plan`) used for diagnostics and
 plan-activation scoring.
 
+## Seed Dataset (candidate, pending human review)
+
+`generate_seed.sh` drove `cursor-agent -p` through the design's staged
+prompts to produce `seed/` — a realistic eight-week HarborLine ferry-terminal
+universe (40 raw artifacts, 40 source cards, 100 doctor-clean graph nodes,
+one index, two projections) — and `queries.jsonl` (40 direct queries with
+paraphrase variants and fact labels, 5 zero-result negatives, 5 lexical-junk
+traps). An adversarial cursor-agent pass audited every label against the raw
+artifacts (`seed/verify-report.md`, verdict CLEAN after one fix loop);
+`seed/README-generation.md` documents the pipeline, repairs, and deviations.
+
+The seed is NOT yet pinned: the human review gate (skim `seed/bible.md`,
+spot-check ~10 labels, run `doctor`) comes before it is treated as ground
+truth and `baseline.json` is created.
+
+```sh
+python3 evals/retrieval-quality/run_eval.py \
+  --workspace evals/retrieval-quality/seed \
+  --queries evals/retrieval-quality/queries.jsonl --json report.json
+```
+
 ## Coming In Later Steps
 
 Per the design's build order (`docs/plans/2026-07-08-retrieval-quality-eval-design.md`):
 
-- `generate_seed.sh` + `seed/` — the pinned realistic eight-week dataset,
-  generated once through staged prompts and adversarially verified.
 - `scale_workspace.py` — deterministic seeded scaler for 200/1k/5k-node
   distractor tiers.
 - `baseline.json` + CI job — pinned seed-tier scores with a two-point

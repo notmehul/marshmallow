@@ -1,0 +1,104 @@
+=== FILE: seed/indexes/home.md ===
+---
+id: home
+title: HarborLine Q2 Terminal Home
+graph_ids: [juno-castillo, p9-gate-retrofit, p9-gang-replacement, sg-refit, hp-migrate, ssb-drill, p7-ramp, plan-q2-terminal-readiness, plan-pier9-single-contractor, plan-storm-surge-coverage-matrix, rel-elena-vasquez-vs-crane, rel-victor-hale-vs-dunn, decision-critical-path-p9-gate, decision-supersede-single-contractor, decision-vendor-split, decision-crane-booking-corrected, decision-revenue-return, decision-matrix-manual-edit]
+labels: [home]
+updated: 2026-06-12
+---
+
+# HarborLine Q2 Terminal Home
+
+## Start Here
+
+- [[juno-castillo]] - operator anchor for berth closures, playbook ownership, and cross-pier coordination.
+- [[p9-gate-retrofit]] - Pier 9 fare-gate retrofit; Turnstile Dynamics, four lanes, night lighting, critical path.
+- [[p9-gang-replacement]] - Pier 9 gangway replacement; Bridgeway Hoist, 2.4 m mock-up, SAE 100R2AT hose spec.
+- [[sg-refit]] - MV Seaglass engine-room refit, drydock window, sea trial, and revenue return.
+- [[hp-migrate]] - HarborPass 2.0 cutover target, rollback gate, and Pier 7 legacy reader sunset.
+- [[ssb-drill]] - Storm Surge Barrier drill series, Highwater codename, and simulation weekends.
+- [[p7-ramp]] - Pier 7 accessibility ramp, 6061-T6 grating, commuter 09:30 cutoff, handover.
+- [[plan-q2-terminal-readiness]] - active cross-pier checklist tying closures, badges, notices, and sailings.
+- [[plan-pier9-single-contractor]] - superseded Kelwick envelope; do not treat as active vendor after 2026-05-06.
+- [[plan-storm-surge-coverage-matrix]] - working matrix drifted to 3 deckhands; source notes still say 4.
+- [[rel-elena-vasquez-vs-crane]] - disambiguate Elena: Vasquez owns fleet/drydock; Crane owns Pier 7 passengers.
+- [[rel-victor-hale-vs-dunn]] - disambiguate Victor: Hale is MV Seaglass engineering; Dunn is Pier 9 infrastructure.
+- [[decision-critical-path-p9-gate]] - Juno declared P9-GATE critical path on 2026-05-13; berth closures follow.
+- [[decision-supersede-single-contractor]] - Victor Dunn retired the single-contractor plan when scopes diverged.
+- [[decision-vendor-split]] - Turnstile Dynamics for gates, Bridgeway Hoist for gangway; separate Pier 9 tracks.
+- [[decision-crane-booking-corrected]] - ground-truth crane date is 2026-05-19; ignore the week-2 May 12 email.
+- [[decision-revenue-return]] - MV Seaglass back on revenue service 2026-06-12 after SG-REFIT closeout.
+- [[decision-matrix-manual-edit]] - Juno's hand edit to 3 deckhands per pier is not back-propagated to Priya's packet.
+
+## Notes
+
+Open this index before any cross-pier status pass, Pier 9 scope question, or Q2 closeout prep.
+It front-loads the operator, all six projects, standing plans, name collisions, and the decisions that move sailings.
+=== END FILE ===
+
+=== FILE: seed/projections/q2-weekly-status.md ===
+---
+id: q2-weekly-status
+title: Q2 Weekly Terminal Status
+task: Run Juno's Monday cross-pier readiness pass across all six Q2 workstreams before berth and sailing changes lock.
+graph_ids: [plan-q2-terminal-readiness, juno-castillo, p9-gate-retrofit, p9-gang-replacement, sg-refit, marcus-holt]
+labels: [recall-packet]
+updated: 2026-06-12
+---
+
+# Q2 Weekly Terminal Status
+
+## Use For
+
+Prepare the standing Monday terminal status brief: berth holds, contractor windows, sailing impacts, and open punch lists across Pier 9, Seaglass, HarborPass, drill weekends, and Pier 7 ramp work.
+
+## Load First
+
+- [[plan-q2-terminal-readiness]] - master checklist for closures, badge counts, notices, and sailings alignment.
+- [[juno-castillo]] - who owns the playbook and signs off passenger-facing disruption calls.
+- [[p9-gate-retrofit]] - gate delivery slip, critical path, lighting, and Turnstile crew windows.
+- [[p9-gang-replacement]] - gangway delivery hold, mock-up width, hose spec, and load-test gates.
+- [[sg-refit]] - drydock progress, crane booking, sea trial date, and return-to-service checklist.
+- [[marcus-holt]] - berth swaps, Friday Harbor diversions, and back-to-back shift bans on Pier 9.
+
+## Working Context
+
+Walk the six codenames in playbook order; never collapse P9-GATE and P9-GANG into one line.
+Gate slipped to May 28; gangway held May 21 — if someone cites a single Pier 9 date, ask which vendor.
+Crane ground truth is May 19, not the early Marcus email. HarborPass is done; Pier 7 legacy readers sunset Jun 12.
+Flag coverage-matrix drift (3 vs 4 deckhands) only if SSB-DRILL staffing comes up; otherwise leave it for Priya's after-action.
+=== END FILE ===
+
+=== FILE: seed/projections/pier9-gate-commissioning.md ===
+---
+id: pier9-gate-commissioning
+title: Pier 9 Gate Commissioning Brief
+task: Prepare Juno for a Pier 9 gate commissioning or Q2 closeout conversation covering floodlights, badges, punch list, and passenger clearance.
+graph_ids: [p9-gate-retrofit, decision-critical-path-p9-gate, decision-floodlight-maintenance, turnstile-dynamics, pier-9, decision-revenue-return]
+labels: [recall-packet]
+updated: 2026-06-12
+---
+
+# Pier 9 Gate Commissioning Brief
+
+## Use For
+
+Brief Victor Dunn, Cal Donner, Fatima Okonkwo, or Marcus Holt before gate commissioning, floodlight cutover, contractor badge deactivation, or the week-8 Q2 closeout on Pier 9.
+
+## Load First
+
+- [[p9-gate-retrofit]] - four fare lanes, Turnstile scope, and gate-specific night lighting — not gangway work.
+- [[decision-critical-path-p9-gate]] - why berth closures and Marcus's reordering still treat gate as the driver.
+- [[decision-floodlight-maintenance]] - Cal's maintenance-mode cutover on 2026-06-03; gangway lane stays lit.
+- [[turnstile-dynamics]] - gate vendor, May 28 delivery slip, and commissioning crew windows.
+- [[pier-9]] - shared berth rules: no back-to-back gate and gangway shifts on the same berth.
+- [[decision-revenue-return]] - Seaglass revenue return the same week sets the closeout rhythm for all piers.
+
+## Working Context
+
+Lead with codename P9-GATE — if the room says "gangway," "hydraulic hose," or "2.4 m mock-up," you are on P9-GANG.
+Night lighting and floodlight maintenance mode are gate-only; do not promise gangway circuit changes.
+Confirm Turnstile punch list before badge deactivation; Fatima issued 14 temp badges for the gate crew week.
+Kelwick and the single-contractor plan are dead — split vendors under the Q2 playbook are the only active track.
+Close with sailing restoration: once gate commissioning clears, Marcus can release the Pier 9 berth holds tied to the critical-path declaration.
+=== END FILE ===

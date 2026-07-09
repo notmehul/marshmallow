@@ -1,0 +1,189 @@
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-18-drydock-window-opens.md ===
+---
+id: 2026-05-18-drydock-window-opens
+pointer: raw/2026-05-18-drydock-window-opens.md
+captured: 2026-05-18T00:00:00Z
+summary: Elena Vasquez email opening the SG-REFIT drydock window on 2026-05-18 with Victor Hale's thrust bearing staged before hull penetration is cleared.
+labels: [seed]
+---
+
+# Drydock Window Opens
+
+## Useful Excerpts
+
+- **SG-REFIT drydock** is officially open as of this morning. **Drydock window 2026-05-18** starts now; berth 4 heavy-lift zone is Seaglass-only through refit sea trial.
+- **Seaglass drydock** notes:
+- Victor Hale confirms spare **thrust bearing** crate is port-side — no **hull penetration** until his sign-off, but we're clear to begin prep.
+- Fuel systems discussion deferred to tomorrow's morning sync (Victor H. had an alternate purge order — we'll settle then)
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-19-drydock-morning-sync.md ===
+---
+id: 2026-05-19-drydock-morning-sync
+pointer: raw/2026-05-19-drydock-morning-sync.md
+captured: 2026-05-19T00:00:00Z
+summary: Drydock morning sync correcting SG-REFIT crane booking to 2026-05-19 and adopting Elena Vasquez's fuel-line purge sequence over Victor Hale's alternative.
+labels: [seed]
+---
+
+# Drydock Morning Sync
+
+## Useful Excerpts
+
+- Victor Hale: **Seaglass crane** is on berth today — **crane booking 2026-05-19**, not May 12
+- **May 19 crane** is what's on the vendor hold letter now that drydock is live
+- Elena Vasquez: **fuel line purge** will follow her approved order — **vasquez sequence adopted** for **sg-refit**; Victor to update work pack
+- Marcus → update master grid; retract May 12 crane note in sailing impact doc
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-20-gangway-mockup-inspection.md ===
+---
+id: 2026-05-20-gangway-mockup-inspection
+pointer: raw/2026-05-20-gangway-mockup-inspection.md
+captured: 2026-05-20T00:00:00Z
+summary: Victor Dunn site inspection session confirming P9-GANG mock-up gangway width at 2.4 meters on 2026-05-20 ahead of next-day Bridgeway delivery.
+labels: [seed]
+---
+
+# Gangway Mockup Inspection
+
+## Useful Excerpts
+
+- Tape measure run: **mock-up gangway** span **2.4 meters** — within tolerance
+- Priya: **mock-up inspection** photos uploaded; date stamp **2026-05-20**
+- Victor: **width confirmed** on Bridgeway drawing rev C; hose spec R2AT verified on tag
+- Priya previews **gangway load test** certificate template — passenger use blocked until signed
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-21-gangway-arrival-day.md ===
+---
+id: 2026-05-21-gangway-arrival-day
+pointer: raw/2026-05-21-gangway-arrival-day.md
+captured: 2026-05-21T00:00:00Z
+summary: Pier 9 Slack thread on Bridgeway gangway delivery day 2026-05-21 with Marcus Holt enforcing the contractor shift ban against back-to-back gate crew on the same berth.
+labels: [seed]
+---
+
+# Gangway Arrival Day
+
+## Useful Excerpts
+
+- bridgeway truck rolling — **gangway delivery** on site for **2026-05-21**. east apron staging per victor d's map
+- berth 9B schedule for today: gangway AM only. **contractor shift ban** in effect — no **back-to-back shifts** with turnstile gate crew on the same **pier 9 berth**
+- priya wants load test cert before passenger boarding tests — paperwork in progress
+- if juno's **critical path** note conflicts, gate waits. gangway gets east apron until 1400 then clear for night lighting pull on gate side
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-22-gate-delivery-slip.md ===
+---
+id: 2026-05-22-gate-delivery-slip
+pointer: raw/2026-05-22-gate-delivery-slip.md
+captured: 2026-05-22T00:00:00Z
+summary: Derek Blunt email documenting Turnstile Dynamics slipping P9-GATE fare gate delivery to 2026-05-28 after gangway landed on schedule.
+labels: [seed]
+---
+
+# Gate Delivery Slip
+
+## Useful Excerpts
+
+- Official **gate delivery slip**: fare gate panels and lane controllers now ship for **2026-05-28**, not the May 21 window we had penciled before gangway landed.
+- **May 28 delivery** details from Alicia Varga:
+- Slip tied to fab backlog, not berth conflict — Bridgeway is already on site
+- Juno — please fold this into the Q2 playbook critical-path section. I know you flagged P9-GATE on the 13th; this doesn't change the call, just the date.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-25-highwater-drill-prep.md ===
+---
+id: 2026-05-25-highwater-drill-prep
+pointer: raw/2026-05-25-highwater-drill-prep.md
+captured: 2026-05-25T00:00:00Z
+summary: SSB-DRILL prep meeting establishing the Highwater radio codename and confirming three simulation weekends ahead of the May 31 drill.
+labels: [seed]
+---
+
+# Highwater Drill Prep
+
+## Useful Excerpts
+
+- Priya: **three simulation weekends** locked — May 24 (done), May 31, Jun 7
+- Official **Highwater codename** for **radio traffic** during **ssb-drill** events — no project numbers on open channels
+- Priya mentions **weekend coverage matrix** draft still shows **4 deckhands** in her **source notes** — Juno says working copy may differ; follow-up Friday
+- Life-vest protocol: **45 minutes** between **life-vest spot checks** per Priya's packet
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-26-rollback-token-gate.md ===
+---
+id: 2026-05-26-rollback-token-gate
+pointer: raw/2026-05-26-rollback-token-gate.md
+captured: 2026-05-26T00:00:00Z
+summary: Fatima Okonkwo hard-gates HarborPass migration on rollback token test failure while reaffirming the published 2026-06-02 go-live target.
+labels: [seed]
+---
+
+# Rollback Token Gate
+
+## Useful Excerpts
+
+- I'm placing a hard gate on **HarborPass migration** until the **rollback token test** completes clean in staging. This is non-negotiable from my side as **fatima okonkwo** on HP-MIGRATE.
+- We are still targeting **HarborPass 2.0** **go-live 2026-06-02** — that's the published **june 2 go-live** date Jessamine can cite externally once I clear the hold.
+- Pier 3 + Pier 5 reader failover: FAIL on second attempt (stale cache)
+- Jessamine — hold the **passenger notice** draft until I green-light. Outage copy can stay in your doc; just don't publish boards.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-27-surfside-noise-escalation.md ===
+---
+id: 2026-05-27-surfside-noise-escalation
+pointer: raw/2026-05-27-surfside-noise-escalation.md
+captured: 2026-05-27T00:00:00Z
+summary: Elena Crane escalates a Surfside Condos noise complaint about early-morning Pier 7 ramp grinding to Juno, who schedules quiet-hours enforcement.
+labels: [seed]
+---
+
+# Surfside Noise Escalation
+
+## Useful Excerpts
+
+- juno — forwarding **noise complaint** from **surfside condos** re: **pier 7 ramp** work. residents say grinding started before 0700 again
+- building rep attached decibel readings. not catastrophic but they're threatening city permit review
+- scheduling **quiet hours** enforcement starting tomorrow: no impact tools before 0800 weekdays, 0900 weekends
+- commuter **09:30 cutoff** still applies for blocking work
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-28-coverage-matrix-source.md ===
+---
+id: 2026-05-28-coverage-matrix-source
+pointer: raw/2026-05-28-coverage-matrix-source.md
+captured: 2026-05-28T00:00:00Z
+summary: Priya Nandakumar session sharing official SSB-DRILL source notes requiring 4 deckhands per pier and 45-minute life-vest spot checks during simulation weekends.
+labels: [seed]
+---
+
+# Coverage Matrix Source
+
+## Useful Excerpts
+
+- Priya: **source notes** for **coverage matrix** roster **4 deckhands** per pier each simulation weekend
+- Priya: **life-vest spot checks** every **45 minutes** during drill weekends — non-optional
+- Juno acknowledges; says working spreadsheet might differ — "let's sync Friday"
+- _(priya async: "official packet stays at 4 — if your matrix shows 3 that's a Juno problem not mine")_
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/sources/2026-05-29-coverage-matrix-drift.md ===
+---
+id: 2026-05-29-coverage-matrix-drift
+pointer: raw/2026-05-29-coverage-matrix-drift.md
+captured: 2026-05-29T00:00:00Z
+summary: Coverage alignment meeting where Juno admits manually editing the working weekend coverage matrix to 3 deckhands per pier without looping Priya on the change.
+labels: [seed]
+---
+
+# Coverage Matrix Drift
+
+## Useful Excerpts
+
+- Juno admits she **manually edited** the working **weekend coverage matrix** to **3 deckhands** per pier
+- Reason cited: volunteer pool realism after May 24 weekend no-shows
+- Priya: official **source notes** still say **4 deckhands** — she was not looped on the edit
+- Marcus: sailing grid built against Juno's 3-headcount version; needs reconciliation before May 31 drill
+=== END FILE ===

@@ -1,0 +1,237 @@
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-03-pier9-floodlight-maintenance.md ===
+# Night Harbormaster Console — Session Log (fragment)
+**Operator:** Cal Donner (co-present: Victor Dunn)  
+**2026-06-03 22:14–22:31 PST**
+
+---
+
+`22:14` Cal login — Pier 9 west apron electrical shack  
+`22:15` Victor D. on radio: Turnstile commissioning needs dark-sky window; gangway apron stays open for late ferry  
+`22:16` Breaker panel check — west gate approach tagged per May 12 circuit map  
+`22:17` Cal throws **floodlight circuit** B-7 to **maintenance mode** for **gate commissioning** (P9-GATE track only)  
+`22:18` Gangway lane sodium fixtures left energized — Bridgeway crew still doing handrail touch-ups  
+`22:20` Victor confirms lane sensors polling; no bleed into P9-GANG apron  
+`22:22` Side note — juno ping about HarborPass all-clear yesterday; unrelated tonight  
+`22:24` Cal logs entry in night harbormaster book: "P9 west gate lights isolated, gangway lit"  
+`22:26` Fatima async: don't kill power on badge reader pedestal during test  
+`22:28` Victor: restore normal circuit by 0600 unless commissioning runs long  
+`22:29` Cal photos breaker labels (blurry — retake tomorrow)  
+`22:31` LOGOUT
+
+_(victor d. async: "thanks — mock-up width was fine last month, this is just sensor alignment")_
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-04-legacy-reader-sunset.md ===
+# Pier 7 Ticketing — Legacy Reader Sunset Sync
+**Date:** 2026-06-04 (Thu)  
+**Attendees:** Fatima Okonkwo, Elena Crane  
+**Location:** Pier 7 passenger services counter (post-migration quiet hour)
+
+---
+
+HarborPass 2.0 is live on most piers; Pier 7 still has a split stack.
+
+**Reader sunset plan**
+- Fatima: **legacy barcode** scanners at Pier 7 stay on the old HarborPass stack until **june 12 sunset** — do not decommission early  
+- **Pier 7 readers** are the only remaining legacy install site; P3/P5/P9 already on 2.0 rails  
+- Elena Crane will post dual-stack signage at the ramp approach and ticket canopy  
+- Jessamine already published the Jun 1–2 outage window; this is a separate tail-end track
+
+**Passenger messaging (Elena)**
+- Surfside footbridge crowd still asking about ramp noise — unrelated but Elena wants one FAQ line  
+- Commuter rush signage stays until handover next week  
+- Elena confirms she'll hold contractor badges off the reader alcove through Jun 11
+
+**Side topics**
+- Fatima mentions rollback token archive from Tuesday's cutover — no action  
+- Cal's floodlight maintenance last night didn't affect Pier 7 circuits  
+- Marcus wants Friday Harbor berth note updated once ramp closes out
+
+**Actions**
+- Fatima → publish **june 12 sunset** date on HP-MIGRATE internal wiki  
+- Elena → print **legacy barcode** fallback cards for booth staff  
+- Elena → send Surfside FAQ draft to Juno for playbook cross-ref
+
+Meeting ~19 min. Coffee machine broken again.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-05-seaglass-sea-trial.md ===
+From: Victor Hale <vhale@harborline.internal>
+To: Elena Vasquez <evasquez@harborline.internal>
+Cc: Juno Castillo <jcastillo@harborline.internal>, Marcus Holt <mholt@harborline.internal>
+Subject: SG-REFIT **sea trial** complete — return-to-service checklist draft attached
+
+Elena —
+
+**Seaglass trial** finished this morning (**2026-06-05**). Full-power run across the harbor loop, rudder hard-over checks, and engine-room temps all within spec.
+
+Highlights:
+- Thrust bearing temps stable post-refit — no repeat of pre-drydock vibration  
+- **Fuel line purge** sequence per your approved order held through the run  
+- Crane booking correction from May is ancient history; berth 4 cleared this AM
+
+I'm attaching the draft return-to-service checklist for your sign-off. Juno can slot revenue sailings once you and Marcus agree on the master grid row.
+
+Marcus — Pier 7 ramp work may still affect Friday Harbor boarding until Crane closes handover; keep Pier 5 diversion live through weekend if needed.
+
+Unrelated: someone left a HarborLine hard hat in the engine-room mezzanine.
+
+— Victor Hale  
+Chief Engineer, MV Seaglass
+
+Attachment: `SG-REFIT_RTS_checklist_draft_v3.pdf`
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-08-q2-closeout-preview.md ===
+# Q2 Terminal Readiness — Closeout Preview
+**Date:** 2026-06-08 (Mon)  
+**Attendees:** Juno Castillo, Glenn Wexler, Victor Dunn  
+**Location:** Terminal ops conference room B
+
+---
+
+Week 8 preview before playbook sign-off and Pier 9 contractor badge deactivation.
+
+**Procurement recap (Glenn)**
+- Glenn walked Victor through the rejected **gangway contingency** request — Victor's **$62000 contingency** envelope was flagged as **duplicate contingency** overlapping P9-GATE reserves  
+- Original **change order cap** on **p9-gate** remains **$18400** without VP sign-off — Glenn says we're still inside that ceiling after Turnstile slip  
+- Bridgeway mobilization discount from May still on the books; no new change orders pending
+
+**Open punch list (Juno)**
+- P9-GATE gate delivery landed May 28 — commissioning this week with Cal's floodlight window  
+- P9-GANG load cert still with Priya as of Friday; Victor D. says paperwork close  
+- HarborPass tail: Pier 7 legacy readers until Jun 12 per Fatima
+
+**Side threads**
+- Marcus wants Friday Harbor berth restored once ramp handover signs  
+- Elena V. sea trial done; revenue return target end of week  
+- Unrelated: Hana pinged about Pier 3 float switch follow-up — closed item
+
+**Actions**
+- Juno → finalize Q2 playbook closeout section by Wed  
+- Glenn → archive duplicate contingency denial letter for audit  
+- Victor Dunn → deliver P9-GATE lighting punch closeout to Cal
+
+Meeting 34 min. Glenn left early for finance stand-up.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-09-gangway-load-cert.md ===
+# HarborOps Slack — #p9-gangway-field (excerpt)
+**2026-06-09**
+
+---
+
+**08:12** `@priya.n`  
+uploaded signed **load test certificate** for P9-GANG mock-up span. Bridgeway static + dynamic passes
+
+**08:14** `@victor.dunn`  
+copy. north stanchion weld grind from may inspection is done too
+
+**08:16** `@priya.n`  
+**gangway load test** packet closes the passenger-use hold. boarding trial can run today if Marcus clears berth
+
+**08:18** `@victor.dunn`  
+2.4m width still matches drawing rev C — no drift
+
+**08:21** `@priya.n`  
+reminder: life-vest spot checks stay at 45 min during any drill overlap this week
+
+**08:23** `@victor.dunn`  
+gate crew on diff shift — marcus ban on back-to-back still in effect
+
+**08:25** `@priya.n`  
+**passenger use** approved on my side once Juno logs it in the playbook
+
+**08:27** `@victor.dunn`  
+juno is in ramp handover prep — ping her after 1400
+
+**08:29** `@priya.n`  
+unrelated: who left a soggy umbrella in the compliance cabinet?
+
+_(thread tagged "p9-gang cert 6/9")_
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-10-pier7-ramp-handover.md ===
+# Terminal Ops Console — Session Log (fragment)
+**Operator:** Juno Castillo (co-present: Elena Crane)  
+**2026-06-10 15:02–15:19 PST**
+
+---
+
+`15:02` Juno login — Pier 7 accessibility ramp handover wizard  
+`15:03` Elena Crane present; 6061-T6 grating install photos attached  
+`15:04` Noise baffle status: Surfside quiet-hours ack on file from late May  
+`15:05` Juno signs **ramp handover** acceptance block — **2026-06-10** timestamp locked  
+`15:06` Elena accepts **pier 7 handover** for passenger services; commuter rush cutoff signage can come down Friday  
+`15:08` Marcus async: restore Friday Harbor boarding at Pier 7 once this logs  
+`15:10` Side note — legacy barcode readers still active until Jun 12; Fatima notified separately  
+`15:12` Juno updates Q2 playbook section 6.4 (P7-RAMP) → COMPLETE  
+`15:14` Elena requests one more ramp grip-tape strip at south landing (minor punch)  
+`15:16` Photo upload: handover sign-off sheet (E. Crane sig legible)  
+`15:17` Cal ping acknowledged — unrelated floodlight item from last week  
+`15:19` LOGOUT
+
+_(elena async: "surfside condo line finally quiet — thanks for the quiet-hours schedule")_
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-11-highwater-after-action.md ===
+From: Priya Nandakumar <pnandakumar@harborline.internal>
+To: Juno Castillo <jcastillo@harborline.internal>
+Cc: Cal Donner <cdonner@harborline.internal>, Marcus Holt <mholt@harborline.internal>
+Subject: SSB-DRILL **after-action review** due **2026-06-11** — please attach working matrix
+
+Juno —
+
+**SSB-DRILL final** packet is due today (**2026-06-11**). I need your annotated copy of the Storm Surge Weekend Coverage Matrix attached before I submit upstream.
+
+Context:
+- Three simulation weekends (May 24, May 31, Jun 7) are closed  
+- **Highwater codename** radio traffic worked; Cal's night logs clean  
+- Life-vest 45-minute interval held across all three
+
+Please attach whichever matrix version you used for the May 31 and Jun 7 rosters. I know there was drift between my **source notes** headcount and your working sheet — document what actually sailed.
+
+Also:
+- Gangway load cert landed yesterday — good  
+- Pier 7 ramp handover signed Tuesday — congrats to Elena Crane  
+- Gate commissioning noise on Pier 9 west — keep out of after-action narrative unless it affected drill traffic
+
+Reply by 1700 so I can file the **after-action review** on time.
+
+— Priya
+
+P.S. Marcus still owes me one corrected berth-hold row from May 15 diversion week.
+=== END FILE ===
+
+=== FILE: evals/retrieval-quality/seed/raw/2026-06-12-seaglass-revenue-return.md ===
+# MV Seaglass — Revenue Return Briefing
+**Date:** 2026-06-12 (Fri)  
+**Attendees:** Elena Vasquez, Victor Hale, Juno Castillo, Marcus Holt  
+**Location:** Berth 4 gangway / ops shack
+
+---
+
+Final SG-REFIT closeout and sailing restoration.
+
+**Revenue return**
+- Elena Vasquez: **MV Seaglass** clears refit hold and re-enters **revenue service** today (**2026-06-12**)  
+- Victor Hale signed overnight engine-room log; **seaglass returned** to master grid active status  
+- Drydock window opened May 18; sea trial was Jun 5 — no open mechanical holds
+
+**Sailing restoration (Marcus)**
+- **Friday Harbor run** boarding returns to **Pier 7** now that Elena Crane accepted ramp handover Jun 10  
+- Pier 5 diversion message comes off terminal boards by 1400  
+- Juno to deactivate remaining P9-GATE contractor badges tonight per Q2 playbook closeout
+
+**Side topics**
+- Priya's after-action filed yesterday; coverage matrix footnote still awkward — not today's fight  
+- Fatima confirms Pier 7 legacy readers sunset today aligns with reader swap schedule  
+- Glenn wants final P9-GATE change-order tally for Q2 finance packet
+
+**Actions**
+- Marcus → publish **revenue service** row on master grid; restore Pier 7 Friday Harbor berth  
+- Juno → Q2 playbook final sign-off and badge deactivation list  
+- Elena V. → archive SG-REFIT milestone packet for fleet maintenance records
+
+Briefing 27 min. Victor H. back aboard for first passenger loop 1530.
+=== END FILE ===

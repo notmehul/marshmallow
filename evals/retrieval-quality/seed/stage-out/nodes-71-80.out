@@ -1,0 +1,389 @@
+=== FILE: seed/graph/decision-matrix-manual-edit.md ===
+---
+id: decision-matrix-manual-edit
+insight: Juno Castillo manually edited the weekend coverage matrix to 3 deckhands per pier on the Storm Surge Weekend Coverage Matrix after May 24 no-shows without looping Priya.
+type: decision
+subjects: [juno-castillo, ssb-drill]
+source_ids: [2026-05-29-coverage-matrix-drift]
+related_nodes: [plan-storm-surge-coverage-matrix, priya-nandakumar, juno-castillo, ssb-drill]
+labels: [coverage-matrix, staffing]
+updated: 2026-05-29
+---
+
+# Matrix Manual Edit Decision
+
+## Current Model
+
+On 2026-05-29 Juno Castillo admitted she **manually edited** the working **weekend coverage matrix** — the Storm Surge Weekend Coverage Matrix — to **3 deckhands** per pier after May 24 weekend no-shows, citing volunteer pool realism. Priya Nandakumar was not looped on the change; her official **source notes** still roster **4 deckhands** per pier. Marcus Holt built the sailing grid against Juno's three-headcount version and needs reconciliation before the May 31 drill weekend.
+
+## Evidence
+
+- `2026-05-29-coverage-matrix-drift` - Juno admits she **manually edited** the working **weekend coverage matrix** to **3 deckhands** per pier after May 24 no-shows; Priya states official **source notes** still say **4 deckhands** and she was not looped; Marcus notes sailing grid built against Juno's 3-headcount version needing reconciliation before May 31 drill.
+
+## Use In Work
+
+- Treat Juno's 3-deckhand working matrix as operational reality for Marcus Holt's sailing grid, but flag the drift whenever staffing numbers appear in compliance or passenger-facing contexts.
+- Loop Priya Nandakumar before attaching the edited matrix to the SSB-DRILL after-action review or publishing headcount externally.
+
+## Limits
+
+This decision records the manual edit only — it does not change Priya's official 4-deckhand source notes or the 45-minute life-vest spot check interval. Simulation weekend dates (May 24, May 31, Jun 7) are governed separately.
+
+## Connections
+
+- [[plan-storm-surge-coverage-matrix]] - Drifted standing plan whose working copy Juno hand-edited to 3 deckhands.
+- [[priya-nandakumar]] - Safety lead whose official source notes still specify 4 deckhands and who was not looped on the edit.
+- [[juno-castillo]] - Operator who owns the working coverage matrix and admitted the manual change.
+- [[ssb-drill]] - Parent drill series whose simulation weekends this matrix staffs.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-life-vest-checks.md ===
+---
+id: rule-life-vest-checks
+insight: Priya Nandakumar mandated life-vest spot checks every 45 minutes during SSB-DRILL simulation weekends per official coverage matrix source notes.
+type: preference
+subjects: [priya-nandakumar, ssb-drill]
+source_ids: [2026-05-28-coverage-matrix-source]
+related_nodes: [ssb-drill, priya-nandakumar, rel-priya-ssb-drill, rule-coverage-source-notes]
+labels: [safety-compliance, drill-ops]
+updated: 2026-05-28
+---
+
+# Life Vest Checks Rule
+
+## Current Model
+
+Priya Nandakumar's official **SSB-DRILL** packet requires **life-vest spot checks** every **45 minutes** during simulation weekends — non-optional. The mandate appears in Priya's **source notes** for the coverage matrix shared 2026-05-28 alongside the 4-deckhand roster. Juno acknowledged the interval but noted her working spreadsheet might differ on headcount; the 45-minute check cadence stands regardless of deckhand drift.
+
+## Evidence
+
+- `2026-05-28-coverage-matrix-source` - Priya Nandakumar shares **source notes** for **coverage matrix** rostering 4 deckhands per pier each simulation weekend; **life-vest spot checks** every **45 minutes** during drill weekends marked non-optional; Juno acknowledges and says working spreadsheet might differ on headcount with sync planned for Friday.
+
+## Use In Work
+
+- Schedule deckhand rotations and supervisor spot-check rounds on 45-minute intervals during every SSB-DRILL simulation weekend — do not compress or skip intervals because Juno's working matrix shows fewer deckhands.
+- Cite Priya's official packet when answering compliance questions about life-vest verification cadence during storm surge barrier drill events.
+
+## Limits
+
+This rule governs life-vest spot check frequency only — not deckhand headcount per pier (source notes say 4; Juno's manually edited weekend coverage matrix shows 3). Pier 9 contractor shift bans and HarborPass outage windows are out of scope.
+
+## Connections
+
+- [[ssb-drill]] - Storm Surge Barrier Drill Series whose simulation weekends this check cadence covers.
+- [[priya-nandakumar]] - Safety & Compliance Lead who mandated the 45-minute interval.
+- [[rel-priya-ssb-drill]] - Relationship linking Priya to SSB-DRILL drill rules Juno implements.
+- [[rule-coverage-source-notes]] - Companion rule from the same source session specifying 4-deckhand rostering.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-commuter-rush-cutoff.md ===
+---
+id: rule-commuter-rush-cutoff
+insight: Pier 7 ramp (P7-RAMP) installation work cannot block commuter rush boarding before the 09:30 cutoff — contractors must clear the approach by 09:15.
+type: preference
+subjects: [p7-ramp, elena-crane, marcus-holt]
+source_ids: [2026-05-15-friday-harbor-diversion]
+related_nodes: [p7-ramp, elena-crane, decision-friday-harbor-diversion, pier-7]
+labels: [passenger-impact, scheduling]
+updated: 2026-05-15
+---
+
+# Commuter Rush Cutoff Rule
+
+## Current Model
+
+**P7-RAMP** accessibility ramp installation on **Pier 7** cannot block **commuter rush** morning boarding before the **09:30 cutoff**. Contractors must clear the Pier 7 approach by 09:15 so passengers can board on schedule. Marcus Holt and Elena Crane reinforced this window at the 2026-05-15 Friday Harbor diversion huddle when ramp work forced the Friday Harbor run to Pier 5. The cutoff applies on weekdays and weekends when ramp or noise work threatens the morning rush.
+
+## Evidence
+
+- `2026-05-15-friday-harbor-diversion` - **Pier 7 ramp** work cannot block **commuter rush** boarding before **09:30 cutoff** with contractors clearing the approach by 09:15; **Friday Harbor run** moves to **Pier 5** boarding for **2026-05-15** and through weekend if noise window slips; Marcus directed to publish pier 5 diversion notice to terminal boards by 0700.
+
+## Use In Work
+
+- Block P7-RAMP contractor staging and impact-tool work in the Pier 7 approach corridor between 06:00 and 09:30 on commuter sail days unless the berth is fully cleared for boarding.
+- Coordinate with Marcus Holt before scheduling ramp tasks that overlap the morning rush window — divert affected sailings rather than delay boarding past 09:30.
+
+## Limits
+
+The 09:30 cutoff governs passenger boarding access only — not Surfside Condos quiet hours (no impact tools before 0800 weekdays / 0900 weekends) or Friday Harbor diversion pier assignments. P9-GATE critical path work on Pier 9 is unrelated.
+
+## Connections
+
+- [[p7-ramp]] - Pier 7 Accessibility Ramp Install project whose work must respect the cutoff.
+- [[elena-crane]] - Pier 7 passenger services manager who reinforced the commuter rush window.
+- [[decision-friday-harbor-diversion]] - Diversion decision that applied this cutoff when ramp work blocked Pier 7.
+- [[pier-7]] - Pier whose approach corridor the 09:30 boarding cutoff protects.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-back-to-back-shift-ban.md ===
+---
+id: rule-back-to-back-shift-ban
+insight: Marcus Holt's contractor shift ban prohibits back-to-back shifts between Turnstile gate crew and Bridgeway gangway crew on the same Pier 9 berth.
+type: preference
+subjects: [marcus-holt, p9-gate-retrofit, p9-gang-replacement]
+source_ids: [2026-05-21-gangway-arrival-day]
+related_nodes: [marcus-holt, p9-gate-vs-p9-gang, p9-gang-replacement, p9-gate-retrofit]
+labels: [contractor-access, pier-9]
+updated: 2026-05-21
+---
+
+# Back To Back Shift Ban Rule
+
+## Current Model
+
+Marcus Holt enforces a **contractor shift ban** on **Pier 9 berth** 9B: no **back-to-back shifts** between Turnstile Dynamics gate crew and Bridgeway Hoist gangway crew on the same berth day. On **2026-05-21** gangway delivery day, berth 9B was gangway AM only — gate crew could not follow gangway on the same **pier 9 berth** without a gap. If Juno's P9-GATE critical path note conflicts, gate work waits; gangway gets east apron until 1400 then clears for night lighting pull on the gate side.
+
+## Evidence
+
+- `2026-05-21-gangway-arrival-day` - Bridgeway truck rolling for **gangway delivery** on **2026-05-21** at east apron staging; berth 9B schedule gangway AM only with **contractor shift ban** in effect — no **back-to-back shifts** with Turnstile gate crew on the same **pier 9 berth**; critical path note gives gate priority if conflict arises.
+
+## Use In Work
+
+- Sequence P9-GATE and P9-GANG contractor windows on berth 9B with a hard gap — never book Turnstile gate crew immediately after Bridgeway gangway crew (or vice versa) on the same calendar day.
+- Check Marcus Holt's berth schedule before assigning Victor Dunn's Pier 9 staging maps to contractor badge batches.
+
+## Limits
+
+This ban covers same-berth shift sequencing on Pier 9 only — not Pier 7 commuter rush cutoffs, gangway load test certificate requirements, or P9-GATE night lighting scope. Kelwick Marine single-contractor plan is superseded and no longer governs shift booking.
+
+## Connections
+
+- [[marcus-holt]] - Master Scheduler who issued and enforces the contractor shift ban.
+- [[p9-gate-vs-p9-gang]] - Near-duplicate pair whose overlapping berth access this ban disambiguates.
+- [[p9-gang-replacement]] - Gangway replacement workstream subject to the ban on gangway delivery days.
+- [[p9-gate-retrofit]] - Gate retrofit workstream that cannot follow gangway crew back-to-back on berth 9B.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-load-test-certificate.md ===
+---
+id: rule-load-test-certificate
+insight: Priya Nandakumar required a gangway load test load test certificate before passenger use on P9-GANG — Bridgeway static and dynamic passes filed 2026-06-09.
+type: preference
+subjects: [priya-nandakumar, p9-gang-replacement]
+source_ids: [2026-06-09-gangway-load-cert]
+related_nodes: [priya-nandakumar, p9-gang-replacement, decision-gangway-mockup-inspection, bridgeway-hoist]
+labels: [safety-compliance, gangway]
+updated: 2026-06-09
+---
+
+# Load Test Certificate Rule
+
+## Current Model
+
+Priya Nandakumar requires a signed **load test certificate** from a completed **gangway load test** before **passenger use** on **P9-GANG**. Bridgeway Hoist's mock-up span passed static and dynamic loads; Priya uploaded the signed certificate on **2026-06-09**, closing the passenger-use hold. Boarding trials may proceed once Marcus Holt clears the berth and Juno logs the cert in the Q2 Terminal Readiness Playbook. The 2.4 m mock-up width still matches drawing rev C.
+
+## Evidence
+
+- `2026-06-09-gangway-load-cert` - Priya Nandakumar uploaded signed **load test certificate** for P9-GANG mock-up span with Bridgeway static and dynamic passes; **gangway load test** packet closes the passenger-use hold; **passenger use** approved on Priya's side once Juno logs it in the playbook; 2.4m width still matches drawing rev C.
+
+## Use In Work
+
+- Hold P9-GANG passenger boarding trials until Priya's signed load test certificate is on file — do not clear gangway for fare-gate passenger tests on verbal assurance alone.
+- Log certificate receipt in the Q2 playbook before scheduling Marcus Holt berth clearance for boarding trials.
+
+## Limits
+
+This gate applies to P9-GANG gangway passenger boarding only — not P9-GATE fare lane commissioning, SSB-DRILL life-vest spot checks, or HarborPass migration outage windows. Load test cert does not replace the contractor shift ban on berth 9B.
+
+## Connections
+
+- [[priya-nandakumar]] - Safety & Compliance Lead who required and filed the load test certificate.
+- [[p9-gang-replacement]] - Pier-9 Gangway Replacement project whose passenger use this certificate unlocks.
+- [[decision-gangway-mockup-inspection]] - Mock-up inspection decision that set the 2.4 m span tested in the load cert.
+- [[bridgeway-hoist]] - P9-GANG vendor whose mock-up span passed static and dynamic load tests.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-thrust-bearing-before-hull.md ===
+---
+id: rule-thrust-bearing-before-hull
+insight: Victor Hale blocks SG-REFIT hull penetration until spare thrust bearing delivery is staged port-side — no cutting until the bearing crate is on the dock.
+type: preference
+subjects: [victor-hale, sg-refit]
+source_ids: [2026-04-29-seaglass-crane-prelim]
+related_nodes: [victor-hale, sg-refit, rel-victor-hale-sg-refit, mv-seaglass]
+labels: [refit-sequence, engineering]
+updated: 2026-04-29
+---
+
+# Thrust Bearing Before Hull Rule
+
+## Current Model
+
+**Victor Hale** will not authorize **hull penetration** on **SG-REFIT** until the spare **thrust bearing** is delivered and staged port-side on the dock. Marcus Holt's 2026-04-29 forward of Victor Hale's preliminary crane quote cites a crane booking of 2026-05-12 (later corrected to 2026-05-19 once drydock opened), but the thrust-bearing gate predates drydock and remains in force: no cutting until the bearing crate is physically on the dock. Elena Vasquez co-signs SG-REFIT milestones with this sequence constraint.
+
+## Evidence
+
+- `2026-04-29-seaglass-crane-prelim` - **Seaglass crane** lift slot cited as **crane booking 2026-05-12** (berth 4 heavy-lift zone); **hull penetration** work blocked until spare **thrust bearing** lands — Victor Hale says no cutting until it's on the dock; bearing crate must be staged port-side before authorization.
+
+## Use In Work
+
+- Verify thrust bearing crate is staged port-side before scheduling any SG-REFIT hull penetration or drydock cutting work — treat Victor Hale's hold as a hard gate regardless of crane booking date.
+- Coordinate crane lift timing with bearing delivery lead time when updating the Q2 playbook berth schedule around MV Seaglass.
+
+## Limits
+
+This rule governs thrust bearing staging before hull cuts only — not fuel-line purge sequence adoption (Elena Vasquez's sequence won), sea trial date (2026-06-05), or revenue return (2026-06-12). The preliminary email's May 12 crane booking was wrong; ground truth is 2026-05-19 per drydock morning sync.
+
+## Connections
+
+- [[victor-hale]] - Chief Engineer, MV Seaglass who issued the hull penetration hold.
+- [[sg-refit]] - MV Seaglass Engine-Room Refit project subject to the bearing-before-cut sequence.
+- [[rel-victor-hale-sg-refit]] - Relationship linking Victor Hale to SG-REFIT engineering milestones.
+- [[mv-seaglass]] - Vessel whose hull penetration Victor Hale gates on bearing delivery.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-coverage-source-notes.md ===
+---
+id: rule-coverage-source-notes
+insight: Official source notes for the coverage matrix originally specified 4 deckhands per pier during SSB-DRILL simulation weekends — the packet stays at four regardless of Juno's working copy.
+type: preference
+subjects: [priya-nandakumar, ssb-drill, juno-castillo]
+source_ids: [2026-05-28-coverage-matrix-source]
+related_nodes: [plan-storm-surge-coverage-matrix, decision-matrix-manual-edit, priya-nandakumar, ssb-drill]
+labels: [coverage-matrix, compliance]
+updated: 2026-05-28
+---
+
+# Coverage Source Notes Rule
+
+## Current Model
+
+Priya Nandakumar's official **source notes** for the **coverage matrix** roster **4 deckhands** per pier each **SSB-DRILL** simulation weekend. The notes also mandate 45-minute life-vest spot checks. Juno acknowledged on 2026-05-28 that her working spreadsheet might differ on headcount; Priya's async follow-up states the official packet stays at four — if the working matrix shows three, that is a Juno problem, not Priya's. These **source notes** are the compliance baseline; Juno's later manual edit to 3 deckhands was not back-propagated.
+
+## Evidence
+
+- `2026-05-28-coverage-matrix-source` - Priya Nandakumar shares **source notes** for **coverage matrix** rostering **4 deckhands** per pier each simulation weekend with 45-minute life-vest spot checks marked non-optional; Juno acknowledges working spreadsheet might differ; Priya async: official packet stays at 4 — if matrix shows 3 that's a Juno problem not hers.
+
+## Use In Work
+
+- Cite Priya's 4-deckhand **source notes** as the compliance answer for official SSB-DRILL staffing questions — not Juno's manually edited weekend coverage matrix alone.
+- Flag headcount drift to Priya before attaching any working matrix to the after-action review due 2026-06-11.
+
+## Limits
+
+Source notes set the official 4-deckhand roster baseline — they do not override Juno's operational 3-deckhand working matrix for Marcus Holt's current sailing grid until reconciliation completes. Simulation weekend dates and Highwater radio codename are separate nodes.
+
+## Connections
+
+- [[plan-storm-surge-coverage-matrix]] - Standing plan whose working copy drifted from these source notes to 3 deckhands.
+- [[decision-matrix-manual-edit]] - Decision recording Juno's hand edit that diverged from these source notes.
+- [[priya-nandakumar]] - Safety lead who owns and published the official 4-deckhand source notes.
+- [[ssb-drill]] - Drill series whose simulation weekends these source notes staff.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-quiet-hours-p7.md ===
+---
+id: rule-quiet-hours-p7
+insight: Elena Crane escalated a noise complaint from Surfside Condos about pier 7 ramp grinding before 0700 on 2026-05-27, triggering quiet-hours enforcement on P7-RAMP work.
+type: preference
+subjects: [elena-crane, p7-ramp, surfside-condos]
+source_ids: [2026-05-27-surfside-noise-escalation]
+related_nodes: [elena-crane, surfside-condos, p7-ramp, rel-elena-crane-p7-ramp]
+labels: [noise-compliance, pier-7]
+updated: 2026-05-27
+---
+
+# Quiet Hours P7 Rule
+
+## Current Model
+
+**Elena Crane** escalated a **noise complaint** from **Surfside Condos** about early-morning **pier 7 ramp** grinding on **2026-05-27**. Building representatives attached decibel readings and threatened city permit review. Juno Castillo scheduled **quiet hours** enforcement starting the next day: no impact tools before 0800 weekdays and 0900 weekends on P7-RAMP work. The commuter **09:30 cutoff** for blocking morning boarding still applies independently of quiet hours.
+
+## Evidence
+
+- `2026-05-27-surfside-noise-escalation` - Elena Crane forwards **noise complaint** from **surfside condos** re **pier 7 ramp** work with residents reporting grinding before 0700; building rep attached decibel readings threatening city permit review; Juno schedules **quiet hours** enforcement — no impact tools before 0800 weekdays, 0900 weekends; commuter 09:30 cutoff still applies for blocking work.
+
+## Use In Work
+
+- Block P7-RAMP impact-tool work (grinding, cutting, pile driving) before 0800 weekdays and 0900 weekends following the Surfside escalation — log exceptions through Elena Crane.
+- Keep passenger boarding corridors clear per the separate 09:30 commuter rush cutoff even when quiet-hours windows allow later morning work.
+
+## Limits
+
+Quiet hours govern noise from impact tools only — not gangway load tests on Pier 9, Pier 9 floodlight maintenance mode, or SSB-DRILL deckhand rostering. Surfside complaint did not change Friday Harbor diversion pier assignments.
+
+## Connections
+
+- [[elena-crane]] - Pier 7 Passenger Services Manager who escalated the Surfside noise complaint.
+- [[surfside-condos]] - Residential building whose residents filed the noise complaint.
+- [[p7-ramp]] - Pier 7 Accessibility Ramp Install whose grinding triggered the escalation.
+- [[rel-elena-crane-p7-ramp]] - Relationship linking Elena Crane to P7-RAMP commuter messaging and impact rules.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-contractor-staging-access.md ===
+---
+id: rule-contractor-staging-access
+insight: Cal Donner logged an unauthorized vehicle in Pier 9 staging on 2026-05-07 — white panel van with expired out-of-state temp plate, no contractor decal.
+type: preference
+subjects: [cal-donner, pier-9]
+source_ids: [2026-05-07-pier9-staging-intrusion]
+related_nodes: [cal-donner, pier-9, rel-cal-night-operations, berth-9b-staging]
+labels: [staging-security, night-ops]
+updated: 2026-05-07
+---
+
+# Contractor Staging Access Rule
+
+## Current Model
+
+**Cal Donner** logged an **unauthorized vehicle** — a white panel van with no contractor decal — inside **Pier 9 staging** west apron on **2026-05-07**. The van had an expired out-of-state temp commercial plate matching neither Turnstile Dynamics nor Bridgeway Hoist vendor lists. Fatima Okonkwo revoked the plate; Cal was asked to drop a cone line and photograph the scene for Victor Dunn's incident folder. Night harbormaster logs now treat unmatched vehicles in **pier 9 staging** as immediate escalation items.
+
+## Evidence
+
+- `2026-05-07-pier9-staging-intrusion` - Cal Donner reports white panel van parked inside **pier 9 staging** west apron with no contractor decal, engine off, nobody around — logged as **unauthorized vehicle**; temp commercial plate out-of-state not matching Turnstile or Bridgeway lists; Fatima revokes plate; Cal asked to cone-line and photo for Victor Dunn incident folder.
+
+## Use In Work
+
+- Cross-check vehicles entering Pier 9 staging against Turnstile Dynamics and Bridgeway Hoist badge lists before granting apron access — escalate unmatched plates to Cal Donner and Fatima Okonkwo immediately.
+- Reference Victor Dunn's incident folder when reviewing P9-GATE or P9-GANG staging map revisions after unauthorized access events.
+
+## Limits
+
+This incident established staging vigilance for Pier 9 west apron only — not Pier 7 quiet hours, Pier 3 dive inspection overtime, or the 14-badge P9-GATE batch issued 2026-05-11. Cone-line and photo protocol applies to night-staging intrusions Cal Donner discovers.
+
+## Connections
+
+- [[cal-donner]] - Night Harbormaster who discovered and logged the unauthorized vehicle.
+- [[pier-9]] - Pier whose staging apron was breached by the unauthorized van.
+- [[rel-cal-night-operations]] - Relationship linking Cal to after-hours Pier 9 lighting and staging rules with Juno.
+- [[berth-9b-staging]] - Berth staging zone adjacent to the west apron intrusion site.
+=== END FILE ===
+
+=== FILE: seed/graph/rule-passenger-notice-approval.md ===
+---
+id: rule-passenger-notice-approval
+insight: Jessamine Lee's passenger notice covers the HarborPass outage from june 1 22:00 through 2026-06-02 06:00 — Juno and Fatima must approve before external posting.
+type: preference
+subjects: [jessamine-lee, harborpass-2-0, hp-migrate]
+source_ids: [2026-06-01-harborpass-outage-notice-draft]
+related_nodes: [jessamine-lee, decision-outage-notice-window, harborpass-2-0, rel-jessamine-passenger-comms]
+labels: [passenger-comms, approval]
+updated: 2026-06-01
+---
+
+# Passenger Notice Approval Rule
+
+## Current Model
+
+Jessamine Lee drafted the **passenger notice** for the **HarborPass outage** ahead of HarborPass 2.0 cutover. The notice window runs from **june 1 22:00** local through **2026-06-02 06:00** — a six-hour blackout across all staffed fare piers. Juno Castillo and Fatima Okonkwo must approve before Jessamine posts the web alert with HarborPass 2.0 branding. Jessamine noted that any cutover slip past 06:00 requires a revised **passenger notice** pinged on Slack.
+
+## Evidence
+
+- `2026-06-01-harborpass-outage-notice-draft` - Jessamine Lee draft sets **HarborPass outage** beginning **june 1 22:00** local ending **2026-06-02 06:00** (six-hour window) across staffed fare piers; web alert carries HarborPass 2.0 branding; P.S. requires revised **passenger notice** if cutover slips past 06:00 — pending Juno and Fatima approval before posting.
+
+## Use In Work
+
+- Route all HarborPass migration passenger-facing disruption copy through Jessamine Lee and hold external posting until Juno Castillo signs off — treat her draft as the template for the approved notice window.
+- Trigger a revised passenger notice workflow immediately if cutover extends past 06:00 on June 2 rather than silently extending the original window.
+
+## Limits
+
+This rule covers the drafted outage notice approval workflow and its six-hour window — not the actual go-live completion at 05:47 on June 2, rollback token test gating, or Pier 7 legacy barcode reader sunset on 2026-06-12.
+
+## Connections
+
+- [[jessamine-lee]] - Passenger communications lead who drafted the outage notice pending Juno approval.
+- [[decision-outage-notice-window]] - Decision node recording the same HarborPass outage window dates.
+- [[harborpass-2-0]] - HarborPass 2.0 fare system whose cutover the notice covers.
+- [[rel-jessamine-passenger-comms]] - Relationship linking Jessamine to passenger notices Juno approves before publication.
+=== END FILE ===

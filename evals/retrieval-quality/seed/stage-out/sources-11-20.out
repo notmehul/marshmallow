@@ -1,0 +1,192 @@
+=== FILE: seed/sources/2026-05-04-procurement-week-open.md ===
+---
+id: 2026-05-04-procurement-week-open
+pointer: raw/2026-05-04-procurement-week-open.md
+captured: 2026-05-04T00:00:00Z
+summary: Finance working session where Glenn Wexler sets the P9-GATE change-order ceiling at $18,400 without VP sign-off, before badge week and split-vendor cost coding.
+labels: [seed]
+---
+
+# Procurement Week Open
+
+## Useful Excerpts
+
+- Glenn set **change order cap** for **p9-gate** at **$18400** without VP sign-off — anything above routes to his desk + Elena Vasquez if fleet adjacent
+- Juno confirmed Turnstile Dynamics mobilization is on the gate PO, not gangway
+- Glenn wants separate cost codes before badge week (May 11)
+- Juno asked whether the cap covers night lighting scope Victor tied to gate side only. Glenn: "if it's on the P9-GATE WBS, yes — don't bury gangway contingency in gate change orders."
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-05-bridgeway-discount-confirm.md ===
+---
+id: 2026-05-05-bridgeway-discount-confirm
+pointer: raw/2026-05-05-bridgeway-discount-confirm.md
+captured: 2026-05-05T00:00:00Z
+summary: Derek Blunt email confirming a 12% discount on Bridgeway Hoist mobilization only, logged under P9-GANG with savings code BW-MOB-12.
+labels: [seed]
+---
+
+# Bridgeway Discount Confirm
+
+## Useful Excerpts
+
+- Agreed **12% discount** on mobilization only (not fabrication)
+- **Bridgeway Hoist** PO track stays under P9-GANG. Turnstile gate PO is separate — don't cross-pollinate change orders.
+- Net mobilization: $36,256
+- Savings code: BW-MOB-12 — please log on your end
+- Victor wants the mock-up width check on calendar for late May. I told him gangway delivery still targets May 21 unless weather on the truck leg goes sideways.
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-06-single-contractor-superseded.md ===
+---
+id: 2026-05-06-single-contractor-superseded
+pointer: raw/2026-05-06-single-contractor-superseded.md
+captured: 2026-05-06T00:00:00Z
+summary: Victor Dunn formally retires the Pier 9 single-contractor plan on 2026-05-06 after gate and gangway scope divergence, splitting execution to Turnstile Dynamics and Bridgeway Hoist.
+labels: [seed]
+---
+
+# Single Contractor Superseded
+
+## Useful Excerpts
+
+- Victor Dunn formally retired the **pier 9 single-contractor** envelope effective today (**2026-05-06**).
+- Victor's slide title literally said "**scope divergence**" — Derek laughed, then stopped laughing
+- **Kelwick Marine** remains named on the old **single-contractor plan** for audit trail only
+- **Superseded single-contractor** track → split vendor execution under Q2 playbook:
+- P9-GATE / Turnstile Dynamics
+- P9-GANG / Bridgeway Hoist
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-07-pier9-staging-intrusion.md ===
+---
+id: 2026-05-07-pier9-staging-intrusion
+pointer: raw/2026-05-07-pier9-staging-intrusion.md
+captured: 2026-05-07T00:00:00Z
+summary: Night Slack thread where Cal Donner reports an unauthorized vehicle in Pier 9 staging and Fatima Okonkwo revokes its expired temp commercial plate.
+labels: [seed]
+---
+
+# Pier 9 Staging Intrusion
+
+## Useful Excerpts
+
+- heads up — white panel van parked inside **pier 9 staging** west apron. no contractor decal. engine off, nobody around. logged it in the night book
+- this is an **unauthorized vehicle** sitch imo
+- temp commercial plate, out-of-state. doesn't match turnstile or bridgeway lists.
+- thanks fatima. **cal donner** can you drop a cone line and photo for victor dunn's incident folder?
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-08-gangway-hose-spec.md ===
+---
+id: 2026-05-08-gangway-hose-spec
+pointer: raw/2026-05-08-gangway-hose-spec.md
+captured: 2026-05-08T00:00:00Z
+summary: Victor Dunn email locking P9-GANG hydraulic hose to SAE 100R2AT and warning Priya not to reuse the gate-side SAE 100R1AT spec.
+labels: [seed]
+---
+
+# Gangway Hose Spec
+
+## Useful Excerpts
+
+- **Hydraulic hose** assembly per **p9-gang spec**: **SAE 100R2AT** (400 bar working, gangway lift circuit)
+- Gate side P9-GATE remains **SAE 100R1AT** on Turnstile fare lane actuators — different pressure class
+- Please do not let procurement consolidate to one hose SKU "for convenience." We already had a near-miss on a Kelwick bundle quote that mixed specs.
+- Bridgeway Hoist fabricator asked for written sign-off before May 21 delivery.
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-11-badge-batch-p9-gate.md ===
+---
+id: 2026-05-11-badge-batch-p9-gate
+pointer: raw/2026-05-11-badge-batch-p9-gate.md
+captured: 2026-05-11T00:00:00Z
+summary: HarborPass admin session where Fatima Okonkwo prints 14 temporary P9-GATE contractor badges for Turnstile Dynamics crew valid May 11–17.
+labels: [seed]
+---
+
+# Badge Batch P9 Gate
+
+## Useful Excerpts
+
+- Fatima: print run confirmed — **14 contractor badges** **temporary badges** valid May 11–May 17
+- Fatima: badge pool labeled **p9-gate** only — gangway crew separate batch Thursday
+- Juno assigns berth windows: Turnstile AM slots 9B west; no overlap w/ Bridgeway gangway delivery later this week
+- Marcus ping acknowledged: no back-to-back gate/gangway shifts same berth
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-12-pier9-lighting-scope.md ===
+---
+id: 2026-05-12-pier9-lighting-scope
+pointer: raw/2026-05-12-pier9-lighting-scope.md
+captured: 2026-05-12T00:00:00Z
+summary: Pier 9 meeting binding the night lighting upgrade budget and commissioning to P9-GATE only, with Cal Donner requesting a circuit map before breaker work.
+labels: [seed]
+---
+
+# Pier 9 Lighting Scope
+
+## Useful Excerpts
+
+- Key decision: the **night lighting upgrade** budget and commissioning window stay on **P9-GATE** only — not gangway work.
+- **Pier 9 lighting** panels on the gate approach feed Turnstile lane sensors; gangway apron stays on existing sodium fixtures through Bridgeway install
+- Juno: playbook section 9.2 already tags lighting under gate retrofit; don't duplicate line items on P9-GANG
+- Cal asked for a circuit map before he touches floodlight breakers; Victor will upload by EOD
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-13-critical-path-declaration.md ===
+---
+id: 2026-05-13-critical-path-declaration
+pointer: raw/2026-05-13-critical-path-declaration.md
+captured: 2026-05-13T00:00:00Z
+summary: Slack thread where Juno Castillo declares P9-GATE the critical path for Q2 Pier 9 closeout on 2026-05-13, prompting Marcus Holt to reorder berth closures.
+labels: [seed]
+---
+
+# Critical Path Declaration
+
+## Useful Excerpts
+
+- ok team — after last night's berth review i'm calling **p9-gate** the **critical path** for Q2 pier 9 closeout. gangway can flex; gate cannot
+- **2026-05-13** is the date i'm logging in the playbook for this call — if elena v asks, it's gate not gangway
+- copy. reordering closure grid today. gate crew gets priority berth 9B west; bridgeway stays east apron
+- also reminding crews: no stacking gate + gangway shifts same berth. i'll publish the revised matrix at noon
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-14-gangway-delivery-hold.md ===
+---
+id: 2026-05-14-gangway-delivery-hold
+pointer: raw/2026-05-14-gangway-delivery-hold.md
+captured: 2026-05-14T00:00:00Z
+summary: Derek Blunt email affirming Bridgeway Hoist gangway delivery remains firm for 2026-05-21 despite Turnstile gate slip rumors.
+labels: [seed]
+---
+
+# Gangway Delivery Hold
+
+## Useful Excerpts
+
+- Despite the Turnstile slip chatter floating around Pier 9, **gangway delivery** is still firm for **2026-05-21**.
+- **Bridgeway delivery** details unchanged:
+- Gate vendor delay does NOT push gangway — different hoist contract, different berth window.
+- If Juno hears otherwise in the playbook channel, point them to this thread. I don't want crews showing up May 28 expecting a gangway crate.
+=== END FILE ===
+
+=== FILE: seed/sources/2026-05-15-friday-harbor-diversion.md ===
+---
+id: 2026-05-15-friday-harbor-diversion
+pointer: raw/2026-05-15-friday-harbor-diversion.md
+captured: 2026-05-15T00:00:00Z
+summary: Pier 7 ops huddle shifting the Friday Harbor run to Pier 5 on 2026-05-15 for ramp work while reinforcing the 09:30 commuter rush cutoff.
+labels: [seed]
+---
+
+# Friday Harbor Diversion
+
+## Useful Excerpts
+
+- **Friday Harbor run** moves to **Pier 5** boarding for today (**2026-05-15**) and through weekend if noise window slips
+- **Pier 7 ramp** work cannot block **commuter rush** boarding before **09:30 cutoff** — contractors must clear the approach by 09:15
+- Marcus → publish **pier 5 diversion** notice to terminal boards by 0700 tomorrow
+- Gangway delivery still May 21 per Derek; gate path remains critical per yesterday's call
+=== END FILE ===

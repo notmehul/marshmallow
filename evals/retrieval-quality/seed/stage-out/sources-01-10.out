@@ -1,0 +1,181 @@
+=== FILE: seed/sources/2026-04-20-q2-kickoff-terminal.md ===
+---
+id: 2026-04-20-q2-kickoff-terminal
+pointer: raw/2026-04-20-q2-kickoff-terminal.md
+captured: 2026-04-20T00:00:00Z
+summary: Week 1 kickoff meeting notes where Juno Castillo activates the Q2 Terminal Readiness Playbook and Victor Dunn introduces P9-GATE and P9-GANG under the still-active Kelwick Marine Pier 9 Single-Contractor Plan.
+labels: [seed]
+---
+
+# Q2 Terminal Readiness — Week 1 Kickoff
+
+## Useful Excerpts
+
+- Juno opened by pulling up the **Q2 Terminal Readiness Playbook** — still marked ACTIVE under **juno castillo** as owner.
+- **Pier-9 Gate Retrofit** → tracking as **P9-GATE** (fare lanes, Turnstile-adjacent scope TBD)
+- **Pier-9 Gangway Replacement** → **P9-GANG** (hydraulic gangway, staging overlap w/ gate side)
+- For now everything still rolls up under the **Pier 9 Single-Contractor Plan** Victor circulated last month. Vendor of record in that doc: **Kelwick Marine** — single mobilization, shared badge pool, one liability rider.
+- Derek Blunt wasn't on the call but Victor said Kelwick's quote envelope covers both **gate retrofit** and **gangway replacement** until procurement splits it.
+=== END FILE ===
+=== FILE: seed/sources/2026-04-21-pier3-berth-hold.md ===
+---
+id: 2026-04-21-pier3-berth-hold
+pointer: raw/2026-04-21-pier3-berth-hold.md
+captured: 2026-04-21T00:00:00Z
+summary: Hana Suzuki's email announcing Pier 3 partial berth closure triggered by float switch failure starting 2026-04-22, with Juno asked to hold Jessamine's passenger tweet until dive scope is confirmed.
+labels: [seed]
+---
+
+# Pier 3 Partial Berth Hold
+
+## Useful Excerpts
+
+- Berths 3A and 3B out of service starting **2026-04-22** (tomorrow) 06:00
+- This is a **float switch failure** scenario until dive proves otherwise.
+- I've already told the night crew to treat it as a **pier 3 berth closure** event, not a "wait and see."
+- Can you hold Jessamine on any passenger-facing post until we confirm dive scope?
+=== END FILE ===
+=== FILE: seed/sources/2026-04-22-float-switch-panic.md ===
+---
+id: 2026-04-22-float-switch-panic
+pointer: raw/2026-04-22-float-switch-panic.md
+captured: 2026-04-22T00:00:00Z
+summary: Slack thread from 2026-04-22 documenting live execution of Pier 3 partial berth closure after confirmed float switch failure, with Cal Donner offering overnight pump watch on pier 3 berth closure.
+labels: [seed]
+---
+
+# Float Switch Panic
+
+## Useful Excerpts
+
+- float switch alarm again. 3A pump cycled twice in 10 min then flatlined. we're executing the partial closure list i emailed juno yesterday
+- this is the **float switch failure** we worried about monday — not a fluke reading anymore
+- want me on **pier 3 berth closure** overnight watch? i can run manual pump checks q2h
+- hold passenger tweet — jessamine is on standby. marcus is rebuilding the grid for **2026-04-22** sailings now
+=== END FILE ===
+=== FILE: seed/sources/2026-04-23-dive-crew-ot-approval.md ===
+---
+id: 2026-04-23-dive-crew-ot-approval
+pointer: raw/2026-04-23-dive-crew-ot-approval.md
+captured: 2026-04-23T00:00:00Z
+summary: Workforce portal session where Juno Castillo authorizes dive inspection overtime for Pier 3 float switch diagnostics on 2026-04-23, auto-routed to Glenn Wexler's weekly OT report batch.
+labels: [seed]
+---
+
+# Dive Crew OT Approval
+
+## Useful Excerpts
+
+- Justification text entered: "**dive inspection overtime** authorized for float switch diagnostics; partial berth ops per **pier 3 overtime** protocol"
+- AUTO-ACK Glenn Wexler controller queue — "weekly OT report batch **2026-04-23**"
+- Hana ping: "divers found debris on intake screen, switch replaced pending test"
+- hold full reopen until pressure test AM 4/24
+=== END FILE ===
+=== FILE: seed/sources/2026-04-24-pier9-dual-scope-intro.md ===
+---
+id: 2026-04-24-pier9-dual-scope-intro
+pointer: raw/2026-04-24-pier9-dual-scope-intro.md
+captured: 2026-04-24T00:00:00Z
+summary: Working session where Victor Dunn splits P9-GATE gate retrofit and P9-GANG gangway replacement talking points while both scopes remain under the Kelwick Marine single-contractor plan.
+labels: [seed]
+---
+
+# Pier 9 Dual Scope Intro
+
+## Useful Excerpts
+
+- Victor Dunn split the whiteboard into two columns — still one contractor on paper (**Kelwick Marine** per the **single-contractor plan**), but scopes are clearly diverging.
+- **Pier-9 Gate Retrofit**: four fare lanes (preliminary), gate automation, night lighting circuit upgrades
+- **Pier-9 Gangway Replacement**: hydraulic gangway module, load test hooks, hose spec TBD
+- Juno reminded everyone the **P9-GATE** and **P9-GANG** codenames are now live in the **terminal readiness playbook** tracker.
+=== END FILE ===
+=== FILE: seed/sources/2026-04-27-vendor-split-announcement.md ===
+---
+id: 2026-04-27-vendor-split-announcement
+pointer: raw/2026-04-27-vendor-split-announcement.md
+captured: 2026-04-27T00:00:00Z
+summary: Derek Blunt's email formally assigning Turnstile Dynamics to P9-GATE and Bridgeway Hoist to P9-GANG as separate Pier 9 vendors ahead of Victor Dunn superseding the Kelwick single-contractor plan.
+labels: [seed]
+---
+
+# Vendor Split Announcement
+
+## Useful Excerpts
+
+- **P9-GATE → Turnstile Dynamics** — Gate automation, fare lane hardware, commissioning support. Turnstile is the **p9-gate vendor** going forward.
+- **P9-GANG → Bridgeway Hoist** — Gangway fabrication and hydraulic install. **Bridgeway Hoist** owns the **gangway replacement** scope as **p9-gang vendor**.
+- Kelwick stays on the old **pier 9 single-contractor** paperwork until Victor supersedes it — don't quote Kelwick in passenger notices after this email.
+- Glenn — two PO tracks means two change-order caps.
+=== END FILE ===
+=== FILE: seed/sources/2026-04-28-pier3-switch-complete.md ===
+---
+id: 2026-04-28-pier3-switch-complete
+pointer: raw/2026-04-28-pier3-switch-complete.md
+captured: 2026-04-28T00:00:00Z
+summary: Check-in where Hana Suzuki confirms Pier 3 float switch replacement is complete on 2026-04-28 and clears berths 3A/3B for normal operations after the April 22 closure.
+labels: [seed]
+---
+
+# Pier 3 Switch Complete
+
+## Useful Excerpts
+
+- **Float switch replacement** signed off by dive lead 2026-04-27 19:30
+- Berth 3A/3B cleared for normal ops effective **2026-04-28** 06:00 — Hana marked **pier 3 complete** in the maintenance portal
+- Juno updated the Q2 playbook pier status table: Pier 3 green.
+- Marcus already slid May 1 commuter turns back to 3A per Hana's Friday email.
+=== END FILE ===
+=== FILE: seed/sources/2026-04-29-seaglass-crane-prelim.md ===
+---
+id: 2026-04-29-seaglass-crane-prelim
+pointer: raw/2026-04-29-seaglass-crane-prelim.md
+captured: 2026-04-29T00:00:00Z
+summary: Marcus Holt's forward of Victor Hale's preliminary SG-REFIT crane quote citing crane booking 2026-05-12 and blocking hull penetration until the spare thrust bearing is staged port-side.
+labels: [seed]
+---
+
+# Seaglass Crane Prelim
+
+## Useful Excerpts
+
+- **Seaglass crane** lift slot: **crane booking 2026-05-12** (berth 4 heavy-lift zone)
+- Hull penetration work blocked until spare **thrust bearing** lands — Victor Hale says no cutting until it's on the dock
+- I will not authorize **hull penetration** until the bearing crate is staged port-side.
+- May 12 assumes the pier crane availability survey that got moved from May 5
+=== END FILE ===
+=== FILE: seed/sources/2026-04-30-p7-grating-spec.md ===
+---
+id: 2026-04-30-p7-grating-spec
+pointer: raw/2026-04-30-p7-grating-spec.md
+captured: 2026-04-30T00:00:00Z
+summary: Slack exchange where Elena Crane locks P7-RAMP aluminum grating at 6061-T6 and discusses commuter rush quiet windows before formal ramp installation hours are published.
+labels: [seed]
+---
+
+# P7 Grating Spec
+
+## Useful Excerpts
+
+- materials submittal for **pier 7 ramp** is finally back from the fab shop. we're locking **aluminum grating** at **6061-t6** unless you want me to reopen the corrosion thread
+- signed yesterday. mock-up panel arrives pier 7 tuesday.
+- commuter rush question: can crews work east approach before morning sailings or do we need a hard quiet window?
+- don't schedule grinder work before 0830 if you can help it. passenger queue backs up weird when the gangway lane shifts.
+=== END FILE ===
+=== FILE: seed/sources/2026-05-01-gate-lane-redesign.md ===
+---
+id: 2026-05-01-gate-lane-redesign
+pointer: raw/2026-05-01-gate-lane-redesign.md
+captured: 2026-05-01T00:00:00Z
+summary: Terminal ops console session where Victor Dunn confirms the P9-GATE redesign mock-up holds four fare gate lanes after redesign review, with no fifth-lane squeeze.
+labels: [seed]
+---
+
+# Gate Lane Redesign
+
+## Useful Excerpts
+
+- Victor: "**p9-gate redesign** mock-up holds **4 lanes** after redesign review — no fifth lane squeeze"
+- Juno: confirm each **fare gate lane** width matches playbook passenger flow table
+- Victor notes gangway staging unchanged; P9-GANG still separate calendar
+- Turnstile Dynamics wants gate delivery week of May 21 — derek chasing confirm
+=== END FILE ===
