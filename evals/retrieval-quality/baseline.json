@@ -1,0 +1,33 @@
+{
+  "adapter": "marshmallow",
+  "aggregate": {
+    "direct": {
+      "mrr": 1.0,
+      "precision_at_k": 0.905,
+      "recall_at_k": 1.0
+    },
+    "mean_wall_ms": 28.2755,
+    "negatives": {
+      "count": 10,
+      "junk_mean_top_score": 40.4,
+      "true_positive_mean_top_score": 55.825,
+      "zero_result_fraction": 0.5
+    },
+    "paraphrase": {
+      "mrr": 0.85,
+      "precision_at_k": 0.585,
+      "recall_at_k": 0.8625
+    },
+    "paraphrase_delta": {
+      "mrr": 0.15,
+      "precision_at_k": 0.32,
+      "recall_at_k": 0.1375
+    },
+    "plan_activation": "unavailable"
+  },
+  "dataset": "evals/retrieval-quality/queries.jsonl",
+  "k": 5,
+  "pinned": "2026-07-09",
+  "query_count": 50,
+  "workspace": "evals/retrieval-quality/seed"
+}

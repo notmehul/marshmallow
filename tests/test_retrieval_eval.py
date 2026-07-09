@@ -17,6 +17,7 @@ sys.path.insert(0, str(EVAL_DIR / "adapters"))
 
 from marshmallow_adapter import MarshmallowAdapter  # noqa: E402
 from recall import recall_context  # noqa: E402
+from run_eval import compare_to_baseline  # noqa: E402
 from scoring import fact_in_text, normalize, score_negative, score_plan_activation, score_query  # noqa: E402
 
 
@@ -125,6 +126,57 @@ class PlanActivationTests(unittest.TestCase):
             self.assertTrue(result["lineage_violation"], lineage)
         result = score_plan_activation(context, "plan-a", {"plan-a": "active"})
         self.assertFalse(result["lineage_violation"])
+
+
+class BaselineComparisonTests(unittest.TestCase):
+    AGGREGATE = {
+        "direct": {"recall_at_k": 1.0, "precision_at_k": 0.9, "mrr": 1.0},
+        "paraphrase": {"recall_at_k": 0.86, "precision_at_k": 0.58, "mrr": 0.85},
+        "paraphrase_delta": {"recall_at_k": 0.14, "precision_at_k": 0.32, "mrr": 0.15},
+        "negatives": {
+            "count": 10,
+            "zero_result_fraction": 0.5,
+            "junk_mean_top_score": 40.4,
+            "true_positive_mean_top_score": 55.8,
+        },
+        "plan_activation": "unavailable",
+        "mean_wall_ms": 23.1,
+    }
+
+    def test_identical_aggregates_pass(self) -> None:
+        self.assertEqual(compare_to_baseline(self.AGGREGATE, self.AGGREGATE, 0.02), [])
+
+    def test_drift_within_tolerance_passes(self) -> None:
+        current = json.loads(json.dumps(self.AGGREGATE))
+        current["direct"]["precision_at_k"] = 0.885
+        self.assertEqual(compare_to_baseline(current, self.AGGREGATE, 0.02), [])
+
+    def test_drift_beyond_tolerance_is_a_breach(self) -> None:
+        current = json.loads(json.dumps(self.AGGREGATE))
+        current["paraphrase"]["mrr"] = 0.80
+        breaches = compare_to_baseline(current, self.AGGREGATE, 0.02)
+        self.assertEqual(len(breaches), 1)
+        self.assertIn("paraphrase.mrr", breaches[0])
+
+    def test_missing_metric_is_a_breach(self) -> None:
+        current = json.loads(json.dumps(self.AGGREGATE))
+        del current["direct"]["mrr"]
+        breaches = compare_to_baseline(current, self.AGGREGATE, 0.02)
+        self.assertEqual(len(breaches), 1)
+        self.assertIn("direct.mrr", breaches[0])
+
+    def test_machine_dependent_leaves_are_ignored(self) -> None:
+        current = json.loads(json.dumps(self.AGGREGATE))
+        current["mean_wall_ms"] = 900.0
+        current["negatives"]["junk_mean_top_score"] = 99.0
+        current["negatives"]["true_positive_mean_top_score"] = 10.0
+        self.assertEqual(compare_to_baseline(current, self.AGGREGATE, 0.02), [])
+
+    def test_pinned_baseline_file_matches_guarded_shape(self) -> None:
+        baseline = json.loads((EVAL_DIR / "baseline.json").read_text(encoding="utf-8"))
+        self.assertEqual(compare_to_baseline(baseline["aggregate"], baseline["aggregate"], 0.0), [])
+        for section in ("direct", "paraphrase", "paraphrase_delta", "negatives"):
+            self.assertIn(section, baseline["aggregate"])
 
 
 class MarshmallowAdapterTests(unittest.TestCase):

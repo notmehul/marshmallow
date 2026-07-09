@@ -60,7 +60,7 @@ negatives carry none. The optional `marshmallow` block holds tool-specific
 expectations (`expected_node_ids`, `expected_plan`) used for diagnostics and
 plan-activation scoring.
 
-## Seed Dataset (candidate, pending human review)
+## Seed Dataset (pinned 2026-07-09)
 
 `generate_seed.sh` drove `cursor-agent -p` through the design's staged
 prompts to produce `seed/` — a realistic eight-week HarborLine ferry-terminal
@@ -71,9 +71,11 @@ traps). An adversarial cursor-agent pass audited every label against the raw
 artifacts (`seed/verify-report.md`, verdict CLEAN after one fix loop);
 `seed/README-generation.md` documents the pipeline, repairs, and deviations.
 
-The seed is NOT yet pinned: the human review gate (skim `seed/bible.md`,
-spot-check ~10 labels, run `doctor`) comes before it is treated as ground
-truth and `baseline.json` is created.
+The seed passed the human review gate on 2026-07-09 (bible skim, label
+spot-checks, one graph-side attribution correction recorded in
+`seed/README-generation.md`) and is pinned: it is ground truth, and
+regenerating any part of it requires re-running the verify pass, the review
+gate, and re-pinning `baseline.json`.
 
 ```sh
 python3 evals/retrieval-quality/run_eval.py \
@@ -113,10 +115,28 @@ tier is not doctor-clean; every tier passes `validate_workspace` and
 `graph_quality_warnings` with zero errors and zero warnings by construction.
 Property tests live in `tests/test_scale_workspace.py`.
 
+## CI Regression Guard
+
+`baseline.json` pins the seed-tier aggregates. The CI workflow runs the seed
+tier on every push and fails when any guarded 0-1 metric (direct, paraphrase,
+paraphrase delta, negative zero-result fraction) drifts more than the
+tolerance from the pin; wall-clock and raw lexical score magnitudes are not
+guarded. Changing `recall.py` legitimately (better ranking) will trip the
+guard by design — review the new numbers, then re-pin by regenerating
+`baseline.json` in the same commit:
+
+```sh
+python3 evals/retrieval-quality/run_eval.py \
+  --workspace evals/retrieval-quality/seed \
+  --queries evals/retrieval-quality/queries.jsonl \
+  --json /tmp/report.json \
+  --baseline evals/retrieval-quality/baseline.json   # exit 1 on drift
+```
+
 ## Coming In Later Steps
 
 Per the design's build order (`docs/plans/2026-07-08-retrieval-quality-eval-design.md`):
 
-- `baseline.json` + CI job — pinned seed-tier scores with a two-point
-  regression tolerance.
-- Sweep findings and competitor adapters (Honcho, GBrain, Mem0).
+- Sweep findings (200/1k/5k degradation analysis).
+- Competitor adapters (Honcho, GBrain, Mem0) — phase two, after the
+  Marshmallow baseline exists.

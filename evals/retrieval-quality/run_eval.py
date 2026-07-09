@@ -147,6 +147,35 @@ def aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+# Sections whose 0-1 numeric leaves are guarded by --baseline. wall_ms is
+# machine-dependent and raw lexical score magnitudes are implementation
+# detail, so neither is compared.
+BASELINE_SECTIONS = ("direct", "paraphrase", "paraphrase_delta", "negatives")
+BASELINE_SKIPPED_LEAVES = {"junk_mean_top_score", "true_positive_mean_top_score", "count"}
+
+
+def compare_to_baseline(
+    aggregate: dict[str, Any], baseline: dict[str, Any], tolerance: float
+) -> list[str]:
+    """Return one message per metric drifting beyond tolerance."""
+
+    breaches = []
+    for section in BASELINE_SECTIONS:
+        expected_section = baseline.get(section, {})
+        actual_section = aggregate.get(section, {})
+        for name, expected in expected_section.items():
+            if name in BASELINE_SKIPPED_LEAVES or not isinstance(expected, (int, float)):
+                continue
+            actual = actual_section.get(name)
+            if not isinstance(actual, (int, float)):
+                breaches.append(f"{section}.{name}: expected {expected}, got {actual!r}")
+            elif abs(actual - expected) > tolerance:
+                breaches.append(
+                    f"{section}.{name}: expected {expected} +/- {tolerance}, got {actual}"
+                )
+    return breaches
+
+
 def run(workspace: Path, queries_path: Path, adapter_name: str, k: int) -> dict[str, Any]:
     adapter = load_adapter(adapter_name)
     adapter.ingest(workspace)
@@ -170,6 +199,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--adapter", default="marshmallow", help="Adapter name (default: marshmallow).")
     parser.add_argument("--json", type=Path, default=None, help="Write the report JSON here (default: stdout).")
     parser.add_argument("--k", type=int, default=5, help="Result budget per query (default: 5).")
+    parser.add_argument("--baseline", type=Path, default=None, help="Fail if aggregates drift beyond tolerance from this pinned baseline JSON.")
+    parser.add_argument("--tolerance", type=float, default=0.02, help="Allowed absolute drift per 0-1 metric (default: 0.02).")
     args = parser.parse_args(argv)
     if args.k < 1:
         parser.error("--k must be at least 1")
@@ -186,6 +217,15 @@ def main(argv: list[str] | None = None) -> int:
         )
     else:
         print(payload, end="")
+
+    if args.baseline:
+        baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
+        breaches = compare_to_baseline(report["aggregate"], baseline["aggregate"], args.tolerance)
+        if breaches:
+            for breach in breaches:
+                print(f"baseline regression: {breach}", file=sys.stderr)
+            return 1
+        print(f"baseline check passed ({args.baseline}, tolerance {args.tolerance})")
     return 0
 
 

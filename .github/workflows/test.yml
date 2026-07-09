@@ -13,6 +13,13 @@ jobs:
         with:
           python-version: "3.11"
       - run: python3 -m unittest discover -s tests -v
-      - run: python3 -m compileall -q scripts tests
+      - run: python3 -m compileall -q scripts tests evals
       - run: python3 scripts/marshmallow.py doctor --workspace examples/operator-recall --json
+      - run: python3 scripts/marshmallow.py doctor --workspace evals/retrieval-quality/seed --json
+      - run: >
+          python3 evals/retrieval-quality/run_eval.py
+          --workspace evals/retrieval-quality/seed
+          --queries evals/retrieval-quality/queries.jsonl
+          --json /tmp/retrieval-eval-report.json
+          --baseline evals/retrieval-quality/baseline.json
       - run: git diff --exit-code
