@@ -38,8 +38,22 @@ inferring taste, values, or personality.
    "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" remember "<note>" --why "<reason>" --origin "<path|url|context>"
    ```
 
-   Review what is waiting for promotion with `pending`. Do not store raw session
-   logs as graph nodes.
+   During ordinary work, capture only unmistakable feedback: an explicit
+   correction, a reasoned acceptance or rejection, or a durable decision. Tell
+   the user briefly what was captured. Do not capture generic praise, temporary
+   task instructions, or ordinary conversation.
+
+   Review a bounded batch instead of loading the whole inbox:
+
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" pending --limit 20
+   ```
+
+   Treat this learning pass as the curator. Group related candidates, run
+   `recall` before proposing new knowledge, and recommend one action for each:
+   merge with an existing node, promote as new evidence, create a new
+   behavior-changing node, dismiss, or defer. Do not store raw session logs as
+   graph nodes.
 
 4. Think before promoting. Keep this reasoning ephemeral unless the user asks
    for a durable note:
@@ -98,6 +112,17 @@ inferring taste, values, or personality.
 
 7. Keep weak, conflicting, or context-dependent evidence explicit. Ask the user
    one focused question when the distinction changes future behavior.
+
+   Dismiss low-signal or redundant candidates only after previewing the archive
+   move, then apply with approval:
+
+   ```bash
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" dismiss <candidate-id> --reason "<reason>"
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" dismiss <candidate-id> --reason "<reason>" --apply
+   ```
+
+   Promoted and dismissed candidates move to `inbox/archive/`. The archive is
+   inert and retained only for provenance and later capture-quality review.
 
 8. Validate and summarize:
 

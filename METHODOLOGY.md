@@ -11,8 +11,9 @@ the work, Marshmallow gives them the context that makes the work correct.
 - Recall must be source-backed enough to inspect and correct.
 - Runtime guidance should be concise because imported `CLAUDE.md` content is
   context, not hard enforcement.
-- Learning must be explicit. Automatic capture creates trust and quality
-  problems faster than it creates useful context.
+- Learning must be explicit. Visible capture of unmistakable feedback may create
+  an untrusted candidate; automatic ingestion into durable memory creates trust
+  and quality problems faster than it creates useful context.
 
 ## Influences
 

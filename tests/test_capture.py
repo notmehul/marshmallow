@@ -13,7 +13,7 @@ SCRIPTS = ROOT / "scripts"
 CLI = SCRIPTS / "marshmallow.py"
 sys.path.insert(0, str(SCRIPTS))
 
-from capture import list_candidates, promote, remember  # noqa: E402
+from capture import dismiss, list_candidates, promote, remember  # noqa: E402
 from markdown_graph import parse_frontmatter, validate_workspace  # noqa: E402
 from marshmallow_workspace import MarshmallowError, atomic_write, ensure_workspace  # noqa: E402
 
@@ -91,9 +91,10 @@ class CaptureLoopTests(unittest.TestCase):
 
         plan = promote(self.root, candidate_id, apply=True)
         source_frontmatter, _ = parse_frontmatter(Path(plan["source_path"]))
-        promoted_frontmatter, _ = parse_frontmatter(path)
+        promoted_frontmatter, _ = parse_frontmatter(Path(plan["archive_path"]))
         self.assertEqual(origin, source_frontmatter["pointer"])
         self.assertEqual("promoted", promoted_frontmatter["status"])
+        self.assertFalse(path.exists())
 
     def test_remember_avoids_same_second_candidate_collisions(self) -> None:
         with patch("capture.timestamp", return_value="20260627T120000Z"):
@@ -126,6 +127,21 @@ class CaptureLoopTests(unittest.TestCase):
         candidates = list_candidates(self.root)
         self.assertEqual(["raw-note"], [c["id"] for c in candidates])
 
+    def test_pending_cli_limits_the_review_batch(self) -> None:
+        remember(self.root, "First observation")
+        remember(self.root, "Second observation")
+        result = self.cli("pending", "--limit", "1", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(1, payload["shown"])
+        self.assertEqual(2, payload["total"])
+        self.assertEqual(1, len(payload["candidates"]))
+
+    def test_pending_cli_rejects_non_positive_limit(self) -> None:
+        result = self.cli("pending", "--limit", "0", "--workspace", str(self.root))
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("limit must be positive", result.stderr)
+
     # --- promote: the trust gate -------------------------------------------
 
     def test_promote_preview_does_not_write_a_source(self) -> None:
@@ -136,7 +152,11 @@ class CaptureLoopTests(unittest.TestCase):
         self.assertEqual([], list((self.root / "sources").glob("*.md")))
 
     def test_promote_apply_creates_a_valid_source_and_marks_candidate(self) -> None:
-        _, candidate_id = remember(self.root, "Mani now leads day-to-day", origin="standup-2026-06-27")
+        candidate_path, candidate_id = remember(
+            self.root,
+            "Mani now leads day-to-day",
+            origin="standup-2026-06-27",
+        )
         plan = promote(self.root, candidate_id, apply=True)
         self.assertEqual("promoted", plan["status"])
         source_path = Path(plan["source_path"])
@@ -144,11 +164,16 @@ class CaptureLoopTests(unittest.TestCase):
         frontmatter, _ = parse_frontmatter(source_path)
         # Provenance is preserved: origin becomes the source pointer.
         self.assertEqual("standup-2026-06-27", frontmatter["pointer"])
+        archive_path = Path(plan["archive_path"])
+        archived_frontmatter, _ = parse_frontmatter(archive_path)
+        self.assertFalse(candidate_path.exists())
+        self.assertTrue(archive_path.exists())
+        self.assertEqual("promoted", archived_frontmatter["status"])
         # The promoted source backs a real graph node, so the workspace validates.
         self.assertEqual([], validate_workspace(self.root))
         # The candidate is no longer pending and is not re-proposed.
         self.assertEqual([], list_candidates(self.root))
-        self.assertEqual(1, len(list_candidates(self.root, include_promoted=True)))
+        self.assertEqual(1, len(list_candidates(self.root, include_terminal=True)))
 
     def test_promote_uses_inbox_pointer_when_no_origin(self) -> None:
         _, candidate_id = remember(self.root, "A note with no origin")
@@ -165,6 +190,49 @@ class CaptureLoopTests(unittest.TestCase):
         promote(self.root, candidate_id, apply=True)
         with self.assertRaises(MarshmallowError):
             promote(self.root, candidate_id, apply=True)
+
+    # --- dismiss: terminal but not trusted ---------------------------------
+
+    def test_dismiss_preview_does_not_move_candidate(self) -> None:
+        path, candidate_id = remember(self.root, "Temporary preference")
+        plan = dismiss(self.root, candidate_id, reason="Only applied to one draft")
+        self.assertEqual("preview", plan["status"])
+        self.assertTrue(path.exists())
+        self.assertFalse(Path(plan["archive_path"]).exists())
+
+    def test_dismiss_apply_archives_without_touching_sources_or_graph(self) -> None:
+        path, candidate_id = remember(self.root, "Temporary preference")
+        plan = dismiss(self.root, candidate_id, reason="Only applied to one draft", apply=True)
+        archived_path = Path(plan["archive_path"])
+        self.assertEqual("dismissed", plan["status"])
+        self.assertFalse(path.exists())
+        self.assertTrue(archived_path.exists())
+        frontmatter, _ = parse_frontmatter(archived_path)
+        self.assertEqual("dismissed", frontmatter["status"])
+        self.assertEqual("Only applied to one draft", frontmatter["reason"])
+        self.assertEqual([], list_candidates(self.root))
+        self.assertEqual(1, len(list_candidates(self.root, include_terminal=True)))
+        self.assertEqual([], list((self.root / "sources").glob("*.md")))
+        self.assertEqual([], list((self.root / "graph").glob("*.md")))
+
+    def test_dismiss_cli_previews_then_applies(self) -> None:
+        _, candidate_id = remember(self.root, "Redundant observation")
+        preview = self.cli("dismiss", candidate_id, "--workspace", str(self.root), "--json")
+        self.assertEqual(0, preview.returncode, preview.stdout + preview.stderr)
+        self.assertEqual("preview", json.loads(preview.stdout)["status"])
+
+        applied = self.cli(
+            "dismiss",
+            candidate_id,
+            "--reason",
+            "Already captured",
+            "--apply",
+            "--workspace",
+            str(self.root),
+            "--json",
+        )
+        self.assertEqual(0, applied.returncode, applied.stdout + applied.stderr)
+        self.assertEqual("dismissed", json.loads(applied.stdout)["status"])
 
 
 class CitedRecallTests(unittest.TestCase):

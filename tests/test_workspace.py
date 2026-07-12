@@ -14,6 +14,7 @@ SCRIPTS = ROOT / "scripts"
 CLI = SCRIPTS / "marshmallow.py"
 sys.path.insert(0, str(SCRIPTS))
 
+from capture import remember  # noqa: E402
 from harness_adapter import END_MARKER as ADAPTER_END_MARKER  # noqa: E402
 from harness_adapter import START_MARKER as ADAPTER_START_MARKER  # noqa: E402
 from markdown_graph import (  # noqa: E402
@@ -252,6 +253,8 @@ class WorkspaceTests(unittest.TestCase):
         self.assertIn("`~/.marshmallow/indexes/`", runtime)
         self.assertIn("Do not crawl the whole graph by default.", runtime)
         self.assertIn("Do not learn automatically", runtime)
+        self.assertIn("unmistakable feedback", runtime)
+        self.assertIn("Capture is not durable learning", runtime)
 
     def test_source_status_has_actionable_fallbacks(self) -> None:
         missing = source_status("/definitely/missing/source.md")
@@ -692,6 +695,15 @@ Use `rg` to search `~/.marshmallow/graph/` for task-relevant terms.
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         report = json.loads(result.stdout)
         self.assertTrue(any("runtime guidance may be stale" in warning for warning in report["warnings"]))
+
+    def test_doctor_warns_when_pending_queue_exceeds_review_batch(self) -> None:
+        for number in range(21):
+            remember(self.root, f"Observation {number}")
+        result = self.cli("doctor", "--workspace", str(self.root), "--json")
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(21, report["counts"]["pending_candidates"])
+        self.assertTrue(any("21 candidates await review" in warning for warning in report["warnings"]))
 
     def test_recall_finds_indexes_projections_and_graph(self) -> None:
         atomic_write(self.root / "sources/source-one.md", source_card("source-one"))

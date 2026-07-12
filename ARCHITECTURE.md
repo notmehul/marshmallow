@@ -35,12 +35,20 @@ counterpart, and it keeps the same boundary that makes Marshmallow trustworthy:
 capture is free, durability is earned.
 
 ```text
-remember -> inbox/ (untrusted) -> promote -> sources/ -> graph node cites it -> recall (cited)
+remember -> inbox/ (untrusted) -> review -> promote -> sources/ -> graph/ -> recall
+                                      \-> dismiss
+terminal candidate -----------------------------------------------> archive/
 ```
 
 - **`remember`** writes a candidate into `inbox/` with no approval. This does
   not violate explicit learning: the inbox is untrusted by construction and is
-  never loaded as runtime context. Capture is not learning.
+  never loaded as runtime context. Capture is not learning. Runtime agents may
+  visibly capture unmistakable corrections, reasoned acceptance or rejection,
+  and durable decisions; they skip praise, temporary instructions, and ordinary
+  conversation.
+- **`pending`** returns a bounded review batch. `/marshmallow:learn` is the
+  explicit curator: it groups candidates, checks existing recall, and recommends
+  merge, promote, dismiss, or defer without adding a daemon.
 - **`promote`** is the trust gate. It turns a reviewed candidate into a source
   card (the provenance anchor) and previews before it writes. The candidate's
   own text becomes a citable source, so even agent-captured memory stays
@@ -50,10 +58,13 @@ remember -> inbox/ (untrusted) -> promote -> sources/ -> graph node cites it -> 
   provenance; the human handles meaning.
 - **`recall`** resolves each node's `source_ids` to pointers, so every recalled
   fact is auditable back to an immutable source.
+- **`dismiss`** moves low-signal or redundant candidates to `inbox/archive/`
+  without touching sources or graph. Promotion archives its terminal candidate
+  too, keeping the active inbox small while preserving an audit trail.
 
 This deliberately keeps the constraints stated at the top of this file: no memory
-daemon (promotion is triggered, never a background process), no silent ingestion
-into the graph, and preview-before-mutation at the gate.
+daemon (review and promotion are triggered, never background processes), no
+silent ingestion into the graph, and preview-before-mutation at the gate.
 
 ## MCP Surface
 

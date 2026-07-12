@@ -137,7 +137,7 @@ scripts/marshmallow.py adapter apply --harness cursor
 
 ```text
 runtime.md    # short instructions imported by CLAUDE.md / AGENTS.md
-inbox/        # unsynthesized candidate material (untrusted until promoted)
+inbox/        # active untrusted candidates; terminal items move to archive/
 sources/      # source cards with pointers and provenance
 graph/        # source-backed context nodes (the durable substrate)
 indexes/      # compact navigation pages for agents
@@ -167,8 +167,9 @@ scripts/marshmallow.py doctor
 scripts/marshmallow.py scan-skills
 scripts/marshmallow.py recall "<query>" [--json] [--limit N]
 scripts/marshmallow.py remember "<note>" [--why ...] [--origin ...]
-scripts/marshmallow.py pending [--all] [--json]
+scripts/marshmallow.py pending [--all] [--limit N] [--json]
 scripts/marshmallow.py promote <candidate-id> [--apply] [--json]
+scripts/marshmallow.py dismiss <candidate-id> [--reason ...] [--apply] [--json]
 scripts/marshmallow.py adapter preview   [--harness claude|codex|cursor]
 scripts/marshmallow.py adapter apply     [--harness claude|codex|cursor]
 scripts/marshmallow.py adapter remove [--approve]
@@ -189,18 +190,23 @@ sits at *promotion*, not capture, so any model can store freely without ever
 touching the graph.
 
 - **`remember`** drops a note into `inbox/` as an untrusted candidate. No
-  approval, no graph change — the inbox is untrusted by construction.
-- **`pending`** lists candidates awaiting review (the synthesis work queue).
+  approval, no graph change — the inbox is untrusted by construction. Agents
+  use it for unmistakable feedback, not generic praise or temporary directions,
+  and tell you briefly when they capture something.
+- **`pending`** lists a bounded batch awaiting review.
 - **`promote`** turns a reviewed candidate into a source card — the provenance
   anchor. You (or the agent) then write the graph node that cites it with
-  `new node`, keeping the synthesis judgment human. Preview unless `--apply`.
+  `new node`, keeping the synthesis judgment human. Preview unless `--apply`;
+  the terminal candidate moves to `inbox/archive/`.
+- **`dismiss`** archives a low-signal or redundant candidate without changing
+  sources or graph. It also previews unless `--apply`.
 - **`recall`** returns matching graph nodes with their resolved source
   citations attached, so every recalled fact traces back to an immutable
   source. Unresolved provenance is flagged, never hidden.
 
 This is the deliberate boundary: an agent's own note can become a first-class,
 citable source, but nothing reaches the durable graph without a source behind
-it. No background daemon, no silent ingestion.
+it. No background daemon, no silent ingestion into trusted memory.
 
 ## MCP server
 
