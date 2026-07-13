@@ -33,6 +33,8 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("Create 3-7 high-signal nodes for", onboarding)
         self.assertIn("Each overlay should use only the 2-5 graph nodes", onboarding)
         self.assertIn('marshmallow.py" recall "<task|person|decision>"', onboarding)
+        self.assertIn("bounded personal-guidance examples", onboarding)
+        self.assertIn("guidance_examples", onboarding)
 
     def test_start_skill_uses_one_cli_and_explicit_rewrite_gates(self) -> None:
         skill = (ROOT / "skills/start/SKILL.md").read_text()
@@ -57,6 +59,8 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("create 3-7 graph nodes for onboarding", skill)
         self.assertIn("two to five relevant graph nodes", skill)
         self.assertIn('marshmallow.py" recall "<task|person|decision>"', skill)
+        self.assertIn("bounded personal-guidance", skill)
+        self.assertIn("guidance_examples", skill)
         self.assertIn("Optional First Tune", skill)
 
     def test_marshmallow_cli_is_executable_for_plugin_allowlist(self) -> None:
@@ -81,6 +85,8 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("Treat this learning pass as the curator", skill)
         self.assertIn("dismiss <candidate-id>", skill)
         self.assertIn("`inbox/archive/`", skill)
+        self.assertIn("guidance_examples", skill)
+        self.assertIn("alignment: false", skill)
         self.assertNotIn("queue-candidate.py", skill)
 
     def test_tune_skill_owns_overlay_and_rollback_workflows(self) -> None:
@@ -118,6 +124,8 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("recall packets", architecture)
         self.assertIn("There is no central state file.", architecture)
         self.assertIn("The `setup` CLI is a thin onboarding convenience", architecture)
+        self.assertIn("Alignment-Aware Recall", architecture)
+        self.assertIn("20% of the estimated recall response", architecture)
         self.assertIn("No required `workspace.json`.", trust)
         self.assertIn("No silent learning.", trust)
         self.assertIn("No sending, posting, queueing, or automation actions.", trust)

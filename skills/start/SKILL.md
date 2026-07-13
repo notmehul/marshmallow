@@ -54,6 +54,9 @@ Use one public CLI:
      when a meeting, workflow, handoff, or focused agent task needs reusable
      context
    - every graph node must include at least one `source_ids` entry
+   - add concise `guidance` and `guidance_examples` when a node should change
+     how future work is done; preference nodes qualify automatically and other
+     node types can use `alignment: true`
    - create 3-7 graph nodes for onboarding, not exhaustive coverage
    - keep each node compact, roughly one screen
    - do not require graph approval before tuning
@@ -69,7 +72,8 @@ Use one public CLI:
    ```
 
 6. Reveal 3-5 useful records in plain language and run recall for the user's
-   likely next task:
+   likely next task. Recall automatically includes a bounded personal-guidance
+   layer with up to three relevant examples:
 
    ```bash
    "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<task|person|decision>"

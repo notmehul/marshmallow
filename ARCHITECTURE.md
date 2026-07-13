@@ -23,6 +23,31 @@ or `grep` and load only the smallest relevant graph nodes for the current task.
 When a task needs a reusable brief, the agent can write a recall packet under
 `~/.marshmallow/projections/`.
 
+### Alignment-Aware Recall
+
+`scripts/personal_guidance.py` composes the ordinary recall results with a
+second, tightly bounded personal-alignment layer. This keeps recall as the
+single runtime entrypoint while restoring the original promise: relevant
+memory should also show the model how this person wants the work done.
+
+The second layer is deterministic and progressively disclosed:
+
+- active preference nodes qualify automatically; other graph nodes may opt in
+  with `alignment: true` or opt out with `alignment: false`
+- candidates must match meaningful query terms in their routing metadata,
+  guidance, or examples; weak matches are omitted
+- at most three items are returned, with a hard 400-token ceiling and no more
+  than 20% of the estimated recall response
+- guidance is keyed to its graph record id instead of repeating its path and
+  source citation in the second layer
+- recall returns compact guidance and one fitted example; graph records remain
+  resolvable by id and raw source contents stay behind their pointers
+
+Current task instructions, project instructions, and safety rules always
+outrank recalled personal guidance. The legacy `recall_context()` function
+continues to return the original list shape for internal callers; CLI and MCP
+use the composed response.
+
 The `setup` CLI is a thin onboarding convenience for non-Claude harnesses: it
 creates or verifies the workspace, then delegates to the same reversible adapter
 installer used by `adapter preview/apply`. It does not introduce a second state
@@ -120,9 +145,10 @@ Every graph node must include:
 - non-empty `source_ids`
 
 Optional fields are `applies_to`, `related_nodes`, `skills`, `labels`, `type`,
-`subjects`, `status`, and `updated`. Labels and types are retrieval hints, not a
-fixed taxonomy. Beta graph types are `entity`, `decision`, `relationship`, and
-`preference`.
+`subjects`, `status`, `updated`, `alignment`, `guidance`, and
+`guidance_examples`. Labels and types are retrieval hints, not a fixed
+taxonomy. Beta graph types are `entity`, `decision`, `relationship`, and
+`preference`. `guidance_examples` accepts at most three short examples.
 
 Graph nodes should stay compact and behavior-changing. The body is the
 recall surface: the current representation, evidence, behavior it changes,
