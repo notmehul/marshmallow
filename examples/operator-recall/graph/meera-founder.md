@@ -10,6 +10,10 @@ type: entity
 subjects: [meera]
 status: active
 updated: 2026-06-14
+alignment: true
+guidance: Start with the decision, name the tradeoff, then show the evidence.
+guidance_examples:
+  - Explain the delayed raise as deliberate sequencing before discussing momentum.
 ---
 
 # Meera Founder

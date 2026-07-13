@@ -50,6 +50,8 @@ sources -> typed graph nodes -> indexes/recall packets -> runtime.md -> adapter 
   crawling the whole graph.
 - **Projections** are task-shaped recall packets for meetings, handoffs,
   workflows, or focused agent work.
+- **Alignment-aware recall** automatically adds one to three relevant personal
+  guidance examples, within a strict context budget.
 - **`runtime.md`** tells the agent to check indexes first, then load only the
   graph nodes and projections that matter now.
 - **Adapters** connect that runtime file to `CLAUDE.md` or `AGENTS.md`.
@@ -66,6 +68,9 @@ Marshmallow is deliberately boring where trust matters.
 - **Explicit learning.** No background capture. No silent session ingestion.
 - **Source-backed guidance.** Graph nodes point back to real sources or approved
   corrections.
+- **Progressive disclosure.** Recall includes only relevant guidance and short
+  examples, keeps them below 20% of its estimated response, and leaves raw
+  sources behind pointers for deliberate inspection.
 - **Preview before mutation.** Adapter installs and skill rewrites show you what
   will change.
 - **Rollback.** Applied mutations create byte-exact backups and rollback records.
@@ -201,8 +206,10 @@ touching the graph.
 - **`dismiss`** archives a low-signal or redundant candidate without changing
   sources or graph. It also previews unless `--apply`.
 - **`recall`** returns matching graph nodes with their resolved source
-  citations attached, so every recalled fact traces back to an immutable
-  source. Unresolved provenance is flagged, never hidden.
+  citations attached, plus at most three relevant personal-guidance examples.
+  Weak alignment matches are omitted, and the guidance layer stays below 20%
+  of the estimated response budget. Every recalled fact still traces back to
+  an immutable source; unresolved provenance is flagged, never hidden.
 
 This is the deliberate boundary: an agent's own note can become a first-class,
 citable source, but nothing reaches the durable graph without a source behind
@@ -217,7 +224,8 @@ act, capture instead of forgetting" with no extra wiring.
 
 It exposes three **safe** tools:
 
-- **`recall`** — read source-backed context with citations (read-only).
+- **`recall`** — read source-backed context with citations and bounded personal
+  guidance (read-only).
 - **`remember`** — capture into the untrusted inbox (never touches the graph).
 - **`pending`** — list candidates awaiting review (read-only).
 
@@ -276,6 +284,10 @@ type: decision
 subjects: [marshmallow, fundraising]
 status: active
 updated: 2026-06-01
+alignment: true
+guidance: Lead with the decision, then name the tradeoff and evidence.
+guidance_examples:
+  - Explain deliberate sequencing before discussing momentum.
 ```
 
 Graph nodes should stay compact and behavior-changing. Use the body to explain
@@ -285,6 +297,13 @@ nodes; warnings do not break existing workspaces. Optional typed fields such as
 `type`, `subjects`, `status`, and `updated` help agents navigate the graph.
 Beta types are `entity`, `decision`, `relationship`, and `preference`, but they
 are retrieval hints rather than a fixed taxonomy.
+
+Active preference nodes automatically qualify for personal guidance when they
+are relevant. Other node types can opt in with `alignment: true`; any node can
+opt out with `alignment: false`. `guidance` and up to three
+`guidance_examples` provide compact, source-backed demonstrations of how the
+work should be done. Archived, historical, inactive, rejected, and superseded
+nodes are never injected as guidance.
 
 Indexes and projections are Markdown runtime aids. Projections are task-shaped
 recall packets. Agents may write them, and `doctor` validates their frontmatter

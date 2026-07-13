@@ -100,7 +100,10 @@ inferring taste, values, or personality.
    represented as source cards. Keep nodes compact and source-backed. Use
    `type: entity`, `type: decision`, `type: relationship`, or
    `type: preference` when it helps recall. Types are retrieval hints, not a
-   fixed taxonomy.
+   fixed taxonomy. When a node should change how future work is done, add one
+   concise `guidance` line and up to three `guidance_examples`. Preference nodes
+   qualify automatically; use `alignment: true` for another node type or
+   `alignment: false` to opt out of automatic guidance.
 
    If the new durable knowledge makes future navigation easier, update a
    compact page in `~/.marshmallow/indexes/` (`new index <id>`). If the user is

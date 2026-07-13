@@ -8,7 +8,7 @@ before you act, capture instead of forgetting" behavior with no extra wiring.
 
 Only the safe verbs are exposed:
 
-- ``recall``   - read source-backed context with citations (read-only).
+- ``recall``   - read source-backed context plus bounded guidance (read-only).
 - ``remember`` - capture into the untrusted inbox (never touches the graph).
 - ``pending``  - list candidates awaiting human review (read-only).
 
@@ -31,7 +31,7 @@ from typing import Any
 
 from capture import list_candidates, remember
 from marshmallow_workspace import MarshmallowError, default_workspace, ensure_workspace
-from recall import recall_context
+from personal_guidance import recall_with_personal_guidance
 
 PROTOCOL_VERSION = "2025-11-25"
 SUPPORTED_PROTOCOL_VERSIONS = (PROTOCOL_VERSION, "2025-06-18")
@@ -44,8 +44,9 @@ TOOLS: list[dict[str, Any]] = [
         "name": "recall",
         "description": (
             "Recall source-backed context about a person, project, decision, or working rule "
-            "BEFORE you draft, decide, or act. Returns the most relevant facts with their source "
-            "citations in a single call. Use it whenever prior context could change your answer."
+            "BEFORE you draft, decide, or act. Returns relevant facts with citations plus a tightly "
+            "bounded personal-guidance layer showing how the work should be done. Use it whenever "
+            "prior context or personal judgment could change your answer."
         ),
         "inputSchema": {
             "type": "object",
@@ -85,10 +86,12 @@ TOOLS: list[dict[str, Any]] = [
 TOOL_NAMES = {tool["name"] for tool in TOOLS}
 
 
-def _format_recall(results: list[dict[str, Any]]) -> str:
-    if not results:
+def _format_recall(bundle: dict[str, Any]) -> str:
+    results = bundle["results"]
+    guidance = bundle["personal_guidance"]
+    if not results and not guidance:
         return "No matching source-backed context found."
-    lines: list[str] = []
+    lines: list[str] = ["Relevant context:"] if results else []
     for result in results:
         label = result["title"] or result["insight"] or result["task"] or result["id"]
         lines.append(f"- [{result['kind']}] {label}")
@@ -96,6 +99,12 @@ def _format_recall(results: list[dict[str, Any]]) -> str:
             lines.append(f"    {result['snippet']}")
         for citation in result.get("sources", []):
             lines.append(f"    source: {citation['id']} ({citation['pointer'] or 'unresolved'})")
+    if guidance:
+        lines.append("Personal guidance (bounded):")
+        for item in guidance:
+            lines.append(f"- {item['guidance']} [{item['id']}]")
+            if item["example"]:
+                lines.append(f"    Example: {item['example']}")
     return "\n".join(lines)
 
 
@@ -115,7 +124,7 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> str:
         limit = arguments.get("limit", DEFAULT_RECALL_LIMIT)
         if not isinstance(limit, int) or isinstance(limit, bool):
             raise MarshmallowError("recall limit must be an integer")
-        return _format_recall(recall_context(root, query, limit=limit))
+        return _format_recall(recall_with_personal_guidance(root, query, limit=limit))
     if name == "remember":
         note = arguments.get("note", "")
         why = arguments.get("why")

@@ -10,6 +10,10 @@ type: decision
 subjects: [fundraising, investor-update]
 status: active
 updated: YYYY-MM-DD
+alignment: true
+guidance: Start with the decision and tradeoff before explaining momentum.
+guidance_examples:
+  - Explain the delay as deliberate sequencing backed by retention evidence.
 ---
 
 # Delay Fundraise Until Retention Signal
@@ -28,6 +32,12 @@ card instead of promoting it.
 
 - Explain what future agents should do differently because this exists.
 - Name any relevant task, format, relationship, decision, or skill.
+
+`type: preference` nodes automatically qualify as personal guidance. Use
+`alignment: true` when another node type should also guide behavior, or
+`alignment: false` to keep a preference out of automatic guidance. Keep
+`guidance` and up to three `guidance_examples` concise; recall returns at most
+three relevant examples under a strict token budget.
 
 ## Limits
 

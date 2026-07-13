@@ -306,6 +306,23 @@ def validate_workspace(root: Path) -> list[str]:
         status = str(node.get("status", "")).strip()
         if status and not ID_PATTERN.match(status):
             errors.append(f"{path}: status must use lowercase hyphen-case: {status!r}")
+        alignment = str(node.get("alignment", "")).strip().lower()
+        if alignment and alignment not in {"true", "false"}:
+            errors.append(f"{path}: alignment must be true or false")
+        guidance = str(node.get("guidance", "")).strip()
+        if guidance:
+            try:
+                validate_generated_guidance(guidance, path, max_chars=300)
+            except MarshmallowError as error:
+                errors.append(str(error))
+        guidance_examples = list_field(node, "guidance_examples")
+        if len(guidance_examples) > 3:
+            errors.append(f"{path}: guidance_examples must contain at most three examples")
+        for example in guidance_examples:
+            try:
+                validate_generated_guidance(example, path, max_chars=300)
+            except MarshmallowError as error:
+                errors.append(str(error))
         for subject in list_field(node, "subjects"):
             if not ID_PATTERN.match(subject):
                 errors.append(f"{path}: subjects tag must use lowercase hyphen-case: {subject!r}")
@@ -431,6 +448,9 @@ id: {record_id}
 insight: TODO one sentence that should change future agent behavior
 type: preference
 applies_to: [todo-task]
+guidance: TODO concise instruction showing how this user wants the work done
+guidance_examples:
+  - TODO one short example of an aligned choice or output
 source_ids: [todo-source-id]
 related_nodes: []
 labels: [todo-label]
