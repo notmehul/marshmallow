@@ -7,6 +7,8 @@ must explicitly approve adapter installs, skill rewrites, and rollback applies.
 
 - No silent learning.
 - No background capture.
+- Unmistakable user feedback may be captured visibly into the untrusted inbox;
+  it is not durable learning and never enters runtime context before review.
 - No upload, sync, or background service run by Marshmallow.
 - No sending, posting, queueing, or automation actions.
 - No required `workspace.json`.
@@ -14,6 +16,8 @@ must explicitly approve adapter installs, skill rewrites, and rollback applies.
 - No deterministic projection generator in v1; projections are agent-written
   Markdown recall packets.
 - Raw session logs do not become graph nodes.
+- Promotion and dismissal preview first; terminal candidates remain inert under
+  `inbox/archive/` for provenance.
 - Adapter and skill rewrites require explicit approval.
 - Plugin-cache skills are not edited in place.
 

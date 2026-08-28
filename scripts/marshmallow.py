@@ -27,11 +27,13 @@ from markdown_graph import (
     source_cards,
     validate_workspace,
 )
-from capture import list_candidates, promote, remember
+from capture import dismiss, list_candidates, promote, remember
 from marshmallow_workspace import MarshmallowError, atomic_write, default_workspace, ensure_workspace, require_workspace
 from recall import recall_context
 from skill_overlay import apply_overlay, create_starter_skill, rollback_overlay
 from skill_scanner import discover
+
+PENDING_WARNING_COUNT = 20
 
 
 def add_workspace(parser: argparse.ArgumentParser) -> None:
@@ -52,10 +54,14 @@ def runtime_guidance_warnings(root: Path) -> list[str]:
         "indexes/",
         "projections/",
         "Do not crawl the whole graph by default.",
+        "unmistakable feedback",
     )
     if all(fragment in text for fragment in expected):
         return []
-    return [f"{runtime}: runtime guidance may be stale; update it to use recall, check indexes first, and use projections as recall packets"]
+    return [
+        f"{runtime}: runtime guidance may be stale; update it to use recall, task-shaped context, "
+        "and visible capture of unmistakable feedback"
+    ]
 
 
 def command_init(args: argparse.Namespace) -> int:
@@ -119,6 +125,12 @@ def command_doctor(args: argparse.Namespace) -> int:
     errors = validate_workspace(root)
     warnings = graph_quality_warnings(root)
     warnings.extend(runtime_guidance_warnings(root))
+    pending_candidates = list_candidates(root)
+    if len(pending_candidates) > PENDING_WARNING_COUNT:
+        warnings.append(
+            f"{root / 'inbox'}: {len(pending_candidates)} candidates await review; "
+            "run `pending --limit 20` and curate a small batch"
+        )
 
     def status_for(target: Path) -> dict[str, str]:
         try:
@@ -158,6 +170,7 @@ def command_doctor(args: argparse.Namespace) -> int:
             "graph_nodes": len(nodes),
             "indexes": len(indexes),
             "projections": len(projection_pages),
+            "pending_candidates": len(pending_candidates),
             "overlays": len([path for path in (root / "overlays").glob("*.md") if path.name != "README.md"]),
             "backups": len(list((root / "backups").glob("**/record.json"))),
         },
@@ -230,9 +243,12 @@ def command_remember(args: argparse.Namespace) -> int:
 
 
 def command_pending(args: argparse.Namespace) -> int:
-    candidates = list_candidates(args.workspace, include_promoted=args.all)
+    if args.limit < 1:
+        raise MarshmallowError("pending limit must be positive")
+    all_candidates = list_candidates(args.workspace, include_terminal=args.all)
+    candidates = all_candidates[: args.limit]
     if args.json:
-        json_print({"candidates": candidates})
+        json_print({"candidates": candidates, "shown": len(candidates), "total": len(all_candidates)})
         return 0
     if not candidates:
         print("No inbox candidates awaiting promotion.")
@@ -240,6 +256,8 @@ def command_pending(args: argparse.Namespace) -> int:
     for candidate in candidates:
         print(f"{candidate['status']:>8} {candidate['id']} - {candidate['summary']}")
         print(f"         {candidate['path']}")
+    if len(all_candidates) > len(candidates):
+        print(f"Showing {len(candidates)} of {len(all_candidates)} candidates; increase --limit to see more.")
     return 0
 
 
@@ -255,6 +273,19 @@ def command_promote(args: argparse.Namespace) -> int:
         return 0
     print(f"Promoted {plan['candidate_id']} -> source {plan['source_id']} ({plan['source_path']})")
     print(f"Next: {plan['next_step']}")
+    return 0
+
+
+def command_dismiss(args: argparse.Namespace) -> int:
+    plan = dismiss(args.workspace, args.id, reason=args.reason, apply=args.apply)
+    if args.json:
+        json_print(plan)
+        return 0
+    if plan["status"] == "preview":
+        print(f"Preview: would dismiss {plan['candidate_id']} and archive it at {plan['archive_path']}")
+        print("Apply with the same command plus --apply.")
+        return 0
+    print(f"Dismissed {plan['candidate_id']} ({plan['archive_path']})")
     return 0
 
 
@@ -366,7 +397,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     pending = subparsers.add_parser("pending", help="List inbox candidates awaiting promotion.")
     add_workspace(pending)
-    pending.add_argument("--all", action="store_true", help="Include already-promoted candidates.")
+    pending.add_argument("--all", action="store_true", help="Include archived promoted and dismissed candidates.")
+    pending.add_argument("--limit", type=int, default=20, help="Maximum candidates to show (default 20).")
     pending.add_argument("--json", action="store_true")
     pending.set_defaults(func=command_pending)
 
@@ -379,6 +411,17 @@ def build_parser() -> argparse.ArgumentParser:
     promote_parser.add_argument("--apply", action="store_true", help="Write the source card and mark the candidate promoted.")
     promote_parser.add_argument("--json", action="store_true")
     promote_parser.set_defaults(func=command_promote)
+
+    dismiss_parser = subparsers.add_parser(
+        "dismiss",
+        help="Dismiss a pending candidate and archive it. Preview unless --apply.",
+    )
+    add_workspace(dismiss_parser)
+    dismiss_parser.add_argument("id", help="Candidate id from `pending`.")
+    dismiss_parser.add_argument("--reason", help="Optional reason for dismissing the candidate.")
+    dismiss_parser.add_argument("--apply", action="store_true", help="Archive the candidate as dismissed.")
+    dismiss_parser.add_argument("--json", action="store_true")
+    dismiss_parser.set_defaults(func=command_dismiss)
 
     adapter = subparsers.add_parser("adapter", help="Preview, apply, or remove a runtime adapter.")
     add_workspace(adapter)

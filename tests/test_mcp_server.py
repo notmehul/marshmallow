@@ -89,6 +89,9 @@ class McpDispatchTests(unittest.TestCase):
         for tool in response["result"]["tools"]:
             self.assertIn("inputSchema", tool)
             self.assertTrue(tool["description"])
+        remember_tool = next(tool for tool in response["result"]["tools"] if tool["name"] == "remember")
+        self.assertIn("unmistakable user feedback", remember_tool["description"])
+        self.assertIn("Do not capture generic praise", remember_tool["description"])
 
     def test_notification_initialized_gets_no_response(self) -> None:
         self.assertIsNone(self.request("notifications/initialized", request_id=None))
@@ -122,6 +125,14 @@ class McpDispatchTests(unittest.TestCase):
         remember(self.root, "A captured observation")
         response = self.request("tools/call", {"name": "pending", "arguments": {}})
         self.assertIn("A captured observation", response["result"]["content"][0]["text"])
+
+    def test_tools_call_pending_bounds_large_queues(self) -> None:
+        for number in range(21):
+            remember(self.root, f"Observation {number}")
+        response = self.request("tools/call", {"name": "pending", "arguments": {}})
+        text = response["result"]["content"][0]["text"]
+        self.assertEqual(20, sum(line.startswith("- ") for line in text.splitlines()))
+        self.assertIn("Showing 20 of 21", text)
 
     def test_tools_call_recall_without_query_is_a_tool_error_not_a_crash(self) -> None:
         response = self.request("tools/call", {"name": "recall", "arguments": {}})

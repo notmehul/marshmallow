@@ -92,17 +92,22 @@ def _read_candidate(path: Path) -> tuple[dict[str, Any], str]:
     return frontmatter, body
 
 
-def list_candidates(root: Path, *, include_promoted: bool = False) -> list[dict[str, Any]]:
+def _candidate_paths(root: Path, *, include_terminal: bool = False) -> list[Path]:
+    paths = list((root / "inbox").glob("*.md"))
+    if include_terminal:
+        paths += list((root / "inbox" / "archive").glob("*.md"))
+    return sorted(path for path in paths if path.name != "README.md")
+
+
+def list_candidates(root: Path, *, include_terminal: bool = False) -> list[dict[str, Any]]:
     """List inbox candidates awaiting promotion (the synthesis work queue)."""
 
     root = require_workspace(root)
     candidates: list[dict[str, Any]] = []
-    for path in sorted((root / "inbox").glob("*.md")):
-        if path.name == "README.md":
-            continue
+    for path in _candidate_paths(root, include_terminal=include_terminal):
         frontmatter, body = _read_candidate(path)
         status = str(frontmatter.get("status") or "pending")
-        if status == "promoted" and not include_promoted:
+        if status != "pending" and not include_terminal:
             continue
         candidates.append(
             {
@@ -118,9 +123,7 @@ def list_candidates(root: Path, *, include_promoted: bool = False) -> list[dict[
 
 
 def _find_candidate(root: Path, candidate_id: str) -> tuple[Path, dict[str, Any], str]:
-    for path in sorted((root / "inbox").glob("*.md")):
-        if path.name == "README.md":
-            continue
+    for path in _candidate_paths(root, include_terminal=True):
         frontmatter, body = _read_candidate(path)
         if str(frontmatter.get("id") or path.stem) == candidate_id:
             frontmatter.setdefault("id", path.stem)
@@ -128,18 +131,38 @@ def _find_candidate(root: Path, candidate_id: str) -> tuple[Path, dict[str, Any]
     raise MarshmallowError(f"Inbox candidate not found: {candidate_id}")
 
 
-def _mark_promoted(path: Path, frontmatter: dict[str, Any], body: str, source_id: str) -> None:
-    fields = {
-        "id": str(frontmatter.get("id") or path.stem),
-        "captured": str(frontmatter.get("captured", "")),
-        "status": "promoted",
-        "promoted_to": source_id,
-        "origin": str(frontmatter.get("origin", "")),
-    }
+def _archive_destination(root: Path, path: Path) -> Path:
+    return root / "inbox" / "archive" / path.name
+
+
+def _archive_candidate(root: Path, path: Path) -> Path:
+    destination = _archive_destination(root, path)
+    if destination.exists():
+        raise MarshmallowError(f"Archived candidate already exists: {destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    path.replace(destination)
+    return destination
+
+
+def _write_candidate_state(path: Path, body: str, fields: dict[str, str]) -> None:
     lines = ["---"]
     lines += [f"{key}: {frontmatter_scalar(value)}" for key, value in fields.items() if value]
     lines.append("---")
     atomic_write(path, "\n".join(lines) + "\n\n" + body.strip() + "\n")
+
+
+def _mark_promoted(path: Path, frontmatter: dict[str, Any], body: str, source_id: str) -> None:
+    _write_candidate_state(
+        path,
+        body,
+        {
+            "id": str(frontmatter.get("id") or path.stem),
+            "captured": str(frontmatter.get("captured", "")),
+            "status": "promoted",
+            "promoted_to": source_id,
+            "origin": str(frontmatter.get("origin", "")),
+        },
+    )
 
 
 def promote(root: Path, candidate_id: str, *, apply: bool = False) -> dict[str, Any]:
@@ -152,13 +175,17 @@ def promote(root: Path, candidate_id: str, *, apply: bool = False) -> dict[str, 
 
     root = require_workspace(root)
     path, frontmatter, body = _find_candidate(root, candidate_id)
-    if str(frontmatter.get("status") or "pending") == "promoted":
-        raise MarshmallowError(f"Candidate already promoted: {candidate_id}")
+    status = str(frontmatter.get("status") or "pending")
+    if status != "pending":
+        raise MarshmallowError(f"Candidate already {status}: {candidate_id}")
 
     source_id = candidate_id if ID_PATTERN.match(candidate_id) else slugify(candidate_id)
     source_path = root / "sources" / f"{source_id}.md"
     if source_path.exists():
         raise MarshmallowError(f"Source already exists: {source_path}")
+    archive_path = _archive_destination(root, path)
+    if archive_path.exists():
+        raise MarshmallowError(f"Archived candidate already exists: {archive_path}")
 
     origin = str(frontmatter.get("origin", "")).strip()
     pointer = origin or f"inbox-candidate:{candidate_id}"
@@ -180,6 +207,7 @@ def promote(root: Path, candidate_id: str, *, apply: bool = False) -> dict[str, 
         "candidate_id": candidate_id,
         "source_id": source_id,
         "source_path": str(source_path),
+        "archive_path": str(archive_path),
         "next_step": (
             f"write a graph node that cites `{source_id}`: "
             f"`marshmallow.py new node <id>`, then set source_ids: [{source_id}]"
@@ -192,5 +220,50 @@ def promote(root: Path, candidate_id: str, *, apply: bool = False) -> dict[str, 
 
     atomic_write(source_path, source_content)
     _mark_promoted(path, frontmatter, body, source_id)
+    _archive_candidate(root, path)
     plan["status"] = "promoted"
+    return plan
+
+
+def dismiss(
+    root: Path,
+    candidate_id: str,
+    *,
+    reason: str | None = None,
+    apply: bool = False,
+) -> dict[str, Any]:
+    """Dismiss a candidate and archive it without changing sources or graph."""
+
+    root = require_workspace(root)
+    path, frontmatter, body = _find_candidate(root, candidate_id)
+    status = str(frontmatter.get("status") or "pending")
+    if status != "pending":
+        raise MarshmallowError(f"Candidate already {status}: {candidate_id}")
+
+    archive_path = _archive_destination(root, path)
+    if archive_path.exists():
+        raise MarshmallowError(f"Archived candidate already exists: {archive_path}")
+    plan: dict[str, Any] = {
+        "candidate_id": candidate_id,
+        "archive_path": str(archive_path),
+        "reason": (reason or "").strip(),
+        "status": "preview",
+    }
+    if not apply:
+        return plan
+
+    _write_candidate_state(
+        path,
+        body,
+        {
+            "id": str(frontmatter.get("id") or path.stem),
+            "captured": str(frontmatter.get("captured", "")),
+            "status": "dismissed",
+            "dismissed": iso_timestamp(),
+            "origin": str(frontmatter.get("origin", "")),
+            "reason": plan["reason"],
+        },
+    )
+    _archive_candidate(root, path)
+    plan["status"] = "dismissed"
     return plan

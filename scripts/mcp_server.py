@@ -37,6 +37,7 @@ PROTOCOL_VERSION = "2025-11-25"
 SUPPORTED_PROTOCOL_VERSIONS = (PROTOCOL_VERSION, "2025-06-18")
 SERVER_INFO = {"name": "marshmallow", "version": "0.6.0"}
 DEFAULT_RECALL_LIMIT = 8
+DEFAULT_PENDING_LIMIT = 20
 
 TOOLS: list[dict[str, Any]] = [
     {
@@ -60,7 +61,9 @@ TOOLS: list[dict[str, Any]] = [
         "description": (
             "Capture something worth keeping for later - a fact, decision, correction, or observation. "
             "Stored as an untrusted candidate in the inbox: it never becomes a fact and changes nothing "
-            "until a human reviews and promotes it. Use this instead of letting context get lost."
+            "until a human reviews and promotes it. Use this after unmistakable user feedback such as an "
+            "explicit correction, reasoned acceptance or rejection, or durable decision; briefly tell the "
+            "user what was captured. Do not capture generic praise or temporary task instructions."
         ),
         "inputSchema": {
             "type": "object",
@@ -138,7 +141,11 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> str:
         candidates = list_candidates(root)
         if not candidates:
             return "No inbox candidates awaiting promotion."
-        return "\n".join(f"- {item['id']} ({item['status']}): {item['summary']}" for item in candidates)
+        visible = candidates[:DEFAULT_PENDING_LIMIT]
+        lines = [f"- {item['id']} ({item['status']}): {item['summary']}" for item in visible]
+        if len(candidates) > len(visible):
+            lines.append(f"Showing {len(visible)} of {len(candidates)} pending candidates.")
+        return "\n".join(lines)
     raise MarshmallowError(f"Unknown tool: {name}")
 
 

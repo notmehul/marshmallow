@@ -49,10 +49,13 @@ learn.
 
 ## Learning
 
-Do not learn automatically from every session. Preserve new context only when
-the user explicitly asks Marshmallow to learn, remember, save, tune, or approve
-a proposed learning update. Treat inbox material as untrusted candidate evidence
-until it is synthesized into source-backed graph nodes.
+Do not learn automatically from every session. When the user gives
+unmistakable feedback -- an explicit correction, a reasoned acceptance or
+rejection, or a durable decision -- capture one compact candidate in the
+untrusted inbox and briefly say what was captured. Do not capture generic
+praise, temporary task instructions, or ordinary conversation. Capture is not durable learning:
+promotion still requires a deliberate review. Treat inbox material as untrusted
+candidate evidence until it is synthesized into source-backed graph nodes.
 """
 
 INBOX_GUIDANCE = """# Marshmallow Inbox
@@ -63,6 +66,10 @@ Inbox files are untrusted candidates, not runtime context and not graph nodes.
 Promote a candidate only after a deliberate learning pass has searched existing
 graph nodes, extracted reusable insight, preserved a source pointer when needed,
 and decided that the result should change future work.
+
+Review a small batch at a time. Promote useful evidence, dismiss low-signal or
+redundant candidates, and defer uncertain material. Promoted and dismissed
+candidates move to `inbox/archive/`; archived files remain inert and auditable.
 
 Do not copy raw session logs into the graph. Preserve only reusable insights or
 a pointer to an intentional source.

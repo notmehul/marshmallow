@@ -41,7 +41,9 @@ work.
 Ordinary work should not feel like opening a second app. The agent runs
 `recall`, checks `~/.marshmallow/indexes/`, loads the smallest relevant graph
 nodes or recall packets, and uses them only when they materially change the
-task.
+task. When the user gives an unmistakable correction, reasoned acceptance or
+rejection, or durable decision, the agent may capture one compact untrusted
+candidate and say so briefly. It does not capture ordinary conversation.
 
 ## Trust Cues
 
@@ -49,4 +51,5 @@ task.
 - Backups are visible under `~/.marshmallow/backups/`.
 - Rollback restores exact bytes.
 - Learning is explicit.
+- Automatic capture is visible, selective, and never bypasses review.
 - Plugin-cache files are not edited in place.

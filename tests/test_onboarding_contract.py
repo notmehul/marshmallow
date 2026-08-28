@@ -76,6 +76,11 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("If no concrete behavior change appears", skill)
         self.assertIn("type: entity", skill)
         self.assertIn("focused recall packet", skill)
+        self.assertIn("capture only unmistakable feedback", skill)
+        self.assertIn("pending --limit 20", skill)
+        self.assertIn("Treat this learning pass as the curator", skill)
+        self.assertIn("dismiss <candidate-id>", skill)
+        self.assertIn("`inbox/archive/`", skill)
         self.assertNotIn("queue-candidate.py", skill)
 
     def test_tune_skill_owns_overlay_and_rollback_workflows(self) -> None:
