@@ -46,7 +46,7 @@ status: active
 updated: 2026-07-05
 ---
 
-{body or f'# {node_id}\n'}
+{body or '# ' + node_id + chr(10)}
 """
 
 

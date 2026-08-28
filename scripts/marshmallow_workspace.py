@@ -70,9 +70,10 @@ Do not learn automatically from every session. When the user gives
 unmistakable feedback -- an explicit correction, a reasoned acceptance or
 rejection, or a durable decision -- capture one compact candidate in the
 untrusted inbox and briefly say what was captured. Do not capture generic
-praise, temporary task instructions, or ordinary conversation. Capture is not
-durable learning: promotion still requires a deliberate review, and the only
-other durable write path is the narrow source-backed managed-update path.
+praise, temporary task instructions, or ordinary conversation.
+Capture is not durable learning: promotion still requires a deliberate review,
+and the only other durable write path is the narrow source-backed
+managed-update path.
 Treat inbox material as untrusted candidate evidence until it is synthesized
 into source-backed graph nodes.
 """
