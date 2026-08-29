@@ -1,9 +1,0 @@
-=== FILE: seed/stage-out/queries-zr.jsonl ===
-{"id": "q41-actuarial-annuity", "text": "Actuarial annuity forfeiture grace period?", "paraphrase": "Pension dropout waiting threshold lapse duration?", "type": "negative", "facts": []}
-{"id": "q42-bimonthly-salary", "text": "Bimonthly salary voucher remittance pacing?", "paraphrase": "Semimonthly paycheck disbursement settlement timetable?", "type": "negative", "facts": []}
-{"id": "q43-lunchroom-espresso", "text": "Lunchroom espresso machine descaling timetable?", "paraphrase": "Cafeteria brewer hydrometer calibration timetable?", "type": "negative", "facts": []}
-{"id": "q44-parking-garage", "text": "Parking garage elevator servicing logbook?", "paraphrase": "Automotive platform mechanics servicing logbook?", "type": "negative", "facts": []}
-{"id": "q45-subpoena-deposition", "text": "Subpoena deposition docket injunction hearing?", "paraphrase": "Arbitration tribunal grievance mediation ruling?", "type": "negative", "facts": []}
-=== END FILE ===
-
-All 50 tokens across these five probes were checked against `seed/graph/`, `seed/indexes/`, and `seed/projections/` — none collide with the corpus or the known bad tokens (`vest`, `lift`, `zone`, `cap`, `comms`, `ship`, `air`, `file`, `schedule`, `staff`, `fully`, `governs`, `cutoff`). Topics are off-universe (pension actuarials, payroll remittance, cafeteria equipment, parking-garage logs, legal proceedings).

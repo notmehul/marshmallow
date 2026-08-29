@@ -15,7 +15,7 @@ sys.path.insert(0, str(EVAL_DIR))
 sys.path.insert(0, str(EVAL_DIR / "adapters"))
 
 from base import load_adapter  # noqa: E402
-from scoring import mean, score_negative, score_plan_activation, score_query  # noqa: E402
+from scoring import mean, score_negative, score_nodes, score_plan_activation, score_query  # noqa: E402
 
 QUERY_TYPES = ("direct", "negative")
 
@@ -66,15 +66,16 @@ def evaluate_query(adapter: Any, query: dict[str, Any], k: int) -> dict[str, Any
     if query["type"] == "negative":
         row["negative"] = score_negative(records)
     else:
-        row["direct"] = score_query(query["facts"], records, k)
         paraphrase = str(query.get("paraphrase", "")).strip()
-        if paraphrase:
-            paraphrase_output, _ = timed_retrieve(adapter, paraphrase, k)
-            row["paraphrase"] = score_query(query["facts"], paraphrase_output["records"], k)
+        paraphrase_records = timed_retrieve(adapter, paraphrase, k)[0]["records"] if paraphrase else None
+        row["fact"] = {"direct": score_query(query["facts"], records, k)}
+        if paraphrase_records is not None:
+            row["fact"]["paraphrase"] = score_query(query["facts"], paraphrase_records, k)
         expected_nodes = expectations.get("expected_node_ids", [])
         if expected_nodes:
-            hits = [node_id for node_id in expected_nodes if node_id in row["retrieved_ids"]]
-            row["expected_node_recall"] = len(hits) / len(expected_nodes)
+            row["node"] = {"direct": score_nodes(expected_nodes, records, k)}
+            if paraphrase_records is not None:
+                row["node"]["paraphrase"] = score_nodes(expected_nodes, paraphrase_records, k)
     plan_row = score_plan_activation(output.get("plan_context"), expectations.get("expected_plan"))
     if plan_row is not None:
         row["plan"] = plan_row
@@ -92,22 +93,33 @@ def metric_means(rows: list[dict[str, Any]]) -> dict[str, float | None]:
     }
 
 
-def aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    direct_rows = [row["direct"] for row in rows if "direct" in row]
-    paired = [(row["direct"], row["paraphrase"]) for row in rows if "paraphrase" in row]
-    negative_rows = [row["negative"] for row in rows if "negative" in row]
-    plan_rows = [row["plan"] for row in rows if "plan" in row]
+def _view_aggregate(rows: list[dict[str, Any]], view: str) -> dict[str, Any]:
+    """Means for one scoring view ("node" or "fact"), with a paired paraphrase delta."""
 
+    scored = [row[view] for row in rows if view in row]
+    direct_rows = [item["direct"] for item in scored]
+    paired = [(item["direct"], item["paraphrase"]) for item in scored if "paraphrase" in item]
     # Paraphrase delta is paired (direct minus paraphrase per query), so
     # queries without a paraphrase variant do not skew the gap.
     delta = {
         name: rounded(mean([direct[name] - paraphrase[name] for direct, paraphrase in paired]))
         for name in ("recall_at_k", "precision_at_k", "mrr")
     }
+    return {
+        "labeled": len(scored),
+        "direct": metric_means(direct_rows),
+        "paraphrase": metric_means([paraphrase for _, paraphrase in paired]),
+        "paraphrase_delta": delta,
+    }
+
+
+def aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    negative_rows = [row["negative"] for row in rows if "negative" in row]
+    plan_rows = [row["plan"] for row in rows if "plan" in row]
 
     junk_scores = [row["top_score"] for row in negative_rows if row["returned"] > 0]
     true_positive_scores = [
-        row["top_score"] for row in rows if "direct" in row and row["retrieved_ids"]
+        row["top_score"] for row in rows if row["type"] == "direct" and row["retrieved_ids"]
     ]
     negatives = {
         "count": len(negative_rows),
@@ -138,20 +150,29 @@ def aggregate_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         plan_activation = "unavailable"
 
     return {
-        "direct": metric_means(direct_rows),
-        "paraphrase": metric_means([paraphrase for _, paraphrase in paired]),
-        "paraphrase_delta": delta,
+        # Strict view: exact answer-node ids. This is the guarded headline.
+        "node": _view_aggregate(rows, "node"),
+        # Lenient view: alias containment anywhere in the returned text.
+        # Diagnostic only; see scoring.py for why it is not guarded.
+        "fact_containment": _view_aggregate(rows, "fact"),
         "negatives": negatives,
         "plan_activation": plan_activation,
         "mean_wall_ms": rounded(mean([row["wall_ms"] for row in rows])),
     }
 
 
-# Sections whose 0-1 numeric leaves are guarded by --baseline. wall_ms is
-# machine-dependent and raw lexical score magnitudes are implementation
-# detail, so neither is compared.
-BASELINE_SECTIONS = ("direct", "paraphrase", "paraphrase_delta", "negatives")
-BASELINE_SKIPPED_LEAVES = {"junk_mean_top_score", "true_positive_mean_top_score", "count"}
+# Dotted paths whose 0-1 numeric leaves are guarded by --baseline. Fact
+# containment is diagnostic, wall_ms is machine-dependent, and raw lexical
+# score magnitudes are implementation detail, so none of those are compared.
+BASELINE_SECTIONS = ("node.direct", "node.paraphrase", "node.paraphrase_delta", "negatives")
+BASELINE_SKIPPED_LEAVES = {"junk_mean_top_score", "true_positive_mean_top_score", "count", "labeled"}
+
+
+def _section(payload: dict[str, Any], dotted: str) -> dict[str, Any]:
+    current: Any = payload
+    for part in dotted.split("."):
+        current = current.get(part, {}) if isinstance(current, dict) else {}
+    return current if isinstance(current, dict) else {}
 
 
 def compare_to_baseline(
@@ -161,8 +182,8 @@ def compare_to_baseline(
 
     breaches = []
     for section in BASELINE_SECTIONS:
-        expected_section = baseline.get(section, {})
-        actual_section = aggregate.get(section, {})
+        expected_section = _section(baseline, section)
+        actual_section = _section(aggregate, section)
         for name, expected in expected_section.items():
             if name in BASELINE_SKIPPED_LEAVES or not isinstance(expected, (int, float)):
                 continue
@@ -196,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Score a workspace tier through a retrieval adapter.")
     parser.add_argument("--workspace", type=Path, required=True, help="Tier directory (a Marshmallow workspace).")
     parser.add_argument("--queries", type=Path, required=True, help="queries.jsonl path.")
-    parser.add_argument("--adapter", default="marshmallow", help="Adapter name (default: marshmallow).")
+    parser.add_argument("--adapter", default="marshmallow", help="Adapter name: marshmallow, bm25, or random (default: marshmallow).")
     parser.add_argument("--json", type=Path, default=None, help="Write the report JSON here (default: stdout).")
     parser.add_argument("--k", type=int, default=5, help="Result budget per query (default: 5).")
     parser.add_argument("--baseline", type=Path, default=None, help="Fail if aggregates drift beyond tolerance from this pinned baseline JSON.")
@@ -210,10 +231,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(payload, encoding="utf-8")
-        direct = report["aggregate"]["direct"]
+        node = report["aggregate"]["node"]
         print(
-            f"{report['adapter']} on {report['tier']}: "
-            f"recall@{args.k}={direct['recall_at_k']} mrr={direct['mrr']} -> {args.json}"
+            f"{report['adapter']} on {report['tier']}: node recall@{args.k}={node['direct']['recall_at_k']} "
+            f"mrr={node['direct']['mrr']} | paraphrase recall@{args.k}={node['paraphrase']['recall_at_k']} "
+            f"mrr={node['paraphrase']['mrr']} -> {args.json}"
         )
     else:
         print(payload, end="")

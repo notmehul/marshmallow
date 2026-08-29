@@ -18,7 +18,8 @@ sys.path.insert(0, str(EVAL_DIR / "adapters"))
 from marshmallow_adapter import MarshmallowAdapter  # noqa: E402
 from recall import recall_context  # noqa: E402
 from run_eval import compare_to_baseline  # noqa: E402
-from scoring import fact_in_text, normalize, score_negative, score_plan_activation, score_query  # noqa: E402
+from base import load_adapter  # noqa: E402
+from scoring import fact_in_text, normalize, score_negative, score_nodes, score_plan_activation, score_query  # noqa: E402
 
 
 def fact(claim: str, *aliases: str) -> dict:
@@ -76,6 +77,37 @@ class ScoreQueryTests(unittest.TestCase):
         self.assertEqual(0.0, result["precision_at_k"])
         self.assertEqual(0.0, result["mrr"])
 
+    def test_precision_is_over_the_k_budget_not_over_returned_count(self) -> None:
+        # One correct record out of a five-slot budget is 0.2, not 1.0.
+        result = score_query([fact("a", "alpha")], [record("alpha")], k=5)
+        self.assertEqual(0.2, result["precision_at_k"])
+
+
+class ScoreNodesTests(unittest.TestCase):
+    def test_hand_computed_node_metrics(self) -> None:
+        records = [
+            record("x", record_id="home") | {"kind": "index"},
+            record("x", record_id="node-a"),
+            record("x", record_id="node-c"),
+        ]
+        result = score_nodes(["node-a", "node-b"], records, k=3)
+        self.assertEqual(0.5, result["recall_at_k"])
+        self.assertAlmostEqual(1 / 3, result["precision_at_k"])
+        self.assertEqual(0.5, result["mrr"])
+        self.assertEqual(["node-a"], result["nodes_found"])
+        self.assertEqual(["node-b"], result["nodes_missed"])
+
+    def test_non_graph_record_with_matching_id_does_not_count(self) -> None:
+        records = [record("x", record_id="node-a") | {"kind": "recall-packet"}]
+        result = score_nodes(["node-a"], records, k=1)
+        self.assertEqual(0.0, result["recall_at_k"])
+        self.assertEqual(0.0, result["mrr"])
+
+    def test_k_truncates_and_empty_expected_scores_zero(self) -> None:
+        records = [record("x", record_id="junk"), record("x", record_id="node-a")]
+        self.assertEqual(0.0, score_nodes(["node-a"], records, k=1)["recall_at_k"])
+        self.assertEqual(0.0, score_nodes([], records, k=2)["recall_at_k"])
+
 
 class NegativeScoringTests(unittest.TestCase):
     def test_empty_retrieval_is_disciplined(self) -> None:
@@ -130,9 +162,18 @@ class PlanActivationTests(unittest.TestCase):
 
 class BaselineComparisonTests(unittest.TestCase):
     AGGREGATE = {
-        "direct": {"recall_at_k": 1.0, "precision_at_k": 0.9, "mrr": 1.0},
-        "paraphrase": {"recall_at_k": 0.86, "precision_at_k": 0.58, "mrr": 0.85},
-        "paraphrase_delta": {"recall_at_k": 0.14, "precision_at_k": 0.32, "mrr": 0.15},
+        "node": {
+            "labeled": 40,
+            "direct": {"recall_at_k": 0.92, "precision_at_k": 0.4, "mrr": 0.87},
+            "paraphrase": {"recall_at_k": 0.59, "precision_at_k": 0.25, "mrr": 0.63},
+            "paraphrase_delta": {"recall_at_k": 0.33, "precision_at_k": 0.15, "mrr": 0.24},
+        },
+        "fact_containment": {
+            "labeled": 40,
+            "direct": {"recall_at_k": 1.0, "precision_at_k": 1.0, "mrr": 1.0},
+            "paraphrase": {"recall_at_k": 0.86, "precision_at_k": 0.58, "mrr": 0.85},
+            "paraphrase_delta": {"recall_at_k": 0.14, "precision_at_k": 0.32, "mrr": 0.15},
+        },
         "negatives": {
             "count": 10,
             "zero_result_fraction": 0.5,
@@ -148,22 +189,22 @@ class BaselineComparisonTests(unittest.TestCase):
 
     def test_drift_within_tolerance_passes(self) -> None:
         current = json.loads(json.dumps(self.AGGREGATE))
-        current["direct"]["precision_at_k"] = 0.885
+        current["node"]["direct"]["precision_at_k"] = 0.385
         self.assertEqual(compare_to_baseline(current, self.AGGREGATE, 0.02), [])
 
     def test_drift_beyond_tolerance_is_a_breach(self) -> None:
         current = json.loads(json.dumps(self.AGGREGATE))
-        current["paraphrase"]["mrr"] = 0.80
+        current["node"]["paraphrase"]["mrr"] = 0.58
         breaches = compare_to_baseline(current, self.AGGREGATE, 0.02)
         self.assertEqual(len(breaches), 1)
-        self.assertIn("paraphrase.mrr", breaches[0])
+        self.assertIn("node.paraphrase.mrr", breaches[0])
 
     def test_missing_metric_is_a_breach(self) -> None:
         current = json.loads(json.dumps(self.AGGREGATE))
-        del current["direct"]["mrr"]
+        del current["node"]["direct"]["mrr"]
         breaches = compare_to_baseline(current, self.AGGREGATE, 0.02)
         self.assertEqual(len(breaches), 1)
-        self.assertIn("direct.mrr", breaches[0])
+        self.assertIn("node.direct.mrr", breaches[0])
 
     def test_machine_dependent_leaves_are_ignored(self) -> None:
         current = json.loads(json.dumps(self.AGGREGATE))
@@ -172,11 +213,18 @@ class BaselineComparisonTests(unittest.TestCase):
         current["negatives"]["true_positive_mean_top_score"] = 10.0
         self.assertEqual(compare_to_baseline(current, self.AGGREGATE, 0.02), [])
 
+    def test_fact_containment_is_diagnostic_not_guarded(self) -> None:
+        current = json.loads(json.dumps(self.AGGREGATE))
+        current["fact_containment"]["direct"]["mrr"] = 0.1
+        self.assertEqual(compare_to_baseline(current, self.AGGREGATE, 0.02), [])
+
     def test_pinned_baseline_file_matches_guarded_shape(self) -> None:
         baseline = json.loads((EVAL_DIR / "baseline.json").read_text(encoding="utf-8"))
         self.assertEqual(compare_to_baseline(baseline["aggregate"], baseline["aggregate"], 0.0), [])
-        for section in ("direct", "paraphrase", "paraphrase_delta", "negatives"):
+        for section in ("node", "fact_containment", "negatives"):
             self.assertIn(section, baseline["aggregate"])
+        for view in ("direct", "paraphrase", "paraphrase_delta"):
+            self.assertIn(view, baseline["aggregate"]["node"])
 
 
 class MarshmallowAdapterTests(unittest.TestCase):
@@ -193,6 +241,29 @@ class MarshmallowAdapterTests(unittest.TestCase):
         for item in output["records"]:
             self.assertTrue(item["text"].startswith("---\n"))
             self.assertIn(f"id: {item['id']}", item["text"])
+
+
+class BaselineAdapterTests(unittest.TestCase):
+    def test_random_adapter_is_deterministic_and_ignores_the_query(self) -> None:
+        adapter = load_adapter("random")
+        adapter.ingest(FIXTURE)
+        first = [item["id"] for item in adapter.retrieve("kestrel micro humidity sensors", 3)["records"]]
+        again = [item["id"] for item in adapter.retrieve("kestrel micro humidity sensors", 3)["records"]]
+        self.assertEqual(first, again)
+        self.assertEqual(3, len(first))
+        self.assertTrue(all(item["kind"] == "graph" for item in adapter.retrieve("anything", 2)["records"]))
+
+    def test_bm25_ranks_the_answer_node_first_on_a_known_query(self) -> None:
+        adapter = load_adapter("bm25")
+        adapter.ingest(FIXTURE)
+        output = adapter.retrieve("kestrel micro humidity sensors", 3)
+        self.assertEqual("kestrel-sensor-switch", output["records"][0]["id"])
+        self.assertTrue(output["records"][0]["text"].startswith("---\n"))
+        self.assertEqual([], adapter.retrieve("zzqx", 3)["records"])
+
+    def test_unknown_adapter_names_are_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            load_adapter("nope")
 
 
 class EndToEndTests(unittest.TestCase):
@@ -231,16 +302,21 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual("fixture", report["tier"])
         self.assertEqual(8, report["query_count"])
         aggregate = report["aggregate"]
-        for key in ("direct", "paraphrase", "paraphrase_delta", "negatives", "plan_activation", "mean_wall_ms"):
+        for key in ("node", "fact_containment", "negatives", "plan_activation", "mean_wall_ms"):
             self.assertIn(key, aggregate)
+        for view in ("direct", "paraphrase", "paraphrase_delta"):
+            self.assertIn(view, aggregate["node"])
+            self.assertIn(view, aggregate["fact_containment"])
 
     def test_known_answer_queries_score_nontrivially(self) -> None:
-        direct = self.report["aggregate"]["direct"]
-        self.assertGreaterEqual(direct["recall_at_k"], 0.8)
-        self.assertGreaterEqual(direct["mrr"], 0.8)
-        self.assertGreater(direct["precision_at_k"], 0.0)
-        paraphrase = self.report["aggregate"]["paraphrase"]
-        self.assertGreaterEqual(paraphrase["recall_at_k"], 0.8)
+        node = self.report["aggregate"]["node"]
+        self.assertEqual(6, node["labeled"])
+        self.assertGreaterEqual(node["direct"]["recall_at_k"], 0.8)
+        self.assertGreaterEqual(node["direct"]["mrr"], 0.8)
+        self.assertGreater(node["direct"]["precision_at_k"], 0.0)
+        self.assertGreaterEqual(node["paraphrase"]["recall_at_k"], 0.6)
+        fact = self.report["aggregate"]["fact_containment"]
+        self.assertGreaterEqual(fact["direct"]["recall_at_k"], 0.8)
 
     def test_per_query_rows_carry_metrics_and_timing(self) -> None:
         rows = {row["id"]: row for row in self.report["queries"]}
@@ -249,10 +325,11 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(6, len(direct_rows))
         for row in direct_rows:
             self.assertGreaterEqual(row["wall_ms"], 0.0)
-            self.assertIn("direct", row)
-            self.assertIn("paraphrase", row)
-            self.assertGreater(row["direct"]["recall_at_k"], 0.0)
-        self.assertEqual(1.0, rows["q1-firmware-owner"]["expected_node_recall"])
+            self.assertIn("direct", row["fact"])
+            self.assertIn("paraphrase", row["fact"])
+            self.assertIn("direct", row["node"])
+            self.assertGreater(row["fact"]["direct"]["recall_at_k"], 0.0)
+        self.assertEqual(1.0, rows["q1-firmware-owner"]["node"]["direct"]["recall_at_k"])
 
     def test_negatives_split_between_zero_results_and_scored_junk(self) -> None:
         rows = {row["id"]: row for row in self.report["queries"]}

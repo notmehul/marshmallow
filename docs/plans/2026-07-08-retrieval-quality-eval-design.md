@@ -50,6 +50,25 @@ regenerated on demand rather than committed.
 Cross-tool claims rest only on the fully human-realistic seed tier. Scaled
 tiers are Marshmallow-internal ceiling analysis.
 
+## Amendment (2026-08-29): node-level ground truth is the guarded metric
+
+The fact-level containment metric below turned out not to discriminate on the
+pinned seed. Measured against the 100 seed nodes, the median labeled fact's
+aliases appear in 14 nodes, 34 of 48 facts appear in ten or more, and a random
+five-node draw scores fact recall@5 of about 0.5. Node bodies were also
+generated from the same fact table as the labels, so every direct query's
+answer node carries an alias verbatim in its `insight` line. Direct fact recall
+of 1.0 was therefore a property of the generation pipeline, not of retrieval.
+
+The harness now scores two views side by side. `node` (exact
+`expected_node_ids` hits in the top-k) is the guarded headline and the only
+basis for claims; `fact_containment` stays as a lenient diagnostic. Precision
+is over the k-slot budget rather than the returned count. Two baseline rows
+(seeded random, stdlib BM25 over graph nodes) ship with every report so a
+number is always read against its floor and against the reference lexical
+retriever. Cross-tool comparison still needs a token budget instead of `k`;
+that is unbuilt.
+
 ## Metrics
 
 Per tier and per tool, `run_eval.py` emits one `report.json`:

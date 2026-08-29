@@ -11,6 +11,9 @@ from pathlib import Path
 from typing import Any
 
 
+ADAPTERS = ("marshmallow", "bm25", "random")
+
+
 class Adapter:
     """ingest raw material into the tool, then retrieve context per query.
 
@@ -34,4 +37,12 @@ def load_adapter(name: str) -> Adapter:
         from marshmallow_adapter import MarshmallowAdapter
 
         return MarshmallowAdapter()
-    raise ValueError(f"Unknown adapter: {name!r} (available: marshmallow)")
+    if name == "bm25":
+        from bm25_adapter import Bm25Adapter
+
+        return Bm25Adapter()
+    if name == "random":
+        from random_adapter import RandomAdapter
+
+        return RandomAdapter()
+    raise ValueError(f"Unknown adapter: {name!r} (available: {', '.join(ADAPTERS)})")
