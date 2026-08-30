@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 
-ADAPTERS = ("marshmallow", "bm25", "random")
+ADAPTERS = ("marshmallow", "bm25", "bm25-raw", "embed-graph", "embed-raw", "gemini-graph", "gemini-raw", "mem0", "gbrain", "gbrain-expand", "random")
 
 
 class Adapter:
@@ -37,10 +37,26 @@ def load_adapter(name: str) -> Adapter:
         from marshmallow_adapter import MarshmallowAdapter
 
         return MarshmallowAdapter()
-    if name == "bm25":
+    if name in {"bm25", "bm25-raw"}:
         from bm25_adapter import Bm25Adapter
 
-        return Bm25Adapter()
+        return Bm25Adapter("raw" if name.endswith("-raw") else "graph")
+    if name in {"embed-graph", "embed-raw"}:
+        from embed_adapter import EmbedAdapter
+
+        return EmbedAdapter(name.split("-", 1)[1])
+    if name in {"gemini-graph", "gemini-raw"}:
+        from gemini_adapter import GeminiEmbedAdapter
+
+        return GeminiEmbedAdapter(name.split("-", 1)[1])
+    if name == "mem0":
+        from mem0_adapter import Mem0Adapter
+
+        return Mem0Adapter()
+    if name in {"gbrain", "gbrain-expand"}:
+        from gbrain_adapter import GbrainAdapter
+
+        return GbrainAdapter(expand=name.endswith("-expand"))
     if name == "random":
         from random_adapter import RandomAdapter
 

@@ -344,6 +344,67 @@ claude plugin validate . --strict
 
 Requires **Python 3.9+** and the Claude Code CLI for plugin validation.
 
+## Benchmarks
+
+Marshmallow ships its own retrieval eval and publishes the raw report behind
+every number it quotes. The aim is not a leaderboard. It is to know, with
+numbers, where lexical recall over a small curated graph holds and where it
+stops, and to measure every change to `recall.py` against that.
+
+How it is built:
+
+- A pinned 100-node synthetic workspace (one fictional operator, eight weeks,
+  40 raw artifacts, 40 source cards) with 40 labeled queries, each with a
+  paraphrase variant, and 10 negatives. Labels were audited adversarially
+  against the raw material before pinning.
+- Deterministic scoring, no LLM judge. The guarded headline is exact
+  answer-node hits in the top 5. Fact-alias containment is reported only as a
+  diagnostic, because on this corpus a random five-node draw scores about 0.5
+  on it.
+- A seeded random row and a stdlib BM25 row in every table, so a number is
+  always read against its floor and against the reference lexical retriever.
+- Scaled 200/1000/5000-node tiers regenerate byte-identically from the seed.
+- CI runs the seed tier against a pinned baseline on every push. A ranking
+  change, better or worse, trips it and has to be re-pinned on purpose.
+
+Paraphrase node MRR at top-5 (the query is reworded to share few tokens with
+its answer node; this is the number that separates retrievers):
+
+| nodes | `recall.py` | BM25 | bge-small, local | gemini-embedding-001 | random |
+| ----- | ----------- | ---- | ---------------- | -------------------- | ------ |
+| 100   | 0.63        | 0.82 | 0.61             | 0.83                 | 0.07   |
+| 1000  | 0.20        | 0.48 | 0.32             | 0.49                 | 0.00   |
+
+Hosted memory tools on the same seed, each ingesting the raw artifacts, scored
+by fact recall inside a 1500-token context budget (direct / paraphrase):
+
+| tool | direct | paraphrase |
+| ---- | ------ | ---------- |
+| gemini-embedding-001 over graph nodes | 1.000 | 0.988 |
+| BM25 over graph nodes | 0.988 | 0.938 |
+| GBrain 0.47, Gemini expansion | 0.938 | 0.925 |
+| BM25 over raw artifacts | 0.975 | 0.925 |
+| Mem0 2.0 OSS, Gemini extraction | 0.938 | 0.887 |
+| Marshmallow `recall.py` | 0.988 | 0.850 |
+| random | 0.287 | 0.375 |
+
+What we conclude, and what we do not:
+
+- `recall.py` loses to plain BM25 on paraphrase at every size, and only a
+  strong hosted embedder holds up at 1000 nodes. That is the evidence behind
+  the next change to recall, and the guard that will measure it.
+- This seed cannot rank tools. Every non-random row sits within six queries
+  of every other. We do not claim Marshmallow retrieves better than Mem0 or
+  GBrain, and the data does not support the reverse either.
+- Known limits, stated so nobody has to discover them: 40 queries and no
+  confidence intervals; graph nodes were generated from the same fact table as
+  the labels, so direct-phrasing scores are an upper bound; the scorer cannot
+  tell a superseded fact from its correction; MemMachine is not yet run.
+
+Method, full tables, and per-query reports:
+[`evals/retrieval-quality/README.md`](evals/retrieval-quality/README.md) and
+[`evals/retrieval-quality/reports/2026-08-29/`](evals/retrieval-quality/reports/2026-08-29/).
+
 ## Learn more
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — the runtime loop and design boundaries
