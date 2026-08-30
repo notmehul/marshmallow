@@ -69,6 +69,14 @@ number is always read against its floor and against the reference lexical
 retriever. Cross-tool comparison still needs a token budget instead of `k`;
 that is unbuilt.
 
+Hosted rows landed the same day on a Gemini key: `gemini-graph`/`gemini-raw`
+(hosted embedder), `mem0` (extraction-based), `gbrain` (hybrid). On the seed
+tier every non-random row sits within six queries of every other, so the
+dataset cannot rank tools yet; the one clear signal is that a strong hosted
+embedder holds paraphrase MRR at 1000 nodes where lexical and small-local
+dense retrieval collapse. Containment scoring also cannot distinguish a
+superseded fact from its correction, which blocks any update-handling claim.
+
 ## Metrics
 
 Per tier and per tool, `run_eval.py` emits one `report.json`:

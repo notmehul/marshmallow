@@ -323,6 +323,25 @@ class BaselineAdapterTests(unittest.TestCase):
         output = adapter.retrieve("kestrel micro humidity sensors", 3)
         self.assertEqual("kestrel-sensor-switch", output["records"][0]["id"])
 
+    def test_hosted_adapters_register_and_fail_clearly_without_credentials(self) -> None:
+        import os
+
+        saved = {key: os.environ.pop(key, None) for key in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GBRAIN_HOME")}
+        try:
+            for name in ("gemini-graph", "gemini-raw", "mem0", "gbrain", "gbrain-expand"):
+                adapter = load_adapter(name)
+                self.assertEqual(name, adapter.name)
+            with self.assertRaisesRegex(RuntimeError, "GEMINI_API_KEY"):
+                load_adapter("gemini-graph").ingest(FIXTURE)
+            with self.assertRaisesRegex(RuntimeError, "GOOGLE_API_KEY|mem0ai"):
+                load_adapter("mem0").ingest(FIXTURE)
+            with self.assertRaisesRegex(RuntimeError, "gbrain|GBRAIN_HOME"):
+                load_adapter("gbrain").ingest(EVAL_DIR / "seed")
+        finally:
+            for key, value in saved.items():
+                if value is not None:
+                    os.environ[key] = value
+
     def test_unknown_adapter_names_are_rejected(self) -> None:
         with self.assertRaises(ValueError):
             load_adapter("nope")

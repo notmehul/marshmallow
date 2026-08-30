@@ -63,6 +63,18 @@ Omit `--json` to print the report to stdout.
   retrieval class hosted memory tools use, run locally with no API key. It
   needs the optional `fastembed` package (`uv pip install fastembed`); the
   core harness and CI stay stdlib-only and never import it.
+- `gemini-graph` and `gemini-raw` are the same dense retrieval with a hosted
+  embedder, `gemini-embedding-001` at 768 dims, via the Gemini developer API
+  (stdlib `urllib`, embeddings cached under `cache/`). Needs `GEMINI_API_KEY`.
+- `mem0` runs Mem0 open source as its users do: `Memory.add(text, infer=True)`
+  extracts memories from each raw artifact with `gemini-2.5-flash`, embeds
+  them with `gemini-embedding-001`, stores them in a local Qdrant, and
+  `Memory.search` returns the extracted memories. Needs `mem0ai` and
+  `GOOGLE_API_KEY`.
+- `gbrain` and `gbrain-expand` shell out to the GBrain CLI against a PGLite
+  brain initialised under a scratch `GBRAIN_HOME` with Gemini embeddings
+  (`gbrain import raw/`, then `gbrain query --json`). The plain variant passes
+  `--no-expand`; the expand variant keeps GBrain's LLM query expansion on.
 - `random` draws k graph nodes with a fixed seed and ignores the query.
 
 ### Cross-tool mode: `--budget-tokens`
@@ -312,21 +324,59 @@ What this says:
   cross-tool claim has to clear that, and with 40 queries the gap between the
   non-random rows (0.85 to 0.94 on paraphrase) is a handful of queries.
 
-### Running hosted tools
+### Hosted tools (2026-08-29, seed tier, 1500-token budget, `--k 20`)
 
-The adapter contract (`ingest(dir)` then `retrieve(query, k)`) is all a tool
-needs. None are wired yet because every candidate needs an LLM and an
-embedding key to ingest, and a clean run needs the same key for all of them:
+All hosted rows use the same Gemini key so the embedder is held constant
+where the tool allows it. Each ingests `seed/raw/` (the 40 artifacts), not
+Marshmallow's graph, so node metrics do not apply and fact containment under
+the budget is the comparison.
 
-| tool | what it needs |
-| --- | --- |
-| Mem0 (OSS) | `pip install mem0ai`, an LLM key for extraction and an embedder key (or Ollama); local Qdrant is bundled |
-| MemMachine | Docker (API server, Postgres+pgvector, Neo4j) and an OpenAI key; defaults to gpt-5-nano and text-embedding-3-small |
-| GBrain | Bun, PGLite (no server), and a Voyage, OpenAI, or Anthropic key for embeddings |
+<!-- HOSTED_TABLE_START -->
+| adapter | ingests | retriever | direct fact recall | paraphrase fact recall | negatives returning nothing | records kept |
+| --- | --- | --- | --- | --- | --- | --- |
+| marshmallow | graph nodes | recall.py lexical | 0.988 | 0.850 | 0.5 | 2.0 |
+| bm25 | graph nodes | stdlib BM25 | 0.988 | 0.938 | 0.5 | 2.0 |
+| gemini-graph | graph nodes | gemini-embedding-001 | 1.000 | 0.988 | 0.0 | 2.0 |
+| bm25-raw | raw artifacts | stdlib BM25 | 0.975 | 0.925 | 0.4 | 4.0 |
+| gemini-raw | raw artifacts | gemini-embedding-001 | 0.938 | 0.912 | 0.0 | 4.0 |
+| gbrain | raw artifacts | GBrain 0.47 hybrid, no expansion | 0.988 | 0.875 | 0.0 | 4.2 |
+| gbrain-expand | raw artifacts | GBrain 0.47 hybrid + Gemini expansion | 0.938 | 0.925 | 0.0 | 4.2 |
+| mem0 | raw artifacts | Mem0 2.0 OSS, Gemini extraction + embedding | 0.938 | 0.887 | 0.0 | 20.0 |
+| random | graph nodes | seeded random | 0.287 | 0.375 | 0.0 | 2.0 |
+<!-- HOSTED_TABLE_END -->
 
-Each would ingest `seed/raw/` and be scored with `--budget-tokens`. Expect
-ingestion to cost tokens and minutes per tier; the scaled tiers are for
-Marshmallow-internal analysis only.
+Reading it:
+
+- **Everything non-random is within a few queries of everything else.**
+  GBrain's Gemini query expansion trades two direct queries for two
+  paraphrase queries; the shape of every hosted row is the same. With
+  40 direct queries the spread from 0.85 to 0.99 paraphrase recall is six
+  queries. This seed cannot rank these tools; it can only say none of them
+  fails on it.
+- **A strong hosted embedder is the difference.** `gemini-graph` is the only
+  row at 0.99 paraphrase recall, and at 1000 nodes it holds MRR 0.49 where
+  the local bge-small model collapsed to 0.32 and `recall.py` to 0.20. The
+  paraphrase gap is an embedding-quality problem, not a lexical-vs-dense
+  problem.
+- **Extraction changes what you read, not how much you find.** Mem0 stores
+  288 memories of about 22 words from 30 of the 40 artifacts (ten yielded
+  nothing; one extraction failed to parse). Twenty memories fit the budget
+  where two graph nodes do. Its recall is level with retrieving the raw
+  artifacts directly.
+- **The scorer cannot see contradictions.** On the planted crane-date
+  contradiction, Mem0's top memories carry the superseded May 12 date, and the
+  alias "seaglass crane" still counts the fact as retrieved. Containment
+  scoring rewards any text about the entity; a correctness-aware label
+  (answer string must appear, superseded strings must not) is needed before
+  any update-handling claim.
+- **Negatives.** The graph-corpus lexical rows return nothing on the five
+  out-of-vocabulary negatives; every hosted or dense row returns something
+  for all ten. Dense retrieval has no notion of "no match".
+
+Costs for the record: Gemini embedding of the seed is ~550 chunk calls in
+six batches; Mem0 ingestion took about 12 minutes of Gemini calls; GBrain
+import took 24 seconds; GBrain with expansion adds one LLM call per query.
+MemMachine is still unwired (needs Docker, not available here).
 
 ## Coming In Later Steps
 
