@@ -266,6 +266,10 @@ adapter; identical bytes, identical scores.
 
 ## Cross-Tool Results (2026-08-29, seed tier)
 
+Every number below and in the sweep table above has its raw run report under
+`reports/2026-08-29/` (aggregate plus per-query rows); see that directory's
+README for the environment, versions, and commands.
+
 Top-5 node view first, which isolates the retriever on the corpus Marshmallow
 stores:
 
