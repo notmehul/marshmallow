@@ -48,13 +48,37 @@ python3 evals/retrieval-quality/run_eval.py \
   --json report.json
 ```
 
-`--adapter` is `marshmallow` (default), `bm25`, or `random`; `--k` (result
-budget) defaults to 5. Omit `--json` to print the report to stdout. The
-Marshmallow adapter calls the same `scripts/recall.py` functions the CLI
-calls; there is no second recall implementation. `bm25` is a stdlib Okapi
-BM25 over graph-node files sharing Marshmallow's tokenizer, so the comparison
-isolates the scoring function. `random` draws k graph nodes with a fixed seed
-and ignores the query.
+`--adapter` is one of `marshmallow` (default), `bm25`, `bm25-raw`,
+`embed-graph`, `embed-raw`, or `random`; `--k` (result budget) defaults to 5.
+Omit `--json` to print the report to stdout.
+
+- `marshmallow` calls the same `scripts/recall.py` functions the CLI calls;
+  there is no second recall implementation.
+- `bm25` is a stdlib Okapi BM25 over graph-node files sharing Marshmallow's
+  tokenizer, so the comparison isolates the scoring function. `bm25-raw` is
+  the same retriever over `raw/`, the artifacts the graph was derived from:
+  what a memory tool that ingests raw material would see.
+- `embed-graph` and `embed-raw` are dense retrieval (BAAI/bge-small-en-v1.5,
+  paragraph chunks, best-chunk cosine) over the same two corpora. This is the
+  retrieval class hosted memory tools use, run locally with no API key. It
+  needs the optional `fastembed` package (`uv pip install fastembed`); the
+  core harness and CI stay stdlib-only and never import it.
+- `random` draws k graph nodes with a fixed seed and ignores the query.
+
+### Cross-tool mode: `--budget-tokens`
+
+Competing tools do not share Marshmallow's node ids, and they return records
+of different lengths, so top-k node hits are not a fair cross-tool metric.
+`--budget-tokens N` retrieves `--k` records, keeps whole records in rank
+order while they fit an estimated N-token context (about four characters per
+token), and scores what fits. Fact containment under that cut is the cross-tool
+number; node metrics are still reported for adapters that return graph nodes.
+Precision in this mode is over the records kept.
+
+```sh
+python3 evals/retrieval-quality/run_eval.py --adapter bm25-raw --k 20 --budget-tokens 1500 \
+  --workspace evals/retrieval-quality/seed --queries evals/retrieval-quality/queries.jsonl
+```
 
 The committed `fixture/` is a hand-written 10-node Copperbeam workspace that
 passes `scripts/marshmallow.py doctor --workspace evals/retrieval-quality/fixture`
@@ -228,12 +252,88 @@ claims beyond this repo need a token budget in place of `k`, which is unbuilt.
 Reproduce: generate tiers with `--rng-seed 7` as shown above and run each
 adapter; identical bytes, identical scores.
 
+## Cross-Tool Results (2026-08-29, seed tier)
+
+Top-5 node view first, which isolates the retriever on the corpus Marshmallow
+stores:
+
+| adapter | corpus | direct node recall / MRR | paraphrase node recall / MRR | ms/query |
+| --- | --- | --- | --- | --- |
+| marshmallow | graph nodes | 0.925 / 0.875 | 0.588 / 0.627 | 25 |
+| bm25 | graph nodes | 0.958 / 0.875 | 0.783 / 0.819 | 0 |
+| embed-graph | graph nodes | 0.992 / 0.958 | 0.773 / 0.607 | 23 |
+| random | graph nodes | 0.054 / 0.028 | 0.067 / 0.069 | 0 |
+
+Then the cross-tool cut, 1500 estimated tokens of context, `--k 20`:
+
+| adapter | corpus | direct fact recall | paraphrase fact recall | direct node recall | paraphrase node recall | records kept |
+| --- | --- | --- | --- | --- | --- | --- |
+| marshmallow | graph nodes | 0.988 | 0.850 | 0.700 | 0.425 | 2.0 |
+| bm25 | graph nodes | 0.988 | 0.938 | 0.717 | 0.583 | 2.0 |
+| embed-graph | graph nodes | 0.988 | 0.912 | 0.746 | 0.412 | 2.0 |
+| bm25-raw | raw artifacts | 0.975 | 0.925 | n/a | n/a | 4.0 |
+| embed-raw | raw artifacts | 0.975 | 0.850 | n/a | n/a | 4.1 |
+| random | graph nodes | 0.287 | 0.375 | 0.000 | 0.033 | 2.0 |
+
+At 1000 nodes (top-5, node view; raw-corpus rows report fact containment since they return no graph nodes):
+
+| adapter | corpus | direct node recall / MRR | paraphrase node recall / MRR | direct fact recall | paraphrase fact recall | ms/query |
+| --- | --- | --- | --- | --- | --- | --- |
+| marshmallow | graph nodes | 0.815 / 0.863 | 0.146 / 0.201 | 0.988 | 0.412 | 248 |
+| bm25 | graph nodes | 0.950 / 0.851 | 0.285 / 0.481 | 1.000 | 0.613 | 2 |
+| embed-graph | graph nodes | 0.890 / 0.955 | 0.329 / 0.321 | 1.000 | 0.700 | 114 |
+| bm25-raw | raw artifacts | n/a | n/a | 0.988 | 0.375 | 1 |
+| embed-raw | raw artifacts | n/a | n/a | 0.812 | 0.475 | 47 |
+| random | graph nodes | 0.000 / 0.000 | 0.000 / 0.000 | 0.087 | 0.075 | 1 |
+
+Dense retrieval at 1000 nodes keeps the best direct MRR (0.96) and the worst
+paraphrase MRR of the non-random rows (0.32, versus BM25 at 0.48).
+
+What this says:
+
+- **Dense embeddings do not rescue paraphrase here.** `embed-graph` has the
+  best direct MRR (0.96) but its paraphrase MRR (0.61) is below BM25 (0.82)
+  and level with `recall.py`. A small local model on a corpus whose
+  paraphrases were written to avoid token overlap is not enough; whether a
+  large hosted embedder does better is the open question the competitor rows
+  would answer.
+- **Raw artifacts answer as well as curated nodes on this dataset.** BM25 over
+  the 40 raw files reaches the same fact recall as BM25 over the 100 graph
+  nodes. That is a property of this seed (facts were planted in raw material
+  and copied into nodes), and it means the eval cannot yet show the value of
+  curation. A dataset that rewards synthesis (facts spread across artifacts,
+  contradictions resolved in nodes) would.
+- **Graph nodes are expensive context.** Seed nodes estimate at about 600
+  tokens each versus about 320 for a raw artifact, so 1500 tokens holds two
+  nodes or four artifacts. Node recall drops from 0.93 at top-5 to 0.70 under
+  the budget for the same retriever. Recall returns pointers, but the agent
+  pays that cost the moment it reads the file.
+- **The random floor under budget is 0.29 to 0.38 fact recall.** Any
+  cross-tool claim has to clear that, and with 40 queries the gap between the
+  non-random rows (0.85 to 0.94 on paraphrase) is a handful of queries.
+
+### Running hosted tools
+
+The adapter contract (`ingest(dir)` then `retrieve(query, k)`) is all a tool
+needs. None are wired yet because every candidate needs an LLM and an
+embedding key to ingest, and a clean run needs the same key for all of them:
+
+| tool | what it needs |
+| --- | --- |
+| Mem0 (OSS) | `pip install mem0ai`, an LLM key for extraction and an embedder key (or Ollama); local Qdrant is bundled |
+| MemMachine | Docker (API server, Postgres+pgvector, Neo4j) and an OpenAI key; defaults to gpt-5-nano and text-embedding-3-small |
+| GBrain | Bun, PGLite (no server), and a Voyage, OpenAI, or Anthropic key for embeddings |
+
+Each would ingest `seed/raw/` and be scored with `--budget-tokens`. Expect
+ingestion to cost tokens and minutes per tier; the scaled tiers are for
+Marshmallow-internal analysis only.
+
 ## Coming In Later Steps
 
 Per the design's build order (`docs/plans/2026-07-08-retrieval-quality-eval-design.md`):
 
-- Competitor adapters (Honcho, GBrain, Mem0), phase two. Requires a token
-  budget instead of `k` so verbose and terse retrievers are compared fairly.
+- Competitor adapters (Mem0, MemMachine, GBrain) once an API key is
+  available; the budget mode they need exists.
 - More labeled queries (200+) with bootstrap intervals, and query types a
   memory system should be judged on: temporal ("as of week 3"), updates and
   contradictions, multi-hop across nodes.

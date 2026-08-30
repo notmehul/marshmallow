@@ -16,6 +16,7 @@ No LLM judge, no network.
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Any
 
@@ -94,6 +95,32 @@ def score_nodes(expected_ids: list[str], records: list[dict[str, Any]], k: int) 
         "nodes_found": sorted(retrieved),
         "nodes_missed": [node_id for node_id in expected if node_id not in retrieved],
     }
+
+
+def estimate_tokens(text: str) -> int:
+    """Dependency-free estimate (about four characters per token), for budgeting only."""
+
+    compact = normalize(text)
+    return math.ceil(len(compact) / 4) if compact else 0
+
+
+def fit_budget(records: list[dict[str, Any]], budget_tokens: int) -> list[dict[str, Any]]:
+    """Keep ranked records, whole, while they fit the context budget; stop at the first that does not.
+
+    This is the cross-tool cut: a tool is judged on what an agent could actually
+    read within a fixed context window, regardless of how many records it
+    returned or how long each one is.
+    """
+
+    kept: list[dict[str, Any]] = []
+    used = 0
+    for item in records:
+        cost = estimate_tokens(str(item.get("text", "")))
+        if used + cost > budget_tokens:
+            break
+        kept.append(item)
+        used += cost
+    return kept
 
 
 def score_negative(records: list[dict[str, Any]]) -> dict[str, Any]:

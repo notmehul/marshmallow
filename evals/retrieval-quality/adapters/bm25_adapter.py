@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""BM25 baseline: stdlib Okapi BM25 over graph-node files.
+"""BM25 baseline: stdlib Okapi BM25 over one corpus (graph nodes or raw artifacts).
 
 The reference lexical retriever. Marshmallow's hand-tuned scorer has to beat
 this on its own dataset before any of its ranking heuristics count as a win.
@@ -20,15 +20,16 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from recall import tokenize  # noqa: E402
 from base import Adapter  # noqa: E402
+from corpus import corpus_paths, record  # noqa: E402
 
 K1 = 1.5
 B = 0.75
 
 
 class Bm25Adapter(Adapter):
-    name = "bm25"
-
-    def __init__(self) -> None:
+    def __init__(self, corpus: str = "graph") -> None:
+        self.corpus = corpus
+        self.name = "bm25" if corpus == "graph" else f"bm25-{corpus}"
         self.docs: list[tuple[Path, Counter[str], int]] = []
         self.df: Counter[str] = Counter()
         self.avg_len = 0.0
@@ -37,9 +38,7 @@ class Bm25Adapter(Adapter):
         root = Path(raw_material_dir)
         self.docs = []
         self.df = Counter()
-        for path in sorted((root / "graph").glob("*.md")):
-            if path.name == "README.md":
-                continue
+        for path in corpus_paths(root, self.corpus):
             tokens = tokenize(path.read_text(encoding="utf-8"))
             counts = Counter(tokens)
             self.docs.append((path, counts, len(tokens)))
@@ -66,8 +65,5 @@ class Bm25Adapter(Adapter):
             if score > 0:
                 scored.append((score, path))
         scored.sort(key=lambda item: (-item[0], item[1].stem))
-        records = [
-            {"id": path.stem, "kind": "graph", "path": str(path), "score": round(score, 3), "text": path.read_text(encoding="utf-8")}
-            for score, path in scored[:k]
-        ]
+        records = [record(path, self.corpus, score) for score, path in scored[:k]]
         return {"records": records, "plan_context": None}

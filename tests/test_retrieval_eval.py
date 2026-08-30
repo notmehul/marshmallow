@@ -19,7 +19,18 @@ from marshmallow_adapter import MarshmallowAdapter  # noqa: E402
 from recall import recall_context  # noqa: E402
 from run_eval import compare_to_baseline  # noqa: E402
 from base import load_adapter  # noqa: E402
-from scoring import fact_in_text, normalize, score_negative, score_nodes, score_plan_activation, score_query  # noqa: E402
+from corpus import chunks  # noqa: E402
+from run_eval import run  # noqa: E402
+from scoring import (  # noqa: E402
+    estimate_tokens,
+    fact_in_text,
+    fit_budget,
+    normalize,
+    score_negative,
+    score_nodes,
+    score_plan_activation,
+    score_query,
+)
 
 
 def fact(claim: str, *aliases: str) -> dict:
@@ -107,6 +118,40 @@ class ScoreNodesTests(unittest.TestCase):
         records = [record("x", record_id="junk"), record("x", record_id="node-a")]
         self.assertEqual(0.0, score_nodes(["node-a"], records, k=1)["recall_at_k"])
         self.assertEqual(0.0, score_nodes([], records, k=2)["recall_at_k"])
+
+
+class BudgetTests(unittest.TestCase):
+    def test_estimate_tokens_is_about_four_chars_per_token(self) -> None:
+        self.assertEqual(0, estimate_tokens("   "))
+        self.assertEqual(3, estimate_tokens("twelve chars"))
+
+    def test_fit_budget_keeps_whole_records_in_rank_order_until_one_does_not_fit(self) -> None:
+        records = [record("a" * 40, record_id="r1"), record("b" * 40, record_id="r2"), record("c" * 4, record_id="r3")]
+        kept = fit_budget(records, budget_tokens=20)
+        # r1 (10 tokens) and r2 (10 tokens) fit; r3 would fit but comes after the cut.
+        self.assertEqual(["r1", "r2"], [item["id"] for item in kept])
+        self.assertEqual([], fit_budget(records, budget_tokens=5))
+
+    def test_chunks_split_long_files_and_never_return_empty(self) -> None:
+        text = "para one words\n\n" + " ".join(["w"] * 400) + "\n\npara three"
+        parts = chunks(text, max_words=180)
+        self.assertGreaterEqual(len(parts), 3)
+        self.assertTrue(all(len(part.split()) <= 180 for part in parts))
+        self.assertEqual(1, len(chunks("   ")))
+
+    def test_budget_mode_scores_what_fits_and_reports_included_tokens(self) -> None:
+        report = run(FIXTURE, FIXTURE / "queries.jsonl", "bm25", k=10, budget_tokens=600)
+        self.assertEqual(600, report["budget_tokens"])
+        direct_rows = [row for row in report["queries"] if row["type"] == "direct"]
+        for row in direct_rows:
+            self.assertLessEqual(row["included_tokens"], 600)
+            self.assertLessEqual(len(row["retrieved_ids"]), 10)
+        # A generous budget must never score below a tight one on recall.
+        wide = run(FIXTURE, FIXTURE / "queries.jsonl", "bm25", k=10, budget_tokens=6000)
+        self.assertGreaterEqual(
+            wide["aggregate"]["node"]["direct"]["recall_at_k"],
+            report["aggregate"]["node"]["direct"]["recall_at_k"],
+        )
 
 
 class NegativeScoringTests(unittest.TestCase):
@@ -260,6 +305,23 @@ class BaselineAdapterTests(unittest.TestCase):
         self.assertEqual("kestrel-sensor-switch", output["records"][0]["id"])
         self.assertTrue(output["records"][0]["text"].startswith("---\n"))
         self.assertEqual([], adapter.retrieve("zzqx", 3)["records"])
+
+    def test_raw_corpus_adapters_need_a_raw_directory(self) -> None:
+        with self.assertRaises(FileNotFoundError):
+            load_adapter("bm25-raw").ingest(FIXTURE)
+
+    def test_embed_adapter_is_optional_and_registered(self) -> None:
+        adapter = load_adapter("embed-graph")
+        self.assertEqual("embed-graph", adapter.name)
+        try:
+            import fastembed  # noqa: F401
+        except ImportError:
+            with self.assertRaises(RuntimeError):
+                adapter.ingest(FIXTURE)
+            return
+        adapter.ingest(FIXTURE)
+        output = adapter.retrieve("kestrel micro humidity sensors", 3)
+        self.assertEqual("kestrel-sensor-switch", output["records"][0]["id"])
 
     def test_unknown_adapter_names_are_rejected(self) -> None:
         with self.assertRaises(ValueError):

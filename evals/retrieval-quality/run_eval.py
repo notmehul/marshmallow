@@ -15,7 +15,7 @@ sys.path.insert(0, str(EVAL_DIR))
 sys.path.insert(0, str(EVAL_DIR / "adapters"))
 
 from base import load_adapter  # noqa: E402
-from scoring import mean, score_negative, score_nodes, score_plan_activation, score_query  # noqa: E402
+from scoring import estimate_tokens, fit_budget, mean, score_negative, score_nodes, score_plan_activation, score_query  # noqa: E402
 
 QUERY_TYPES = ("direct", "negative")
 
@@ -52,9 +52,24 @@ def timed_retrieve(adapter: Any, query_text: str, k: int) -> tuple[dict[str, Any
     return output, (time.perf_counter() - started) * 1000.0
 
 
-def evaluate_query(adapter: Any, query: dict[str, Any], k: int) -> dict[str, Any]:
+def _cut(records: list[dict[str, Any]], k: int, budget_tokens: int | None) -> tuple[list[dict[str, Any]], int]:
+    """Return the records under evaluation and the slot count precision is measured over.
+
+    With a budget, the cut is by estimated tokens and precision is over the
+    records that fit; without one, the cut is the top-k and precision is over k.
+    """
+
+    if budget_tokens is None:
+        return records[:k], k
+    kept = fit_budget(records, budget_tokens)
+    return kept, max(len(kept), 1)
+
+
+def evaluate_query(
+    adapter: Any, query: dict[str, Any], k: int, budget_tokens: int | None = None
+) -> dict[str, Any]:
     output, wall_ms = timed_retrieve(adapter, query["text"], k)
-    records = output["records"]
+    records, slots = _cut(output["records"], k, budget_tokens)
     row: dict[str, Any] = {
         "id": query["id"],
         "type": query["type"],
@@ -62,20 +77,27 @@ def evaluate_query(adapter: Any, query: dict[str, Any], k: int) -> dict[str, Any
         "retrieved_ids": [record["id"] for record in records],
         "top_score": float(records[0].get("score", 0)) if records else 0.0,
     }
+    if budget_tokens is not None:
+        row["included_tokens"] = sum(estimate_tokens(str(item.get("text", ""))) for item in records)
     expectations = query.get("marshmallow", {})
     if query["type"] == "negative":
         row["negative"] = score_negative(records)
     else:
         paraphrase = str(query.get("paraphrase", "")).strip()
-        paraphrase_records = timed_retrieve(adapter, paraphrase, k)[0]["records"] if paraphrase else None
-        row["fact"] = {"direct": score_query(query["facts"], records, k)}
+        paraphrase_records = None
+        paraphrase_slots = slots
+        if paraphrase:
+            paraphrase_records, paraphrase_slots = _cut(
+                timed_retrieve(adapter, paraphrase, k)[0]["records"], k, budget_tokens
+            )
+        row["fact"] = {"direct": score_query(query["facts"], records, slots)}
         if paraphrase_records is not None:
-            row["fact"]["paraphrase"] = score_query(query["facts"], paraphrase_records, k)
+            row["fact"]["paraphrase"] = score_query(query["facts"], paraphrase_records, paraphrase_slots)
         expected_nodes = expectations.get("expected_node_ids", [])
         if expected_nodes:
-            row["node"] = {"direct": score_nodes(expected_nodes, records, k)}
+            row["node"] = {"direct": score_nodes(expected_nodes, records, slots)}
             if paraphrase_records is not None:
-                row["node"]["paraphrase"] = score_nodes(expected_nodes, paraphrase_records, k)
+                row["node"]["paraphrase"] = score_nodes(expected_nodes, paraphrase_records, paraphrase_slots)
     plan_row = score_plan_activation(output.get("plan_context"), expectations.get("expected_plan"))
     if plan_row is not None:
         row["plan"] = plan_row
@@ -197,16 +219,19 @@ def compare_to_baseline(
     return breaches
 
 
-def run(workspace: Path, queries_path: Path, adapter_name: str, k: int) -> dict[str, Any]:
+def run(
+    workspace: Path, queries_path: Path, adapter_name: str, k: int, budget_tokens: int | None = None
+) -> dict[str, Any]:
     adapter = load_adapter(adapter_name)
     adapter.ingest(workspace)
-    rows = [evaluate_query(adapter, query, k) for query in load_queries(queries_path)]
+    rows = [evaluate_query(adapter, query, k, budget_tokens) for query in load_queries(queries_path)]
     return {
         "adapter": adapter_name,
         "dataset": str(queries_path),
         "tier": workspace.resolve().name,
         "workspace": str(workspace.resolve()),
         "k": k,
+        "budget_tokens": budget_tokens,
         "query_count": len(rows),
         "queries": rows,
         "aggregate": aggregate_rows(rows),
@@ -222,16 +247,32 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--k", type=int, default=5, help="Result budget per query (default: 5).")
     parser.add_argument("--baseline", type=Path, default=None, help="Fail if aggregates drift beyond tolerance from this pinned baseline JSON.")
     parser.add_argument("--tolerance", type=float, default=0.02, help="Allowed absolute drift per 0-1 metric (default: 0.02).")
+    parser.add_argument(
+        "--budget-tokens",
+        type=int,
+        default=None,
+        help="Cross-tool mode: retrieve --k records, keep whole records in rank order while they fit this estimated token budget, score what fits.",
+    )
     args = parser.parse_args(argv)
     if args.k < 1:
         parser.error("--k must be at least 1")
+    if args.budget_tokens is not None and args.budget_tokens < 1:
+        parser.error("--budget-tokens must be at least 1")
 
-    report = run(args.workspace, args.queries, args.adapter, args.k)
+    report = run(args.workspace, args.queries, args.adapter, args.k, args.budget_tokens)
     payload = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(payload, encoding="utf-8")
         node = report["aggregate"]["node"]
+        fact = report["aggregate"]["fact_containment"]
+        if args.budget_tokens is not None:
+            print(
+                f"{report['adapter']} on {report['tier']} @ {args.budget_tokens} tokens: "
+                f"fact recall={fact['direct']['recall_at_k']} paraphrase={fact['paraphrase']['recall_at_k']} | "
+                f"node recall={node['direct']['recall_at_k']} paraphrase={node['paraphrase']['recall_at_k']} -> {args.json}"
+            )
+            return 0
         print(
             f"{report['adapter']} on {report['tier']}: node recall@{args.k}={node['direct']['recall_at_k']} "
             f"mrr={node['direct']['mrr']} | paraphrase recall@{args.k}={node['paraphrase']['recall_at_k']} "
