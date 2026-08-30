@@ -17,6 +17,19 @@ Models decide semantic changes. Deterministic code owns evidence validation,
 scope checks, optimistic concurrency, backups, staging, journaling, publication,
 history, reconciliation, recovery, and compensating rollback.
 
+## Amendment (2026-08-31): activation paths measured and narrowed
+
+The retrieval-quality eval falsified two of the three activation paths below.
+On the pinned seed (three active managed plans), "connected-node" and
+"linked-navigation-line" activation let one broadly linked plan take rank one
+on 16 of 40 unrelated queries (false-activation rate 0.34, direct MRR 0.875
+to 0.775); even "any positive metadata overlap" kept 15 hijacks. A plan now
+becomes the hub only when it is already the strongest graph match by ordinary
+scoring and its own concise metadata matches the query. With that gate the
+seed shows exactly one plan-centered query (the one that asks about the plan),
+false activation 0.02, direct MRR 0.9125. Reports:
+`evals/retrieval-quality/reports/`.
+
 ## Retrieval
 
 Recall attributes index and projection matches only to the Markdown line that

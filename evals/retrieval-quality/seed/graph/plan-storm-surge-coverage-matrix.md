@@ -8,6 +8,7 @@ subjects: [ssb-drill, juno-castillo]
 source_ids: [2026-05-29-coverage-matrix-drift, 2026-05-28-coverage-matrix-source]
 related_nodes: [ssb-drill, priya-nandakumar, decision-matrix-manual-edit, rule-coverage-source-notes]
 labels: [coverage-matrix, staffing]
+managed: true
 updated: 2026-05-29
 ---
 

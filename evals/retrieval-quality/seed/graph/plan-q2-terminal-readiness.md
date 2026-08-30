@@ -8,6 +8,7 @@ subjects: [juno-castillo, harborline-regional-ferry]
 source_ids: [2026-04-20-q2-kickoff-terminal]
 related_nodes: [juno-castillo, p9-gate-retrofit, p9-gang-replacement, harborline-regional-ferry]
 labels: [terminal-readiness, operations]
+managed: true
 updated: 2026-04-20
 ---
 

@@ -88,7 +88,7 @@ class ManagedRecallTests(unittest.TestCase):
         self.assertEqual("none", payload["plan_context"]["state"])
         self.assertEqual("cobalt-review", payload["results"][0]["id"])
 
-    def test_broad_index_only_credits_the_matching_link_line(self) -> None:
+    def test_index_link_lines_alone_do_not_activate_a_plan(self) -> None:
         for node_id in ("alpha-plan", "zeta-plan"):
             self.write_graph(
                 node_id,
@@ -116,9 +116,10 @@ graph_ids: [alpha-plan, zeta-plan]
 
         payload = recall_bundle(self.root, "cobalt launch")
 
-        self.assertEqual("selected", payload["plan_context"]["state"])
-        self.assertEqual("zeta-plan", payload["plan_context"]["selected_id"])
-        self.assertEqual("zeta-plan", payload["results"][0]["id"])
+        # A navigation link line alone can no longer select a plan: the eval
+        # showed link-based activation let a broadly linked plan hijack
+        # unrelated queries. Plans must earn rank one by ordinary scoring.
+        self.assertEqual("none", payload["plan_context"]["state"])
 
     def test_multiple_qualified_plans_are_returned_as_candidates(self) -> None:
         self.write_graph(
@@ -178,16 +179,18 @@ graph_ids: [alpha-plan, zeta-plan]
             graph_node("direct-evidence", "Cobalt launch evidence belongs in the review."),
         )
 
-        payload = recall_bundle(self.root, "cobalt launch review", limit=6)
+        payload = recall_bundle(self.root, "coordinate the cobalt launch", limit=6)
         ids = [item["id"] for item in payload["results"]]
 
+        self.assertEqual("selected", payload["plan_context"]["state"])
         self.assertEqual("launch-plan", ids[0])
         self.assertIn("direct-evidence", ids)
         self.assertIn("partner", ids)
         partner = next(item for item in payload["results"] if item["id"] == "partner")
-        self.assertEqual("connected-to-plan", partner["role"])
+        self.assertEqual("launch-plan", partner["bundle_id"])
+        self.assertEqual(1, partner["distance"])
 
-    def test_direct_plan_candidate_does_not_need_to_outscore_unrelated_direct_context(self) -> None:
+    def test_a_plan_must_outscore_direct_context_to_become_the_hub(self) -> None:
         self.write_graph(
             "launch-plan",
             graph_node(
@@ -208,9 +211,10 @@ graph_ids: [alpha-plan, zeta-plan]
         payload = recall_bundle(self.root, "zephyr launch evidence review")
         ids = [item["id"] for item in payload["results"]]
 
-        self.assertEqual("selected", payload["plan_context"]["state"])
-        self.assertEqual("launch-plan", ids[0])
-        self.assertIn("launch-evidence", ids)
+        # The stronger direct answer wins; a weakly matching plan stays an
+        # ordinary result instead of becoming the hub.
+        self.assertEqual("none", payload["plan_context"]["state"])
+        self.assertEqual("launch-evidence", ids[0])
 
     def test_incidental_word_in_a_long_plan_body_does_not_activate_it(self) -> None:
         self.write_graph(

@@ -8,6 +8,7 @@ subjects: [pier-9, p9-gate, p9-gang]
 source_ids: [2026-04-20-q2-kickoff-terminal, 2026-05-06-single-contractor-superseded]
 related_nodes: [decision-supersede-single-contractor, kelwick-marine, victor-dunn, plan-q2-terminal-readiness]
 labels: [pier-9, contracting]
+managed: true
 updated: 2026-05-06
 ---
 

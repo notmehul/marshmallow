@@ -229,23 +229,18 @@ def plan_candidates(
             continue
         if result["lineage_status"] in {"broken", "drifted"}:
             continue
-        direct_score = int(result["metadata_activation_score"])
-        connected_score = max(
-            (
-                int(graph_results[item]["activation_score"])
-                for item in adjacency[node_id]
-                if item in strongest_node_ids
-            ),
-            default=0,
+        # A plan becomes the hub only when it is already the strongest graph
+        # match by ordinary scoring AND its own concise metadata matches the
+        # query. The eval showed every weaker activation path (any positive
+        # metadata overlap, connected-node strength, linked navigation lines)
+        # let one broadly linked plan hijack rank one on 15+ of 40 unrelated
+        # queries; plan centering must never outrank a better direct answer.
+        strongest_direct = max(
+            (int(item["direct_score"]) for item in graph_results.values()), default=0
         )
-        linked_score = link_scores.get(node_id, 0)
-        qualifying = {
-            "direct-plan": direct_score,
-            "connected-node": connected_score,
-            "linked-navigation-line": linked_score if node_id in strongest_link_ids else 0,
-        }
-        reason, relevance = max(qualifying.items(), key=lambda item: item[1])
-        if relevance <= 0:
+        relevance = int(result["direct_score"])
+        reason = "direct-plan"
+        if relevance <= 0 or relevance < strongest_direct or int(result["metadata_activation_score"]) <= 0:
             continue
         candidates.append({"id": node_id, "score": relevance, "reason": reason})
     candidates.sort(key=lambda item: (-int(item["score"]), str(item["id"])))
