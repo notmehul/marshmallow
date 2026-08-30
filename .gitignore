@@ -3,3 +3,6 @@ __pycache__/
 .DS_Store
 .coverage
 .obsidian
+
+# one-time seed generation scratch (see evals/retrieval-quality/generate_seed.sh)
+evals/retrieval-quality/seed/stage-out/
