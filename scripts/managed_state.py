@@ -119,6 +119,8 @@ def _validate_evidence(
         else:
             pointer = _string(raw.get("pointer"), "evidence pointer")
             summary = _string(raw.get("summary"), "evidence summary")
+            validate_generated_guidance(pointer, Path("evidence pointer"), max_chars=600)
+            validate_generated_guidance(summary, Path("evidence summary"), max_chars=600)
             if kind == "artifact" and not (
                 pointer.startswith(("http://", "https://", "git:")) or Path(pointer).expanduser().exists()
             ):
@@ -126,7 +128,9 @@ def _validate_evidence(
             item.update(pointer=pointer, summary=summary)
             pointers.append(pointer)
             if kind == "user-event":
-                item["observation"] = _string(raw.get("observation"), "user-event observation")
+                observation = _string(raw.get("observation"), "user-event observation")
+                validate_generated_guidance(observation, Path("user-event observation"), max_chars=600)
+                item["observation"] = observation
         normalized.append(item)
     return normalized, basis_ids, pointers
 
@@ -159,6 +163,8 @@ def _normalize_updates(request: dict[str, Any]) -> list[dict[str, Any]]:
                     raise MarshmallowError(f"status for {node_id} must use lowercase hyphen-case")
                 if field == "insight":
                     validate_generated_guidance(raw[field], Path(node_id), max_chars=600)
+                if field == "body":
+                    validate_generated_guidance(raw[field], Path(node_id), max_chars=20000)
                 update[field] = raw[field]
         updates.append(update)
     return updates
@@ -299,6 +305,8 @@ def _prepare_maintenance(
     plan_id = _string(request.get("plan_id"), "plan_id")
     outcome = _string(request.get("outcome"), "outcome")
     selection_reason = _string(request.get("selection_reason"), "selection_reason")
+    validate_generated_guidance(outcome, Path("outcome"), max_chars=600)
+    validate_generated_guidance(selection_reason, Path("selection_reason"), max_chars=600)
     actor = _string(request.get("actor"), "actor")
     updates = _normalize_updates(request)
     sources = readable_source_cards(root)
@@ -552,15 +560,18 @@ def rollback_maintenance(
         if not current.is_file() or sha256_file(current) != target["after_hash"]:
             raise MarshmallowError(f"Cannot rollback after a later change: {target['id']}")
         backup_frontmatter, backup_body = parse_frontmatter(Path(target["backup_path"]))
-        updates.append(
-            {
-                "id": target["id"],
-                "expected_hash": target["after_hash"],
-                "body": backup_body,
-                "insight": str(backup_frontmatter.get("insight", "")),
-                "status": str(backup_frontmatter.get("status", "")),
-            }
-        )
+        update = {
+            "id": target["id"],
+            "expected_hash": target["after_hash"],
+            "body": backup_body,
+        }
+        # status and insight are optional on non-plan nodes; sending an empty
+        # value would fail _normalize_updates and break the rollback.
+        for field in ("insight", "status"):
+            value = str(backup_frontmatter.get(field, "")).strip()
+            if value:
+                update[field] = value
+        updates.append(update)
     request = {
         "mode": "update",
         "plan_id": record["plan_id"],
