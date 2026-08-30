@@ -44,7 +44,7 @@ Ordinary work should not feel like opening a second app. The agent runs
 `recall`, checks `~/.marshmallow/indexes/`, loads the smallest relevant graph
 nodes or recall packets, and receives only strongly relevant personal guidance.
 That guidance is limited to three compact items, stays below 20% of the recall
-response, and uses short examples instead of raw personal material. The agent
+response budget, and uses short examples instead of raw personal material. The agent
 uses it only when it materially changes the task. When the user gives an
 unmistakable correction, reasoned acceptance or rejection, or durable decision,
 the agent may capture one compact untrusted candidate and say so briefly. It

@@ -164,10 +164,7 @@ def recall_with_personal_guidance(
     if token_budget < 1:
         raise MarshmallowError("token budget must be at least 1")
 
-    context_budget = int(token_budget * (1 - GUIDANCE_BUDGET_SHARE))
-    results, context_tokens = fit_context(recall_context(root, query, limit=limit), context_budget)
-    ratio_budget = context_tokens // 4  # guidance <= 20% of the combined estimate
-    guidance_budget = min(MAX_GUIDANCE_TOKENS, int(token_budget * GUIDANCE_BUDGET_SHARE), ratio_budget)
+    guidance_budget = min(MAX_GUIDANCE_TOKENS, int(token_budget * GUIDANCE_BUDGET_SHARE))
 
     query_tokens = _meaningful_query_tokens(query)
     candidates = [
@@ -177,6 +174,18 @@ def recall_with_personal_guidance(
     ]
     candidates.sort(key=lambda item: (-int(item["score"]), str(item["id"])))
     guidance, guidance_tokens = _fit_guidance(candidates, guidance_budget)
+
+    # A node in the guidance layer is not repeated as an ordinary result: the
+    # guidance line (still resolvable by graph id) is its representation, so
+    # the same record never spends the budget twice.
+    guidance_ids = {item["id"] for item in guidance}
+    context_budget = token_budget - guidance_tokens
+    raw_results = [
+        result
+        for result in recall_context(root, query, limit=limit)
+        if not (result["kind"] == "graph" and result["id"] in guidance_ids)
+    ]
+    results, context_tokens = fit_context(raw_results, context_budget)
     total_tokens = context_tokens + guidance_tokens
     guidance_share = guidance_tokens / total_tokens if total_tokens else 0.0
 

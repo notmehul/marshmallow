@@ -37,7 +37,9 @@ The second layer is deterministic and progressively disclosed:
 - candidates must match meaningful query terms in their routing metadata,
   guidance, or examples; weak matches are omitted
 - at most three items are returned, with a hard 400-token ceiling and no more
-  than 20% of the estimated recall response
+  than 20% of the response token budget
+- a node shown in the guidance layer is not repeated as an ordinary result;
+  the guidance line is that record's representation and stays resolvable by id
 - guidance is keyed to its graph record id instead of repeating its path and
   source citation in the second layer
 - recall returns compact guidance and one fitted example; graph records remain

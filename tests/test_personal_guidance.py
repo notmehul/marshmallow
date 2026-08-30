@@ -76,15 +76,28 @@ class PersonalGuidanceRecallTests(unittest.TestCase):
 
         bundle = recall_with_personal_guidance(self.root, "frontend design hierarchy")
 
-        self.assertTrue(bundle["results"])
         self.assertEqual(1, len(bundle["personal_guidance"]))
+        self.assertEqual("calm-hierarchy", bundle["personal_guidance"][0]["id"])
+
+    def test_guidance_replaces_the_node_in_results_instead_of_duplicating_it(self) -> None:
+        atomic_write(self.root / "graph/calm-hierarchy.md", guidance_node("calm-hierarchy"))
+        plain = guidance_node("frontend-notes").replace("type: preference", "type: entity")
+        plain = plain.replace("guidance: Use one strong visual idea and keep the hierarchy easy to scan.\n", "")
+        plain = plain.replace("guidance_examples:\n  - Open with a clear focal point instead of a grid of decorative cards.\n", "")
+        atomic_write(self.root / "graph/frontend-notes.md", plain)
+
+        bundle = recall_with_personal_guidance(self.root, "frontend design hierarchy")
+
+        guidance_ids = {item["id"] for item in bundle["personal_guidance"]}
+        result_ids = {result["id"] for result in bundle["results"] if result["kind"] == "graph"}
+        self.assertIn("calm-hierarchy", guidance_ids)
+        self.assertIn("frontend-notes", result_ids)
+        self.assertEqual(set(), guidance_ids & result_ids)
         item = bundle["personal_guidance"][0]
         self.assertEqual("calm-hierarchy", item["id"])
         self.assertIn("strong", item["guidance"])
         self.assertTrue(item["example"])
         self.assertNotIn("example://source-one", str(item))
-        recalled = next(result for result in bundle["results"] if result["id"] == item["id"])
-        self.assertEqual("example://source-one", recalled["sources"][0]["pointer"])
 
     def test_preference_can_opt_out_and_stale_guidance_is_excluded(self) -> None:
         atomic_write(
@@ -119,8 +132,8 @@ class PersonalGuidanceRecallTests(unittest.TestCase):
 
         bundle = recall_with_personal_guidance(self.root, "constellation spacing")
 
-        self.assertEqual("calm-hierarchy", bundle["results"][0]["id"])
         self.assertEqual("calm-hierarchy", bundle["personal_guidance"][0]["id"])
+        self.assertNotIn("calm-hierarchy", [result["id"] for result in bundle["results"]])
 
     def test_guidance_is_capped_by_count_and_response_share(self) -> None:
         for number in range(5):
@@ -145,8 +158,8 @@ class PersonalGuidanceRecallTests(unittest.TestCase):
         budget = bundle["budget"]
 
         self.assertEqual(3, len(bundle["personal_guidance"]))
+        # Flat share of the response budget: 20% of 500 tokens.
         self.assertLessEqual(budget["estimated_personal_guidance_tokens"], 100)
-        self.assertLessEqual(budget["estimated_personal_guidance_share"], 0.2)
         self.assertLessEqual(
             budget["estimated_context_tokens"] + budget["estimated_personal_guidance_tokens"],
             500,

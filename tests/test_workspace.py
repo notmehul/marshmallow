@@ -845,7 +845,9 @@ status: active""",
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual("design-policy", payload["personal_guidance"][0]["id"])
-        self.assertLessEqual(payload["budget"]["estimated_personal_guidance_share"], 0.2)
+        # Flat cap: at most 20% of the response token budget (default 2000).
+        self.assertLessEqual(payload["budget"]["estimated_personal_guidance_tokens"], 400)
+        self.assertNotIn("design-policy", [result["id"] for result in payload["results"]])
 
     def test_recall_uses_token_boundaries(self) -> None:
         atomic_write(self.root / "sources/source-one.md", source_card("source-one"))

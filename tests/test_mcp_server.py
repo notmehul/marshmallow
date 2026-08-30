@@ -144,7 +144,10 @@ class McpDispatchTests(unittest.TestCase):
         self.assertIn("Personal guidance (bounded):", text)
         self.assertIn("Keep the brief short", text)
         self.assertIn("Example:", text)
-        self.assertIn("source: source-one", text)
+        self.assertIn("[relationship-style]", text)
+        # The guidance line replaces the node's ordinary result row; with no
+        # other matching records there is no context section to render.
+        self.assertNotIn("Relevant context:", text)
 
     def test_tools_call_remember_captures_and_reports_untrusted(self) -> None:
         response = self.request(

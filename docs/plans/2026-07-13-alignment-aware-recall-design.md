@@ -46,9 +46,16 @@ Guidance eligibility and ranking are deterministic:
 - candidates use the existing lexical recall score
 - only the three strongest candidates may be returned
 - a dependency-free character estimate budgets the response at 2,000 tokens
-- context receives up to 80% of that estimate
-- personal guidance has a hard 400-token ceiling and must remain at or below
-  20% of the combined estimated response
+- personal guidance has a hard 400-token ceiling and at most 20% of the
+  response token budget; context receives whatever guidance does not use
+- a node selected for guidance is excluded from the ordinary results list, so
+  the same record never spends the budget twice
+
+Amendment (2026-08-31), from review: the original design capped guidance at
+20% of the *combined estimated response*, which starved guidance exactly when
+context was thin and double-charged nodes that appeared in both layers. The
+share is now taken from the fixed response budget and guidance replaces the
+node's result row.
 
 Each guidance item is keyed by its graph record id instead of repeating the
 record path and source citation in the second layer. The record remains

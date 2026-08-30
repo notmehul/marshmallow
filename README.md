@@ -69,7 +69,7 @@ Marshmallow is deliberately boring where trust matters.
 - **Source-backed guidance.** Graph nodes point back to real sources or approved
   corrections.
 - **Progressive disclosure.** Recall includes only relevant guidance and short
-  examples, keeps them below 20% of its estimated response, and leaves raw
+  examples, keeps them below 20% of its response budget, and leaves raw
   sources behind pointers for deliberate inspection.
 - **Preview before mutation.** Adapter installs and skill rewrites show you what
   will change.

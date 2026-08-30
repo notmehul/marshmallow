@@ -125,7 +125,7 @@ class OnboardingContractTests(unittest.TestCase):
         self.assertIn("There is no central state file.", architecture)
         self.assertIn("The `setup` CLI is a thin onboarding convenience", architecture)
         self.assertIn("Alignment-Aware Recall", architecture)
-        self.assertIn("20% of the estimated recall response", architecture)
+        self.assertIn("20% of the response token budget", architecture)
         self.assertIn("No required `workspace.json`.", trust)
         self.assertIn("No silent learning.", trust)
         self.assertIn("No sending, posting, queueing, or automation actions.", trust)
