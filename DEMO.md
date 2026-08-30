@@ -56,8 +56,10 @@ scripts/marshmallow.py recall "Mani retention threshold" \
 ```
 
 Notice that recall returns matching indexes, recall packets, and graph nodes.
-It does not read raw `sources/` or `inbox/` by default, and it does not
-generate new context. The agent uses the returned files to do the work.
+For this task it also returns Meera's relevant update guidance and one short
+example, within the reported alignment budget. It does not read raw `sources/`
+or `inbox/` by default, and it does not generate new context. The agent uses the
+returned context and guidance to do the work.
 
 ## Relationship Intelligence
 
@@ -119,7 +121,10 @@ truth remains in `sources/` and `graph/`.
 ## What To Notice
 
 - Graph nodes are typed as entities, decisions, and relationships.
-- Recall returns paths and snippets; it does not synthesize or act.
+- Recall returns paths and snippets plus a separate, bounded personal-guidance
+  layer; it does not synthesize or act.
+- Weak guidance matches disappear, and no more than three examples may use 20%
+  of the estimated response budget.
 - Source cards point to real bundled fixtures.
 - Skill overlays remain optional downstream tuning.
 - The relationship demo proves source-backed state over time without exposing

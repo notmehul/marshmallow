@@ -112,6 +112,8 @@ def record_result(
     applies_to = list_field(frontmatter, "applies_to")
     graph_ids = list_field(frontmatter, "graph_ids")
     related_nodes = list_field(frontmatter, "related_nodes")
+    guidance = str(frontmatter.get("guidance", ""))
+    guidance_examples = list_field(frontmatter, "guidance_examples")
     record_id = str(frontmatter.get("id", ""))
     path = str(frontmatter.get("_path", ""))
     weighted_text = " ".join(
@@ -127,6 +129,8 @@ def record_result(
             " ".join(applies_to),
             " ".join(graph_ids),
             " ".join(related_nodes),
+            guidance,
+            " ".join(guidance_examples),
         ]
     )
     score = score_record(tokens, weighted_text, body)

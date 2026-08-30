@@ -98,6 +98,12 @@ hint: `entity`, `decision`, `relationship`, or `preference`. Do not force a
 starter taxonomy. Do not create extra domain folders, generated graph files, or
 durable source-plan files by default.
 
+When a node should change how future work is done, add one concise `guidance`
+line and up to three short `guidance_examples`. Preference nodes qualify
+automatically; use `alignment: true` for another node type or `alignment: false`
+to opt out. Automatic recall returns only relevant examples and keeps this layer
+below twenty percent of its estimated response budget.
+
 ## 6. Reveal Recall And Recommend Next Steps
 
 Run:
@@ -109,8 +115,11 @@ Run:
 ```
 
 Surface 3-5 useful records in plain language: entities, decisions,
-relationships, preferences, or recall packets. Recommend skill tuning only when
-a judgment-sensitive skill should change real work.
+relationships, preferences, or recall packets. Show the bounded personal
+guidance returned with recall as bounded personal-guidance examples of how the
+work should be done.
+Recommend skill tuning only when a judgment-sensitive skill should change real
+work.
 
 Do not require graph approval before useful recall. The graph is inspectable
 substrate, not a mandatory checkpoint. If the user corrects a record, revise the

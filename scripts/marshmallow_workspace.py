@@ -30,10 +30,13 @@ decisions, working rules, or current context could materially change the result.
 ## During Work
 
 1. Run `marshmallow.py recall "<task/person/decision>"` when the CLI is
-   available, or check `~/.marshmallow/indexes/` first for compact navigation
-   pages relevant to the task.
-2. Use `rg` or `grep` to search `~/.marshmallow/graph/` only after recall or
-   indexes. Load the smallest relevant graph nodes, usually three to seven files.
+   available. Recall returns relevant context plus a bounded personal-guidance
+   layer with examples of how the work should be done. Use that guidance only
+   when it materially changes the current task.
+2. If recall is unavailable or a known navigation page is useful, check
+   `~/.marshmallow/indexes/`, then use `rg` or `grep` to search
+   `~/.marshmallow/graph/`. Load the smallest relevant graph nodes, usually
+   three to seven files.
 3. Use or create a focused `~/.marshmallow/projections/` recall packet when the
    task needs a reusable brief. Treat recall packets as runtime aids, not source
    truth.
@@ -45,7 +48,9 @@ decisions, working rules, or current context could materially change the result.
 Do not crawl the whole graph by default. Do not load `sources/` or `inbox/`
 during ordinary work. Do not send, post, queue, or automate on Marshmallow's
 behalf. Open deeper evidence only when the user asks to inspect, explain, or
-learn.
+learn. Do not load extra personal nodes merely to fill context; recall omits
+weak guidance and keeps the automatic guidance layer below twenty percent of
+its estimated response budget.
 
 ## Learning
 

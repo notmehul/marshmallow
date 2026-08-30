@@ -44,6 +44,29 @@ labels: [team]
 """
 
 
+def guidance_node(node_id: str) -> str:
+    return f"""---
+id: {node_id}
+insight: Prefer direct relationship briefs over generic CRM summaries.
+type: preference
+applies_to: [relationship-brief]
+guidance: Keep the brief short and end with one thoughtful next action.
+guidance_examples:
+  - Close with the decision the relationship needs now.
+source_ids: [source-one]
+related_nodes: []
+labels: [working-rule]
+status: active
+---
+
+# Relationship Brief Preference
+
+## Evidence
+
+- `source-one` - repeated feedback favors compact briefs with a next action.
+"""
+
+
 class McpDispatchTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
@@ -107,6 +130,24 @@ class McpDispatchTests(unittest.TestCase):
         self.assertFalse(response["result"]["isError"])
         text = response["result"]["content"][0]["text"]
         self.assertIn("source: source-one (example://source-one)", text)
+
+    def test_tools_call_recall_includes_bounded_personal_guidance(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/relationship-style.md", guidance_node("relationship-style"))
+
+        response = self.request(
+            "tools/call",
+            {"name": "recall", "arguments": {"query": "relationship brief next action"}},
+        )
+
+        text = response["result"]["content"][0]["text"]
+        self.assertIn("Personal guidance (bounded):", text)
+        self.assertIn("Keep the brief short", text)
+        self.assertIn("Example:", text)
+        self.assertIn("[relationship-style]", text)
+        # The guidance line replaces the node's ordinary result row; with no
+        # other matching records there is no context section to render.
+        self.assertNotIn("Relevant context:", text)
 
     def test_tools_call_remember_captures_and_reports_untrusted(self) -> None:
         response = self.request(

@@ -9,6 +9,8 @@ the work, Marshmallow gives them the context that makes the work correct.
 - Models are good at synthesis; deterministic code should handle filesystem
   mutation, validation, previews, and rollback.
 - Recall must be source-backed enough to inspect and correct.
+- Personal alignment belongs inside recall, not in a parallel profile system:
+  include only relevant guidance and examples, within a fixed context budget.
 - Runtime guidance should be concise because imported `CLAUDE.md` content is
   context, not hard enforcement.
 - Learning must be explicit. Visible capture of unmistakable feedback may create
@@ -36,7 +38,9 @@ sources -> typed graph nodes -> indexes/recall packets -> runtime adapter -> exp
 The graph stores source-backed entities, decisions, relationships, preferences,
 and working rules. Agent-written indexes and recall packets keep runtime context
 compact without becoming source truth. The adapter tells Claude to load those
-compact aids first, then only relevant graph nodes. Overlays still tune skills,
+compact aids first, then only relevant graph nodes. Recall adds a second bounded
+layer of personal guidance when a matching preference or explicitly aligned
+node can demonstrate how the work should be done. Overlays still tune skills,
 but they are one downstream use of the recall layer.
 
 ## Non-Goals

@@ -29,7 +29,7 @@ from markdown_graph import (
 )
 from capture import dismiss, list_candidates, promote, remember
 from marshmallow_workspace import MarshmallowError, atomic_write, default_workspace, ensure_workspace, require_workspace
-from recall import recall_context
+from personal_guidance import recall_with_personal_guidance
 from skill_overlay import apply_overlay, create_starter_skill, rollback_overlay
 from skill_scanner import discover
 
@@ -53,14 +53,15 @@ def runtime_guidance_warnings(root: Path) -> list[str]:
         "recall",
         "indexes/",
         "projections/",
+        "bounded personal-guidance",
         "Do not crawl the whole graph by default.",
         "unmistakable feedback",
     )
     if all(fragment in text for fragment in expected):
         return []
     return [
-        f"{runtime}: runtime guidance may be stale; update it to use recall, task-shaped context, "
-        "and visible capture of unmistakable feedback"
+        f"{runtime}: runtime guidance may be stale; update it to use alignment-aware recall, "
+        "task-shaped context, and visible capture of unmistakable feedback"
     ]
 
 
@@ -206,13 +207,17 @@ def command_scan_skills(args: argparse.Namespace) -> int:
 
 
 def command_recall(args: argparse.Namespace) -> int:
-    results = recall_context(args.workspace, args.query, limit=args.limit)
+    bundle = recall_with_personal_guidance(args.workspace, args.query, limit=args.limit)
+    results = bundle["results"]
     if args.json:
-        json_print({"query": args.query, "results": results})
+        json_print({"query": args.query, **bundle})
         return 0
-    if not results:
+    guidance = bundle["personal_guidance"]
+    if not results and not guidance:
         print("No matching context found.")
         return 0
+    if results:
+        print("Relevant context:")
     for result in results:
         label = result["title"] or result["insight"] or result["task"] or result["id"]
         print(f"{result['score']:>3} {result['kind']} {result['id']} - {label}")
@@ -225,6 +230,12 @@ def command_recall(args: argparse.Namespace) -> int:
             print(f"    {result['snippet']}")
         for citation in result.get("sources", []):
             print(f"    source: {citation['id']} ({citation['pointer'] or 'unresolved'})")
+    if guidance:
+        print("Personal guidance (bounded):")
+        for item in guidance:
+            print(f"  - {item['guidance']} [{item['id']}]")
+            if item["example"]:
+                print(f"    Example: {item['example']}")
     return 0
 
 

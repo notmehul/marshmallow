@@ -8,7 +8,9 @@ migration.
 Give Marshmallow a few things that reveal people, projects, decisions, formats,
 corrections, judgment, and working style. It turns them into source-backed graph
 nodes, makes those nodes available through a short runtime adapter, and gives
-agents compact recall before work. Skill overlays are optional.
+agents compact recall before work. When personal guidance is relevant, recall
+also supplies a few short examples of how the work should be done without
+flooding the context window. Skill overlays are optional.
 
 ## First-Run Budget
 
@@ -40,10 +42,13 @@ work.
 
 Ordinary work should not feel like opening a second app. The agent runs
 `recall`, checks `~/.marshmallow/indexes/`, loads the smallest relevant graph
-nodes or recall packets, and uses them only when they materially change the
-task. When the user gives an unmistakable correction, reasoned acceptance or
-rejection, or durable decision, the agent may capture one compact untrusted
-candidate and say so briefly. It does not capture ordinary conversation.
+nodes or recall packets, and receives only strongly relevant personal guidance.
+That guidance is limited to three compact items, stays below 20% of the recall
+response budget, and uses short examples instead of raw personal material. The agent
+uses it only when it materially changes the task. When the user gives an
+unmistakable correction, reasoned acceptance or rejection, or durable decision,
+the agent may capture one compact untrusted candidate and say so briefly. It
+does not capture ordinary conversation.
 
 ## Trust Cues
 
