@@ -422,8 +422,12 @@ class EndToEndTests(unittest.TestCase):
         # Junk on negatives should score below real answers on direct queries.
         self.assertLess(negatives["junk_mean_top_score"], negatives["true_positive_mean_top_score"])
 
-    def test_plan_activation_degrades_gracefully_without_plan_fields(self) -> None:
-        self.assertEqual("unavailable", self.report["aggregate"]["plan_activation"])
+    def test_plan_activation_reports_zero_activations_on_a_planless_workspace(self) -> None:
+        plan = self.report["aggregate"]["plan_activation"]
+        self.assertIsInstance(plan, dict)
+        self.assertEqual(8, plan["scored"])
+        self.assertEqual(0.0, plan["false_activation_rate"])
+        self.assertEqual(0, plan["lineage_violations"])
 
 
 if __name__ == "__main__":

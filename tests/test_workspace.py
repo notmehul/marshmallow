@@ -170,6 +170,30 @@ Do not infer approval from the investor unless a source says so.
     )
 
 
+def plan_node(
+    node_id: str = "launch-plan",
+    related_nodes: str = "[]",
+    status: str = "active",
+    managed: str = "true",
+    updated: str = "2026-07-04",
+    insight: str = "Use the launch plan as the operational hub for the next phase.",
+    body: str = "# Launch Plan\n\nThe body is deliberately free-form.\n",
+) -> str:
+    return graph_node(
+        node_id,
+        insight=insight,
+        labels="[launch-plan]",
+        related_nodes=related_nodes,
+        skills="[]",
+        extra_frontmatter=f"""type: plan
+subjects: [launch]
+status: {status}
+managed: {managed}
+updated: {updated}""",
+        body=body,
+    )
+
+
 def overlay(label: str = "Prefer quiet hierarchy.") -> str:
     return f"""## Marshmallow Alignment
 
@@ -442,6 +466,28 @@ title: Home
         self.assertTrue(any("Obsidian [[links]]" in warning for warning in warnings))
         self.assertEqual([], validate_workspace(self.root))
 
+    def test_plan_nodes_are_managed_graph_hubs_with_free_form_bodies(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/launch-project.md", high_quality_typed_graph_node("launch-project"))
+        atomic_write(
+            self.root / "graph/launch-plan.md",
+            plan_node(related_nodes="[launch-project]", body="# Launch Plan\n\nDo the useful thing next.\n"),
+        )
+
+        self.assertEqual([], validate_workspace(self.root))
+        warnings = graph_quality_warnings(self.root)
+        self.assertFalse(any("launch-plan.md" in warning for warning in warnings))
+
+        atomic_write(
+            self.root / "graph/invalid-plan.md",
+            plan_node("invalid-plan", managed="false", status="", updated=""),
+        )
+        errors = validate_workspace(self.root)
+        self.assertTrue(any("plan nodes must set managed: true" in error for error in errors))
+        self.assertTrue(any("plan nodes must include status" in error for error in errors))
+        self.assertTrue(any("managed nodes must include updated" in error for error in errors))
+        self.assertTrue(any("plan node is disconnected" in warning for warning in graph_quality_warnings(self.root)))
+
     def test_user_correction_creates_source_card(self) -> None:
         path = write_user_correction_source(
             self.root,
@@ -473,22 +519,40 @@ title: Home
 
     def test_setup_previews_codex_onboarding_without_touching_agents_md(self) -> None:
         root = self.temp_path / "fresh-marshmallow"
-        target = self.temp_path / "home/.codex/AGENTS.md"
+        home = self.temp_path / "home"
+        target = home / ".codex/AGENTS.md"
+        env = os.environ.copy()
+        env["HOME"] = str(home)
 
-        result = self.cli("setup", "--workspace", str(root), "--harness", "codex", "--target", str(target))
+        result = self.cli(
+            "setup",
+            "--workspace",
+            str(root),
+            "--harness",
+            "codex",
+            "--target",
+            str(target),
+            env=env,
+        )
 
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         self.assertTrue((root / "runtime.md").is_file())
         self.assertFalse(target.exists())
+        self.assertFalse((home / ".cursor/mcp.json").exists())
+        self.assertFalse((home / ".local/share/marshmallow/scripts/mcp_server.py").exists())
         self.assertIn("Workspace ready:", result.stdout)
         self.assertIn("Adapter preview for codex", result.stdout)
+        self.assertIn("MCP preview for codex", result.stdout)
         self.assertIn("Apply with the same command plus --apply.", result.stdout)
         self.assertIn(f"+{ADAPTER_START_MARKER}", result.stdout)
         self.assertIn("Marshmallow source-backed recall", result.stdout)
 
     def test_setup_apply_connects_cursor_and_writes_backup_record(self) -> None:
         root = self.temp_path / "fresh-marshmallow"
-        target = self.temp_path / "project/AGENTS.md"
+        home = self.temp_path / "home"
+        target = home / "project/AGENTS.md"
+        env = os.environ.copy()
+        env["HOME"] = str(home)
 
         result = self.cli(
             "setup",
@@ -499,6 +563,7 @@ title: Home
             "--target",
             str(target),
             "--apply",
+            env=env,
         )
 
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
@@ -506,6 +571,8 @@ title: Home
         self.assertIn(ADAPTER_START_MARKER, installed)
         self.assertIn("Read `", installed)
         self.assertIn(str((root / "runtime.md").resolve()), installed)
+        self.assertTrue((home / ".cursor/mcp.json").is_file())
+        self.assertTrue((home / ".local/share/marshmallow/scripts/mcp_server.py").is_file())
         records = sorted((root / "backups/adapters").glob("*/record.json"))
         self.assertEqual(1, len(records))
         record = json.loads(records[0].read_text())
@@ -1256,6 +1323,16 @@ description: Build product strategy and validate decisions with a security-aware
         self.assertEqual(1, len(frontmatter["guidance_examples"]))
         self.assertTrue(any("missing source reference" in error for error in validate_workspace(self.root)))
 
+    def test_new_plan_scaffolds_a_managed_plan_inside_graph(self) -> None:
+        result = self.cli("new", "plan", "launch-plan", "--workspace", str(self.root))
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        path = self.root / "graph/launch-plan.md"
+        frontmatter, body = parse_frontmatter(path)
+        self.assertEqual("plan", frontmatter["type"])
+        self.assertEqual("true", frontmatter["managed"])
+        self.assertEqual("active", frontmatter["status"])
+        self.assertIn("whatever form fits the work", body)
+
     def test_new_refuses_overwrite_without_force(self) -> None:
         first = self.cli("new", "source", "dup", "--workspace", str(self.root))
         self.assertEqual(0, first.returncode, first.stdout + first.stderr)
@@ -1272,7 +1349,7 @@ description: Build product strategy and validate decisions with a security-aware
 
     def test_reference_templates_are_present_and_non_empty(self) -> None:
         refs = ROOT / "references"
-        for name in ("source-card", "graph-node", "index", "projection", "overlay"):
+        for name in ("source-card", "graph-node", "plan-node", "index", "projection", "overlay"):
             template = refs / f"{name}-template.md"
             self.assertTrue(template.is_file(), template)
             self.assertGreater(len(template.read_text(encoding="utf-8").strip()), 0, template)

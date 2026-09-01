@@ -8,6 +8,10 @@ allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "AskUserQu
 
 # Marshmallow Tune
 
+Claude Code expands `${CLAUDE_PLUGIN_ROOT}` in the commands below. In other
+plugin hosts, resolve the plugin root as the directory two levels above this
+`SKILL.md` and substitute that absolute path before running a command.
+
 Tune skills only when the user wants Marshmallow to change durable skill
 behavior. Skill overlays are optional downstream use of Marshmallow recall. The
 graph supplies source-backed defaults; the target skill keeps its own procedure.
@@ -26,10 +30,12 @@ deterministic checklist skills unless the user explicitly asks.
 
 ## Draft Overlay
 
-Use recall first, then check compact indexes and graph nodes directly:
+Use recall to navigate, then get every selected node in full before it affects
+the overlay:
 
 ```bash
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<skill|topic|label>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" get "<selected-node-id>" --kind graph --json
 rg -n "<skill|topic|label>" ~/.marshmallow/indexes
 rg -n "<skill|topic|label>" ~/.marshmallow/graph
 ```

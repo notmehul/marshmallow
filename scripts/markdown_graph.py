@@ -5,10 +5,19 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
-from marshmallow_workspace import MarshmallowError, atomic_write, ensure_workspace, iso_timestamp, require_workspace, timestamp
+from marshmallow_workspace import (
+    MarshmallowError,
+    atomic_write,
+    ensure_workspace,
+    iso_timestamp,
+    require_workspace,
+    sha256_file,
+    timestamp,
+)
 from safety import validate_generated_guidance
 
 REQUIRED_NODE_FIELDS = {"id", "insight", "source_ids"}
@@ -24,7 +33,7 @@ GENERIC_INSIGHT_PATTERNS = (
     re.compile(r"\bhigh quality\b", re.IGNORECASE),
     re.compile(r"\bmake it better\b", re.IGNORECASE),
 )
-SKILL_OPTIONAL_TYPES = {"entity", "decision", "relationship", "preference"}
+SKILL_OPTIONAL_TYPES = {"entity", "decision", "relationship", "preference", "plan"}
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, Any], str]:
@@ -91,6 +100,26 @@ def list_field(frontmatter: dict[str, Any], name: str) -> list[str]:
     if isinstance(value, list):
         return [str(item) for item in value]
     return [] if value == "" else [str(value)]
+
+
+def is_iso_date_or_timestamp(value: str) -> bool:
+    try:
+        if "T" in value:
+            datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
+def keyed_hash_field(frontmatter: dict[str, Any], name: str) -> dict[str, str]:
+    hashes: dict[str, str] = {}
+    for value in list_field(frontmatter, name):
+        record_id, separator, digest = value.partition("=")
+        if separator and record_id and re.fullmatch(r"[0-9a-f]{64}", digest):
+            hashes[record_id] = digest
+    return hashes
 
 
 def source_cards(root: Path) -> dict[str, dict[str, Any]]:
@@ -170,6 +199,7 @@ def graph_quality_warnings(root: Path) -> list[str]:
     warnings: list[str] = []
     try:
         nodes = graph_nodes(root)
+        sources = readable_source_cards(root)
     except MarshmallowError as error:
         return [str(error)]
 
@@ -185,14 +215,32 @@ def graph_quality_warnings(root: Path) -> list[str]:
         if any(pattern.search(insight) for pattern in GENERIC_INSIGHT_PATTERNS):
             warnings.append(f"{path}: insight may be too generic to change agent behavior")
 
+        node_type = str(node.get("type", "")).strip()
         related_nodes = list_field(node, "related_nodes")
-        if related_nodes and "[[" not in body:
+        has_inbound_link = any(
+            node_id in list_field(other, "related_nodes")
+            for other_id, other in nodes.items()
+            if other_id != node_id
+        )
+        if node_type == "plan" and not related_nodes and not has_inbound_link:
+            warnings.append(f"{path}: plan node is disconnected; link it to the state it coordinates")
+        if node_type != "plan" and related_nodes and "[[" not in body:
             warnings.append(f"{path}: related_nodes should also appear as Obsidian [[links]] in the body")
 
-        if evidence_is_thin(section_text(body, "Evidence")):
+        if node_type != "plan" and evidence_is_thin(section_text(body, "Evidence")):
             warnings.append(f"{path}: evidence section looks too thin for durable alignment")
 
-        node_type = str(node.get("type", "")).strip()
+        revision_id = str(node.get("revision_source_id", "")).strip()
+        receipt = sources.get(revision_id) if revision_id else None
+        if (
+            receipt
+            and str(receipt.get("kind", "")) == "managed-update"
+            and node_id in list_field(receipt, "target_ids")
+        ):
+            expected_hash = keyed_hash_field(receipt, "target_hashes").get(node_id, "")
+            if expected_hash and sha256_file(path) != expected_hash:
+                warnings.append(f"{path}: managed lineage drift; reconcile this node before maintenance")
+
         if not list_field(node, "skills") and node_type not in SKILL_OPTIONAL_TYPES:
             warnings.append(f"{path}: node is not tied to any skill; it may not affect agent behavior")
     return warnings
@@ -275,6 +323,17 @@ def validate_workspace(root: Path) -> list[str]:
         for label in list_field(source, "labels"):
             if not ID_PATTERN.match(label):
                 errors.append(f"{path}: labels tag must use lowercase hyphen-case: {label!r}")
+        if str(source.get("kind", "")) == "managed-update":
+            for basis_id in list_field(source, "basis_ids"):
+                if basis_id not in sources:
+                    errors.append(f"{path}: missing managed-update basis source: {basis_id}")
+            target_ids = list_field(source, "target_ids")
+            target_hashes = keyed_hash_field(source, "target_hashes")
+            if not target_ids:
+                errors.append(f"{path}: managed-update source must include target_ids")
+            for target_id in target_ids:
+                if target_id not in target_hashes:
+                    errors.append(f"{path}: managed-update source is missing target hash for {target_id}")
 
     for node_id, node in nodes.items():
         path = Path(node["_path"])
@@ -303,7 +362,8 @@ def validate_workspace(root: Path) -> list[str]:
         node_type = str(node.get("type", "")).strip()
         if node_type and not ID_PATTERN.match(node_type):
             errors.append(f"{path}: type must use lowercase hyphen-case: {node_type!r}")
-        status = str(node.get("status", "")).strip()
+        raw_status = node.get("status", "")
+        status = raw_status.strip() if isinstance(raw_status, str) else ""
         if status and not ID_PATTERN.match(status):
             errors.append(f"{path}: status must use lowercase hyphen-case: {status!r}")
         alignment = str(node.get("alignment", "")).strip().lower()
@@ -323,6 +383,33 @@ def validate_workspace(root: Path) -> list[str]:
                 validate_generated_guidance(example, path, max_chars=300)
             except MarshmallowError as error:
                 errors.append(str(error))
+        raw_managed = node.get("managed", "")
+        managed = raw_managed.strip() if isinstance(raw_managed, str) else ""
+        if managed and managed not in {"true", "false"}:
+            errors.append(f"{path}: managed must be true or false")
+        raw_updated = node.get("updated", "")
+        updated = raw_updated.strip() if isinstance(raw_updated, str) else ""
+        if managed == "true" or node_type == "plan":
+            if not updated:
+                errors.append(f"{path}: managed nodes must include updated")
+            elif not is_iso_date_or_timestamp(updated):
+                errors.append(f"{path}: updated must be an ISO date or timestamp")
+        if node_type == "plan":
+            if managed != "true":
+                errors.append(f"{path}: plan nodes must set managed: true")
+            if not status:
+                errors.append(f"{path}: plan nodes must include status")
+        revision_id = str(node.get("revision_source_id", "")).strip()
+        if revision_id:
+            receipt = sources.get(revision_id)
+            if not receipt or str(receipt.get("kind", "")) != "managed-update":
+                errors.append(f"{path}: missing managed-update revision source: {revision_id}")
+            elif node_id not in list_field(receipt, "target_ids"):
+                errors.append(f"{path}: revision source does not target this node: {revision_id}")
+            else:
+                expected_hash = keyed_hash_field(receipt, "target_hashes").get(node_id, "")
+                if not expected_hash:
+                    errors.append(f"{path}: revision source is missing this node's target hash")
         for subject in list_field(node, "subjects"):
             if not ID_PATTERN.match(subject):
                 errors.append(f"{path}: subjects tag must use lowercase hyphen-case: {subject!r}")
@@ -334,6 +421,13 @@ def validate_workspace(root: Path) -> list[str]:
                 errors.append(f"{path}: related_nodes tag must use lowercase hyphen-case: {related_id!r}")
             elif related_id not in nodes:
                 errors.append(f"{path}: broken related node link: {related_id}")
+    for source_id, source in sources.items():
+        if str(source.get("kind", "")) != "managed-update":
+            continue
+        path = Path(source["_path"])
+        for target_id in list_field(source, "target_ids"):
+            if target_id not in nodes:
+                errors.append(f"{path}: missing managed-update target node: {target_id}")
     for index_id, index in indexes.items():
         path = Path(index["_path"])
         missing = REQUIRED_INDEX_FIELDS - set(index)
@@ -377,10 +471,11 @@ def validate_workspace(root: Path) -> list[str]:
     return errors
 
 
-SCAFFOLD_KINDS = ("source", "node", "index", "projection", "overlay")
+SCAFFOLD_KINDS = ("source", "node", "plan", "index", "projection", "overlay")
 SCAFFOLD_DIRS = {
     "source": "sources",
     "node": "graph",
+    "plan": "graph",
     "index": "indexes",
     "projection": "projections",
     "overlay": "overlays",
@@ -475,6 +570,25 @@ TODO the compact entity, decision, relationship, preference, or working rule.
 ## Limits
 
 TODO where this should not apply, weak evidence, or the question to ask first.
+"""
+    elif kind == "plan":
+        content = f"""---
+id: {record_id}
+insight: TODO one sentence that states the plan's operational intent
+type: plan
+applies_to: [todo-task]
+source_ids: [todo-source-id]
+related_nodes: [todo-node-id]
+managed: true
+status: active
+labels: [plan]
+updated: {now}
+---
+
+# {heading}
+
+TODO write the plan in whatever form fits the work. Marshmallow does not impose
+milestones, sequencing, branching, or any other body structure.
 """
     elif kind == "index":
         content = f"""---

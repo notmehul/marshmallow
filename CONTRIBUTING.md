@@ -34,6 +34,8 @@ python3 -m unittest discover -s tests -v
 python3 -m compileall -q scripts tests
 scripts/marshmallow.py doctor --workspace examples/operator-recall --json
 claude plugin validate . --strict   # if you have the Claude Code CLI
+# The unit suite also validates the Codex manifest, inline MCP config,
+# presentation assets, marketplace entry, and managed-state scenarios.
 ```
 
 Then make sure the working tree is clean (`git diff --exit-code`); CI fails if the

@@ -14,7 +14,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from capture import remember  # noqa: E402
 from marshmallow_workspace import atomic_write, ensure_workspace  # noqa: E402
-from mcp_server import PROTOCOL_VERSION, TOOL_NAMES, call_tool, dispatch  # noqa: E402
+from mcp_server import PROTOCOL_VERSION, TOOLS, TOOL_NAMES, call_tool, dispatch  # noqa: E402
 
 
 def source_card(source_id: str) -> str:
@@ -29,13 +29,13 @@ labels: [product]
 """
 
 
-def graph_node(node_id: str) -> str:
+def graph_node(node_id: str, related_nodes: str = "[]") -> str:
     return f"""---
 id: {node_id}
 insight: Mani now leads day-to-day at the company.
 applies_to: [relationship]
 source_ids: [source-one]
-related_nodes: []
+related_nodes: {related_nodes}
 skills: [relationship-brief]
 labels: [team]
 ---
@@ -64,6 +64,28 @@ status: active
 ## Evidence
 
 - `source-one` - repeated feedback favors compact briefs with a next action.
+"""
+
+
+def plan_node() -> str:
+    return """---
+id: mani-operating-plan
+insight: Use Mani's day-to-day operating plan as the active context hub.
+applies_to: [operations]
+source_ids: [source-one]
+related_nodes: [mani-lead]
+skills: []
+labels: [plan]
+type: plan
+subjects: [mani]
+status: active
+managed: true
+updated: 2026-07-04
+---
+
+# Mani Operating Plan
+
+Keep the body free-form.
 """
 
 
@@ -105,7 +127,7 @@ class McpDispatchTests(unittest.TestCase):
     def test_tools_list_exposes_only_the_safe_verbs(self) -> None:
         response = self.request("tools/list")
         names = {tool["name"] for tool in response["result"]["tools"]}
-        self.assertEqual({"recall", "remember", "pending"}, names)
+        self.assertEqual({"recall", "get", "history", "maintain", "remember", "pending"}, names)
         # Promotion is the human gate and must never be exposed over MCP.
         self.assertNotIn("promote", names)
         self.assertNotIn("promote", TOOL_NAMES)
@@ -116,6 +138,13 @@ class McpDispatchTests(unittest.TestCase):
         self.assertIn("unmistakable user feedback", remember_tool["description"])
         self.assertIn("Do not capture generic praise", remember_tool["description"])
 
+        maintain = next(tool for tool in TOOLS if tool["name"] == "maintain")
+        update_schema = maintain["inputSchema"]["properties"]["updates"]["items"]
+        evidence_schema = maintain["inputSchema"]["properties"]["evidence"]["items"]
+        self.assertEqual(["id", "expected_hash"], update_schema["required"])
+        self.assertFalse(update_schema["additionalProperties"])
+        self.assertIn("oneOf", evidence_schema)
+
     def test_notification_initialized_gets_no_response(self) -> None:
         self.assertIsNone(self.request("notifications/initialized", request_id=None))
 
@@ -125,10 +154,13 @@ class McpDispatchTests(unittest.TestCase):
 
     def test_tools_call_recall_returns_cited_context(self) -> None:
         atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
-        atomic_write(self.root / "graph/mani-lead.md", graph_node("mani-lead"))
+        atomic_write(self.root / "graph/mani-lead.md", graph_node("mani-lead", "[mani-operating-plan]"))
+        atomic_write(self.root / "graph/mani-operating-plan.md", plan_node())
         response = self.request("tools/call", {"name": "recall", "arguments": {"query": "Mani day-to-day"}})
         self.assertFalse(response["result"]["isError"])
         text = response["result"]["content"][0]["text"]
+        self.assertIn("Plan-centered context: mani-operating-plan", text)
+        self.assertIn("[graph/plan-hub]", text)
         self.assertIn("source: source-one (example://source-one)", text)
 
     def test_tools_call_recall_includes_bounded_personal_guidance(self) -> None:
@@ -148,6 +180,57 @@ class McpDispatchTests(unittest.TestCase):
         # The guidance line replaces the node's ordinary result row; with no
         # other matching records there is no context section to render.
         self.assertNotIn("Relevant context:", text)
+
+    def test_recall_result_includes_the_id_required_by_get(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/mani-lead.md", graph_node("mani-lead"))
+
+        text = call_tool("recall", {"query": "Mani day-to-day"}, self.root)
+
+        self.assertIn("id=mani-lead", text)
+
+    def test_get_maintain_and_history_form_a_source_backed_loop(self) -> None:
+        atomic_write(self.root / "sources/source-one.md", source_card("source-one"))
+        atomic_write(self.root / "graph/mani-operating-plan.md", plan_node())
+        get_response = self.request("tools/call", {"name": "get", "arguments": {"id": "mani-operating-plan"}})
+        record = json.loads(get_response["result"]["content"][0]["text"])
+        self.assertIn("Keep the body free-form", record["body"])
+
+        maintain_response = self.request(
+            "tools/call",
+            {
+                "name": "maintain",
+                "arguments": {
+                    "plan_id": "mani-operating-plan",
+                    "selection_reason": "The task explicitly names Mani's operating plan.",
+                    "outcome": "Completed the operating review.",
+                    "actor": "codex:test",
+                    "updates": [
+                        {
+                            "id": "mani-operating-plan",
+                            "expected_hash": record["content_hash"],
+                            "body": "# Mani Operating Plan\n\n- [x] Complete the operating review.\n",
+                        }
+                    ],
+                    "evidence": [
+                        {
+                            "kind": "agent-execution",
+                            "pointer": "task-run:test",
+                            "summary": "The operating review completed.",
+                        }
+                    ],
+                },
+            },
+        )
+        self.assertFalse(maintain_response["result"]["isError"])
+        receipt_id = json.loads(maintain_response["result"]["content"][0]["text"])["receipt_id"]
+
+        history_response = self.request(
+            "tools/call",
+            {"name": "history", "arguments": {"id": "mani-operating-plan"}},
+        )
+        history = json.loads(history_response["result"]["content"][0]["text"])["history"]
+        self.assertEqual(receipt_id, history[0]["id"])
 
     def test_tools_call_remember_captures_and_reports_untrusted(self) -> None:
         response = self.request(
@@ -189,7 +272,10 @@ class McpDispatchTests(unittest.TestCase):
         self.assertIn("integer", response["result"]["content"][0]["text"])
 
         follow_up = self.request("tools/list", request_id=2)
-        self.assertEqual({"recall", "remember", "pending"}, {tool["name"] for tool in follow_up["result"]["tools"]})
+        self.assertEqual(
+            {"recall", "get", "history", "maintain", "remember", "pending"},
+            {tool["name"] for tool in follow_up["result"]["tools"]},
+        )
 
     def test_unknown_tool_is_reported_as_iserror(self) -> None:
         response = self.request("tools/call", {"name": "promote", "arguments": {"id": "x"}})

@@ -13,7 +13,7 @@ act.
 
 [![tests](https://github.com/notmehul/marshmallow/actions/workflows/test.yml/badge.svg)](https://github.com/notmehul/marshmallow/actions/workflows/test.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![works with: Claude Code · Codex · Cursor](https://img.shields.io/badge/works%20with-Claude%20Code%20·%20Codex%20·%20Cursor-blue.svg)](#supported-harnesses)
+[![native plugins: Claude Code · Codex](https://img.shields.io/badge/native%20plugins-Claude%20Code%20·%20Codex-blue.svg)](#supported-harnesses)
 
 </div>
 
@@ -39,21 +39,25 @@ runtime guidance, and optional skill overlays.
 ## The idea
 
 ```text
-sources -> typed graph nodes -> indexes/recall packets -> runtime.md -> adapter -> agent
+sources -> current graph state -> indexes/recall packets -> agent
+                ^                         |
+                +-- managed receipts <----+
 ```
 
 - **Sources** are things you chose: files, notes, examples, rejected outputs,
   corrections, screenshots, PDFs, or URLs.
-- **Graph nodes** are compact, source-backed records: entities, decisions,
-  relationships, preferences, and working rules.
+- **Graph nodes** are source-backed records: entities, decisions, relationships,
+  preferences, working rules, and free-form managed plans.
 - **Indexes** are agent-written navigation pages that keep future agents from
   crawling the whole graph.
 - **Projections** are task-shaped recall packets for meetings, handoffs,
   workflows, or focused agent work.
 - **Alignment-aware recall** automatically adds one to three relevant personal
   guidance examples, within a strict context budget.
-- **`runtime.md`** tells the agent to check indexes first, then load only the
-  graph nodes and projections that matter now.
+- **`runtime.md`** tells the agent when continuity is useful and makes
+  `recall → get → maintain` the completion loop for managed work.
+- **Managed-update receipts** preserve every authorized state change as an
+  immutable source while graph nodes remain readable current-state projections.
 - **Adapters** connect that runtime file to `CLAUDE.md` or `AGENTS.md`.
 - **Skill overlays** are optional downstream tuning for existing agent skills.
 
@@ -66,6 +70,9 @@ Marshmallow is deliberately boring where trust matters.
 
 - **Local-first.** It writes plain files under `~/.marshmallow/`.
 - **Explicit learning.** No background capture. No silent session ingestion.
+- **Source-backed maintenance.** `managed: true` grants narrow standing
+  permission to update an applicable plan and connected living state through a
+  validated transaction. Every applied change creates an immutable receipt.
 - **Source-backed guidance.** Graph nodes point back to real sources or approved
   corrections.
 - **Progressive disclosure.** Recall includes only relevant guidance and short
@@ -104,28 +111,52 @@ Nothing durable is written without your explicit approval.
 Later, teach it more with `/marshmallow:learn`, find context with `recall`, and
 retune skills with `/marshmallow:tune` when a reusable skill should change.
 
-### Codex & Cursor
+### Codex
 
-Marshmallow's graph and recall packets are plain files. Codex and Cursor can
-read the same context through an `AGENTS.md` adapter.
+Add the repository as a Codex marketplace:
 
-For Codex:
+```bash
+codex plugin marketplace add notmehul/marshmallow
+```
+
+Restart Codex, open `/plugins`, select the **Marshmallow** marketplace, and
+install the plugin. The native Codex bundle uses `.codex-plugin/plugin.json`,
+loads the shared skills, shows the bundled Marshy presentation assets, and
+starts the bundled server from its inline MCP configuration.
+
+The native Claude Code and Codex manifests share the same `skills/`, `scripts/`,
+and local workspace. Each skill explains how non-Claude hosts resolve the plugin
+root before running its commands.
+
+### Clone-based setup
+
+The native plugins are the primary install path. From a repository clone, the
+guided fallback can install the `AGENTS.md` adapter and a stable global MCP
+runtime after preview:
 
 ```bash
 scripts/marshmallow.py setup --harness codex
 scripts/marshmallow.py setup --harness codex --apply
+scripts/marshmallow.py mcp preview --harness codex
+scripts/marshmallow.py mcp apply --harness codex
 ```
 
-For Cursor, run this from the project you want Cursor to read:
+### Cursor (experimental)
+
+Cursor is not currently shipped as a native Marshmallow plugin. The generic
+`AGENTS.md` adapter and manual MCP registration remain available for testing.
+Run adapter commands from the project Cursor should read:
 
 ```bash
 scripts/marshmallow.py setup --harness cursor
 scripts/marshmallow.py setup --harness cursor --apply
+scripts/marshmallow.py mcp preview --harness cursor
+scripts/marshmallow.py mcp apply --harness cursor
 ```
 
-`setup` creates or verifies `~/.marshmallow/`, previews the adapter, and only
-writes the `AGENTS.md` block when you pass `--apply`. Prefer the lower-level
-commands when you want to inspect each step separately:
+`setup` creates or verifies `~/.marshmallow/`, previews both changes, and writes
+only when you pass `--apply`. Use the lower-level adapter commands when you want
+to inspect that change separately:
 
 ```bash
 scripts/marshmallow.py init
@@ -167,10 +198,17 @@ The skills call one public CLI. You can run it directly too:
 ```bash
 scripts/marshmallow.py init
 scripts/marshmallow.py setup --harness codex|cursor [--apply]
-scripts/marshmallow.py new source|node|index|projection|overlay <id> [--title ...] [--task ...] [--force]
+scripts/marshmallow.py mcp preview|apply|remove --harness cursor|codex
+scripts/marshmallow.py new source|node|plan|index|projection|overlay <id> [--title ...] [--task ...] [--force]
 scripts/marshmallow.py doctor
 scripts/marshmallow.py scan-skills
 scripts/marshmallow.py recall "<query>" [--json] [--limit N]
+scripts/marshmallow.py get <id> [--kind graph|source|index|projection] [--json]
+scripts/marshmallow.py maintain preview|apply --request <request.json>
+scripts/marshmallow.py maintain reconcile --request <request.json> [--apply]
+scripts/marshmallow.py maintain rollback <receipt-id> [--apply]
+scripts/marshmallow.py maintain recover [--apply]
+scripts/marshmallow.py history <node-id> [--json]
 scripts/marshmallow.py remember "<note>" [--why ...] [--origin ...]
 scripts/marshmallow.py pending [--all] [--limit N] [--json]
 scripts/marshmallow.py promote <candidate-id> [--apply] [--json]
@@ -215,6 +253,20 @@ This is the deliberate boundary: an agent's own note can become a first-class,
 citable source, but nothing reaches the durable graph without a source behind
 it. No background daemon, no silent ingestion into trusted memory.
 
+Managed work has a second, narrower loop:
+
+```text
+recall -> get full records and hashes -> perform work -> maintain -> receipt-backed state
+```
+
+`maintain` may update only an existing `managed: true` active plan and its
+one-hop managed neighbors. Agent execution is evidence for plan progress only;
+connected living state requires an inspectable source, artifact, or observable
+user event. Hash mismatches reject the whole batch before any file changes.
+Applied batches publish updated nodes and one immutable `managed-update` source
+receipt, with byte-exact backups, a recovery journal, history, reconciliation,
+and compensating rollback.
+
 ## MCP server
 
 So any model reaches for Marshmallow without a runtime ritual, the loop is also
@@ -222,10 +274,15 @@ exposed as a dependency-free stdio MCP server (`scripts/mcp_server.py`). The too
 descriptions are the instructions — a non-Claude harness gets "recall before you
 act, capture instead of forgetting" with no extra wiring.
 
-It exposes three **safe** tools:
+It exposes a deliberately bounded tool surface:
 
 - **`recall`** — read source-backed context with citations and bounded personal
   guidance (read-only).
+- **`get`** — read one complete record, its content hash, relationships,
+  citations, and managed-lineage status (read-only).
+- **`history`** — inspect managed-update receipts for a node (read-only).
+- **`maintain`** — apply the narrowly authorized, hash-checked managed-state
+  transaction described above.
 - **`remember`** — capture into the untrusted inbox (never touches the graph).
 - **`pending`** — list candidates awaiting review (read-only).
 
@@ -233,9 +290,25 @@ It exposes three **safe** tools:
 graph is the human gate; an autonomous model must not bypass it. Promotion stays
 a deliberate act through the CLI or `/marshmallow:learn`.
 
-In Claude Code the server is auto-registered when you install the plugin. For
-other harnesses, clone the repository, run the following commands from its root,
-and restart or reload the harness:
+Claude Code and Codex auto-register the same server from their native plugin
+bundles. Claude Code declares it in `.claude-plugin/plugin.json`; Codex declares
+it inline in `.codex-plugin/plugin.json`. Both launch the same
+`scripts/mcp_server.py` entry point.
+
+Outside a plugin bundle, `setup --harness codex|cursor --apply` installs a
+stable runtime copy under
+`~/.local/share/marshmallow/scripts/` and registers MCP in the harness-native
+config files (`~/.codex/config.toml` or `~/.cursor/mcp.json`) after explicit
+approval. Cursor support on this path is experimental:
+
+```bash
+scripts/marshmallow.py setup --harness codex --apply
+scripts/marshmallow.py setup --harness cursor --apply
+scripts/marshmallow.py mcp apply --harness codex
+scripts/marshmallow.py mcp apply --harness cursor
+```
+
+Manual one-liners still work if you prefer native harness commands from a clone:
 
 ```bash
 # Codex (user-wide; shared by the CLI and IDE extension)
@@ -265,8 +338,9 @@ OpenCode uses a local-server entry in `opencode.json`:
 
 Other stdio MCP clients can use the same executable path as their `command`.
 On first start, the server creates the plain-file workspace skeleton under
-`~/.marshmallow/`. Through MCP, subsequent content is written only by an
-explicit `remember` tool call, and it goes solely to the untrusted inbox.
+`~/.marshmallow/`. Through MCP, new knowledge still enters only through
+`remember` and the untrusted inbox. `maintain` cannot create graph nodes; it can
+only revise already-managed state through a source-backed transaction.
 
 ## Graph shape
 
@@ -283,6 +357,7 @@ labels: [investor-update]
 type: decision
 subjects: [marshmallow, fundraising]
 status: active
+managed: false
 updated: 2026-06-01
 alignment: true
 guidance: Lead with the decision, then name the tradeoff and evidence.
@@ -295,8 +370,18 @@ the record, evidence, affected behavior, limits, and any real `[[wikilink]]`
 connections. `doctor --json` may report quality warnings for generic or thin
 nodes; warnings do not break existing workspaces. Optional typed fields such as
 `type`, `subjects`, `status`, and `updated` help agents navigate the graph.
-Beta types are `entity`, `decision`, `relationship`, and `preference`, but they
-are retrieval hints rather than a fixed taxonomy.
+Types are retrieval hints rather than a fixed taxonomy. A `type: plan` node is
+the deliberate exception to the compact body convention: it keeps a free-form
+Markdown body and uses `status: active`, `managed: true`, and `updated` to opt
+into plan maintenance.
+
+Recall ranks ordinary context directly and may surface up to three qualifying
+active managed plans. One clear candidate is selected automatically; several
+candidates remain explicit until their full records distinguish them. A selected
+plan is returned first, but stronger direct matches are retained before recall
+fills the remaining budget with one-hop context. Index and projection matches
+are attributed only to the Markdown line that links a node, preventing one broad
+page from activating every plan it mentions.
 
 Active preference nodes automatically qualify for personal guidance when they
 are relevant. Other node types can opt in with `alignment: true`; any node can
@@ -325,21 +410,25 @@ labels: [product]
 ```
 
 Every graph node must have at least one `source_ids` entry. User corrections are
-saved as source cards, so corrections stay source-backed too.
+saved as source cards, so corrections stay source-backed too. After its first
+managed transaction, a node also carries `revision_source_id`; `doctor` verifies
+that the receipt targets the node and records its current hash. Manual edits stay
+readable but produce lineage drift until `maintain reconcile` creates a new
+receipt for the current bytes.
 
 ## Supported harnesses
 
 | Harness | Runtime guidance | MCP registration |
 | --- | --- | --- |
-| Claude Code | `~/.claude/CLAUDE.md` native `@import` | automatic with the plugin |
-| Codex | `~/.codex/AGENTS.md` pointer block | `codex mcp add` |
-| Cursor | `./AGENTS.md` pointer block | `cursor --add-mcp` |
+| Claude Code | `~/.claude/CLAUDE.md` native `@import` | native `.claude-plugin/plugin.json` |
+| Codex | `~/.codex/AGENTS.md` pointer block | native `.codex-plugin/plugin.json` with inline MCP configuration |
+| Cursor (experimental) | `./AGENTS.md` pointer block | `setup --harness cursor --apply` or `cursor --add-mcp` |
 | Gemini CLI | MCP tool descriptions | `gemini mcp add` |
 | OpenCode | MCP tool descriptions | local entry in `opencode.json` |
 
-The full onboarding skills are built for Claude Code today. Codex and Cursor
-can also read the graph and recall packets directly through an `AGENTS.md`
-adapter. Gemini CLI and OpenCode use the MCP tool surface without an adapter.
+Claude Code and Codex are native plugin targets. Cursor retains an experimental
+adapter and manual MCP path. Gemini CLI and OpenCode use the MCP tool surface
+without a plugin.
 
 ## Try the demos
 

@@ -17,10 +17,12 @@ a small marker block that imports or points at `~/.marshmallow/runtime.md`:
   `~/.codex/AGENTS.md`; Cursor reads the project `./AGENTS.md`), since `AGENTS.md`
   has no import directive.
 
-The runtime file tells the agent to use `recall` or check
-`~/.marshmallow/indexes/` first, then search `~/.marshmallow/graph/` with `rg`
-or `grep` and load only the smallest relevant graph nodes for the current task.
-When a task needs a reusable brief, the agent can write a recall packet under
+The runtime file uses a narrow continuity trigger: explicit prior-context
+requests, named people/projects/decisions, and managed-plan work. Self-contained
+tasks skip recall. When continuity matters, the portable loop is
+`recall → get → work → maintain`: recall navigates, `get` supplies complete
+records and hashes, and `maintain` commits source-backed state after covered
+work. Reusable task briefs remain agent-written recall packets under
 `~/.marshmallow/projections/`.
 
 ### Alignment-Aware Recall
@@ -50,10 +52,18 @@ outrank recalled personal guidance. The legacy `recall_context()` function
 continues to return the original list shape for internal callers; CLI and MCP
 use the composed response.
 
-The `setup` CLI is a thin onboarding convenience for non-Claude harnesses: it
-creates or verifies the workspace, then delegates to the same reversible adapter
-installer used by `adapter preview/apply`. It does not introduce a second state
-file or bypass adapter approval.
+The native Claude Code and Codex plugins share one runtime, one set of
+procedures, and one MCP server. Their thin manifests stay harness-specific:
+`.claude-plugin/plugin.json` uses Claude's plugin-root contract, while
+`.codex-plugin/plugin.json` uses inline MCP configuration and Codex presentation
+assets. Shared skills explain how non-Claude hosts resolve the plugin root
+before running commands.
+
+The `setup` CLI remains a clone-based fallback. It creates or verifies the
+workspace, then delegates to the same reversible adapter installer used by
+`adapter preview/apply`. It does not introduce a second state file or bypass
+adapter approval. Cursor uses this experimental path; it is not a native plugin
+target.
 
 ## Capture Loop
 
@@ -101,15 +111,19 @@ is a thin wrapper over the same functions the CLI calls — no second
 implementation of recall or capture.
 
 The server negotiates the latest stable MCP revision and the previously shipped
-revision. Harness-specific setup stays in documentation and native harness
-configuration; Marshmallow does not grow a second installer that edits vendor
-config files.
+revision. Claude Code and Codex register it from their native plugin manifests.
+Clone-based setup uses each harness's config shape, with preview/apply/remove
+backed by Marshmallow backup records. `setup --harness codex|cursor --apply`
+copies the stdio server to `~/.local/share/marshmallow/scripts/` and writes
+user-wide MCP config after explicit approval. Cursor support on this path is
+experimental.
 
-It exposes only the safe verbs: `recall` (read), `remember` (write to untrusted
-inbox), and `pending` (read). `promote` is intentionally absent: crossing into
-the trusted graph is the human gate, so it is never an autonomous tool call. The
-server is dependency-free for the same reason the rest of Marshmallow is — it
-must stay boringly inspectable.
+It exposes only bounded verbs: `recall`, `get`, and `history` for reads;
+`remember` for untrusted capture; `pending` for the review queue; and `maintain`
+for hash-checked updates to existing managed graph state. `promote` is
+intentionally absent: crossing a new candidate into the trusted graph remains
+the human gate. `maintain` is not a general graph writer and cannot create,
+delete, or relink nodes.
 
 ## Plugin Command Boundary
 
@@ -117,6 +131,10 @@ Claude Code skills call the single executable CLI at
 `${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py`. The skill frontmatter allowlists
 that exact Bash prefix, plus `rg` and the file tools needed to stage user
 approved material.
+
+Codex discovers the canonical `skills/` directory. Each procedure explains how
+to resolve the absolute plugin root when Claude's environment variable is not
+available. The procedures remain single-source; only path resolution differs.
 
 Do not route plugin skills through `python3 ${CLAUDE_PLUGIN_ROOT}/...` or broad
 `Bash(python3:*)` permissions. Direct executable calls keep the harness
@@ -134,7 +152,7 @@ third-party Python.
 - `indexes/`: agent-written navigation pages
 - `projections/`: task-shaped recall packets
 - `overlays/`: approved skill overlay files
-- `backups/`: exact backup bytes plus `record.json`
+- `backups/`: exact backup bytes, managed transaction journals, and records
 
 There is no central state file. Tools discover state from the filesystem.
 
@@ -147,7 +165,7 @@ Every graph node must include:
 - non-empty `source_ids`
 
 Optional fields are `applies_to`, `related_nodes`, `skills`, `labels`, `type`,
-`subjects`, `status`, `updated`, `alignment`, `guidance`, and
+`subjects`, `status`, `managed`, `updated`, `alignment`, `guidance`, and
 `guidance_examples`. Labels and types are retrieval hints, not a fixed
 taxonomy. Beta graph types are `entity`, `decision`, `relationship`, and
 `preference`. `guidance_examples` accepts at most three short examples.
@@ -157,6 +175,63 @@ recall surface: the current representation, evidence, behavior it changes,
 limits, and Obsidian `[[links]]` for meaningful connections. `doctor` keeps
 schema errors separate from non-blocking quality warnings so old workspaces
 remain usable.
+
+### Managed Plans And Living State
+
+Plans live inside `graph/` because they are operational hubs connected to the
+people, projects, relationships, decisions, and constraints they coordinate. A
+plan node uses `type: plan`, a status, `managed: true`, and an `updated` value.
+Its body is free-form Markdown; Marshmallow does not interpret milestones,
+sequencing, branches, or headings. Plan nodes remain source-backed, but they are
+exempt from the ordinary graph-node body-shape quality checks.
+
+`managed: true` is standing authorization for task-triggered maintenance through
+the managed-state transaction module. Every ordinary update must update the
+selected active plan and may update only one-hop connected nodes that are also managed. Agent
+execution alone can evidence operational plan progress. Connected living-state
+updates require an existing source, an inspectable artifact, or a minimally
+preserved observable user event. Broader inference and new knowledge go to the
+inbox; maintenance never creates graph nodes.
+
+Graph nodes are current-state projections. Each successful transaction creates
+one immutable `kind: managed-update` source receipt containing the actor,
+outcome, selection rationale, evidence, target IDs, and before/after hashes.
+Changed nodes keep their foundational `source_ids` and set
+`revision_source_id` to that receipt. All expected hashes are checked before any
+write. Apply acquires a workspace transaction lock and rechecks every hash before
+commit. Nodes and receipt are staged, journaled, backed up, and published as one
+recoverable batch; caught failure restores the previous bytes.
+
+`doctor` reports interrupted journals and validates receipt lineage. Recovery
+finalizes only when every planned node hash and receipt exist; otherwise it
+restores the complete previous batch. Out-of-band edits remain readable but are
+reported as lineage drift and block automatic plan-hub maintenance until
+`maintain reconcile` records the current bytes without accepting content
+changes, including after a plan becomes inactive. Rollback is a compensating
+managed revision: it preserves the original receipt, requires its target hashes
+still to be current, and creates a new receipt linked by `rollback_of`.
+
+### Plan-Centered Recall
+
+Recall scores indexes, projections, and graph nodes, then builds a bidirectional
+in-memory adjacency map from `related_nodes`; stored links remain plain Markdown
+metadata. Index and projection scores are attributed only to the Markdown line
+that contains a node's link. Stopwords do not activate plans. A plan qualifies
+through its concise metadata, the strongest matching one-hop node, or the
+strongest link-local runtime-aid line. Incidental words buried in a free-form
+plan body do not activate it.
+
+Recall exposes up to three plan candidates. One candidate is selected
+automatically; several candidates require full `get` reads and remain unresolved
+unless their scopes clearly distinguish one. A selected plan is returned first,
+stronger direct matches are retained, and the remaining budget is filled with
+one-hop context. Without a qualifying plan, recall preserves the flat ranked
+fallback. Drifted plans remain readable with a warning but are ineligible for
+automatic selection.
+
+Each result exposes its bundle id, graph distance, direct score, and match
+reason. This supports inspectable retrieval and external graph visualization
+without adding mandatory render files or a graph database.
 
 Source cards must include `id`, `pointer`, and `captured`. A user correction can
 become a source card named `user-correction-YYYYMMDD...`, which keeps future
@@ -176,7 +251,9 @@ regenerated or edited as the task changes.
 
 The read-only `recall` CLI searches indexes, projections, and graph nodes. It
 does not search `sources/` or `inbox/`, and it does not synthesize or write
-context.
+context. `get` resolves a complete graph node, source, index, or projection with
+its SHA-256 hash, citations, relationships, and managed-lineage state. `kind` is
+required only when an ID is ambiguous across record types.
 
 ## Skills
 
@@ -190,9 +267,8 @@ not the whole graph. This keeps runtime context small and makes rollback simple.
 ## Trust And Rollback
 
 Mutating commands follow a preview/apply shape. Adapter changes and skill
-rewrites require explicit approval. Each applied mutation writes a backup and a
-`record.json` beside that backup. Rollback restores exact bytes from the backup
-and restores or removes the overlay store according to the record.
+rewrites require explicit approval. Managed graph state uses the narrower
+standing authorization and recoverable receipt protocol above.
 
 Plugin-cache skills are not edited in place.
 

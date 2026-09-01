@@ -8,6 +8,10 @@ allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "AskUserQu
 
 # Marshmallow Start
 
+Claude Code expands `${CLAUDE_PLUGIN_ROOT}` in the commands below. In other
+plugin hosts, resolve the plugin root as the directory two levels above this
+`SKILL.md` and substitute that absolute path before running a command.
+
 Marshmallow turns a small set of user-provided context into source-backed recall
 nodes, a short Claude runtime adapter, and optional skill overlays. Keep the
 first run useful and inspectable. Do not turn it into a framework setup.
@@ -47,7 +51,8 @@ Use one public CLI:
    - create source cards in `~/.marshmallow/sources/`
    - create or update typed graph nodes in `~/.marshmallow/graph/` using
      `type: entity`, `type: decision`, `type: relationship`, or
-     `type: preference` when useful
+     `type: preference` when useful; use `type: plan`, `status: active`, and
+     `managed: true` for a user-approved operational plan
    - create or update compact index pages in `~/.marshmallow/indexes/` only
      when they give future agents a faster starting point
    - create task-shaped recall packets in `~/.marshmallow/projections/` only
@@ -58,11 +63,14 @@ Use one public CLI:
      how future work is done; preference nodes qualify automatically and other
      node types can use `alignment: true`
    - create 3-7 graph nodes for onboarding, not exhaustive coverage
-   - keep each node compact, roughly one screen
+   - keep each ordinary node compact, roughly one screen; plan bodies remain
+     free-form
+   - give each plan a precise `insight`, `applies_to`, and meaningful links so
+     recall can identify its scope without parsing the plan body
    - do not require graph approval before tuning
    - do not force a starter taxonomy; labels can evolve from the user's corpus
-   - do not create extra domain folders, generated graph files, deterministic
-     projection generators, or durable source-plan files by default
+   - keep plans inside `graph/`; do not create a separate plans folder, impose
+     a plan-body structure, or add deterministic projection generators
 
 5. Validate and scan:
 
@@ -77,7 +85,14 @@ Use one public CLI:
 
    ```bash
    "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" recall "<task|person|decision>"
+   "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" get "<selected-record-id>" --json
    ```
+
+   Recall is navigation, not the complete record. When several plans qualify,
+   get each full body and select only when scope clearly distinguishes one; ask
+   when multiple plans apply or conflict. Explain that covered managed-plan work
+   ends with `maintain`, using the hash from `get` and producing an immutable
+   source receipt.
 
    Recommend writable, judgment-sensitive skills only when a skill overlay
    would improve real work. If no good existing skill exists and the user wants
@@ -92,9 +107,9 @@ Preview the persistent runtime adapter:
 ```
 
 Explain that it adds one replaceable import block to `~/.claude/CLAUDE.md`
-which imports `~/.marshmallow/runtime.md`. The runtime tells Claude to use
-recall or check indexes first, then load only the smallest relevant graph nodes
-or recall packets.
+which imports `~/.marshmallow/runtime.md`. The runtime uses continuity recall
+only for prior context, named people/projects/decisions, and managed-plan work.
+Its managed completion protocol is `recall → get → maintain`.
 
 Apply only after explicit approval:
 
@@ -102,9 +117,12 @@ Apply only after explicit approval:
 "${CLAUDE_PLUGIN_ROOT}/scripts/marshmallow.py" adapter apply
 ```
 
-If the user also works in Codex or Cursor, offer the same adapter for `AGENTS.md`
-(`--harness codex` writes `~/.codex/AGENTS.md`; `--harness cursor` writes the
-project `./AGENTS.md`). It uses the identical preview/approve/rollback shape.
+Codex installs this shared procedure through its native plugin. From a clone,
+offer the same `AGENTS.md` adapter with `--harness codex`; it writes
+`~/.codex/AGENTS.md`. Cursor is an experimental target: `--harness cursor`
+writes the project `./AGENTS.md`. Both clone-based paths keep the same
+preview/approve/rollback shape, and `setup --harness codex|cursor --apply` also
+applies MCP registration after explicit approval.
 
 ## Optional First Tune
 

@@ -19,7 +19,7 @@ You should see:
 
 - `fixtures/`: fictional source material
 - `sources/`: source cards pointing to those fixtures
-- `graph/`: typed source-backed records
+- `graph/`: typed source-backed records, including an active managed plan hub
 - `indexes/home.md`: compact navigation for agents
 - `projections/investor-update-recall.md`: a task-shaped recall packet
 
@@ -55,11 +55,42 @@ scripts/marshmallow.py recall "Mani retention threshold" \
   --json
 ```
 
-Notice that recall returns matching indexes, recall packets, and graph nodes.
-For this task it also returns Meera's relevant update guidance and one short
-example, within the reported alignment budget. It does not read raw `sources/`
-or `inbox/` by default, and it does not generate new context. The agent uses the
-returned context and guidance to do the work.
+Notice that recall returns `retention-proof-plan` first without dropping stronger
+direct matches. JSON includes `plan_context`, candidate reasons, and result
+roles. It does not read raw `sources/` or `inbox/` by default, and it does not
+generate new context. For this task it also returns Meera's relevant update
+guidance and one short example, within the reported alignment budget.
+
+### 4. Get The Complete Plan
+
+```bash
+scripts/marshmallow.py get retention-proof-plan \
+  --kind graph \
+  --workspace examples/operator-recall \
+  --json
+```
+
+`get` returns the complete free-form body, frontmatter, resolved citations,
+relationships, SHA-256 hash, and managed-lineage status. Recall is navigation;
+agents use this full read before a plan affects work.
+
+### 5. Preview Managed Completion
+
+After completing covered work, build a maintenance request with the hash from
+`get`, the selected-plan rationale, actor/session ID, outcome, replacement plan
+body, and evidence. Preview it before applying from the CLI:
+
+```bash
+scripts/marshmallow.py maintain preview \
+  --request /path/to/maintenance-request.json \
+  --workspace examples/operator-recall
+```
+
+An MCP client applies the same constrained request directly because
+`managed: true` is standing authorization. A successful apply would create an
+immutable source receipt, update `revision_source_id`, and make the revision
+visible through `history retention-proof-plan`. This bundled demo remains
+unchanged because the documented command is preview-only.
 
 ## Relationship Intelligence
 
@@ -125,6 +156,8 @@ truth remains in `sources/` and `graph/`.
   layer; it does not synthesize or act.
 - Weak guidance matches disappear, and no more than three examples may use 20%
   of the estimated response budget.
+- `get` is the authority for complete content and optimistic-concurrency hashes.
+- Managed changes are current-state projections backed by immutable receipts.
 - Source cards point to real bundled fixtures.
 - Skill overlays remain optional downstream tuning.
 - The relationship demo proves source-backed state over time without exposing
