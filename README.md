@@ -446,11 +446,18 @@ people-first pre-meeting relationship brief.
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 -m compileall -q scripts tests
+python3 -m compileall -q scripts tests evals
+python3 scripts/marshmallow.py doctor --workspace examples/operator-recall --json
+python3 scripts/marshmallow.py doctor --workspace evals/retrieval-quality/seed --json
+python3 evals/retrieval-quality/run_eval.py \
+  --workspace evals/retrieval-quality/seed \
+  --queries evals/retrieval-quality/queries.jsonl \
+  --json /tmp/report.json --baseline evals/retrieval-quality/baseline.json
 claude plugin validate . --strict
 ```
 
-Requires **Python 3.9+** and the Claude Code CLI for plugin validation.
+The same checks run in CI on every push, including the retrieval baseline
+guard. Requires **Python 3.9+** and the Claude Code CLI for plugin validation.
 
 ## Benchmarks
 

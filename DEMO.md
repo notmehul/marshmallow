@@ -55,11 +55,24 @@ scripts/marshmallow.py recall "Mani retention threshold" \
   --json
 ```
 
-Notice that recall returns `retention-proof-plan` first without dropping stronger
-direct matches. JSON includes `plan_context`, candidate reasons, and result
-roles. It does not read raw `sources/` or `inbox/` by default, and it does not
-generate new context. For this task it also returns Meera's relevant update
-guidance and one short example, within the reported alignment budget.
+Notice that recall ranks ordinary context first: the investor-update recall
+packet, then the fundraising decision and relationships. `retention-proof-plan`
+appears as an ordinary result and does not take over the response; a plan
+becomes the hub only when it is the strongest match for the query. Recall also
+returns Meera's relevant update guidance and one short example, within the
+reported alignment budget, and it does not read raw `sources/` or `inbox/` or
+generate new context.
+
+Plan-centered recall, for a query that is actually about the plan:
+
+```bash
+scripts/marshmallow.py recall "retention proof plan" \
+  --workspace examples/operator-recall
+```
+
+This prints `Plan-centered context: retention-proof-plan` and marks the plan
+result with `reason: plan-hub`; the JSON form carries the same `plan_context`
+and result roles.
 
 ### 4. Get The Complete Plan
 

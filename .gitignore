@@ -7,3 +7,8 @@ __pycache__/
 # one-time seed generation scratch (see evals/retrieval-quality/generate_seed.sh)
 evals/retrieval-quality/seed/stage-out/
 evals/retrieval-quality/cache/
+
+# local scratch, never part of the project
+outputs/
+Untitled.md
+.cursor-run-tests.sh

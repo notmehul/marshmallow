@@ -1,6 +1,6 @@
 {
   "name": "marshmallow",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Build a local source-backed recall context runtime for Codex agents.",
   "author": {
     "name": "Marshmallow contributors",
