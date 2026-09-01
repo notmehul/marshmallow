@@ -40,7 +40,7 @@ from record_access import get_record
 
 PROTOCOL_VERSION = "2025-11-25"
 SUPPORTED_PROTOCOL_VERSIONS = (PROTOCOL_VERSION, "2025-06-18")
-SERVER_INFO = {"name": "marshmallow", "version": "0.7.0"}
+SERVER_INFO = {"name": "marshmallow", "version": "0.8.0"}
 DEFAULT_RECALL_LIMIT = 8
 DEFAULT_PENDING_LIMIT = 20
 

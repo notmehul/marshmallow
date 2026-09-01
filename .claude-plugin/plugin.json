@@ -1,7 +1,7 @@
 {
   "name": "marshmallow",
   "description": "Build a local source-backed recall context runtime for Claude Code agents.",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "author": {
     "name": "Marshmallow contributors",
     "url": "https://github.com/notmehul/marshmallow"
