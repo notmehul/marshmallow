@@ -94,11 +94,20 @@ def ensure_generated_skill_name(text: str, generated_name: str) -> str:
     return f"---\n{frontmatter}\n---\n{text[closing + 5:]}"
 
 
+def marker_pointer(overlay_path: Path) -> str:
+    """Skill files are often shared or published, so keep the home directory out of the marker."""
+    resolved = overlay_path.resolve()
+    try:
+        return "~/" + resolved.relative_to(Path.home().resolve()).as_posix()
+    except ValueError:
+        return str(resolved)
+
+
 def alignment_block(overlay_path: Path) -> str:
     return (
         f"{START_MARKER}\n"
         "## Marshmallow Alignment\n\n"
-        f"Before using this skill, read `{overlay_path.resolve()}` and apply it as the recall-aware alignment layer.\n"
+        f"Before using this skill, read `{marker_pointer(overlay_path)}` and apply it as the recall-aware alignment layer.\n"
         f"{END_MARKER}"
     )
 

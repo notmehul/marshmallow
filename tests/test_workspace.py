@@ -1121,6 +1121,22 @@ description: Build product strategy and validate decisions with a security-aware
         self.assertFalse((self.root / "overlays/frontend-design.md").exists())
         self.assertTrue(record_paths[0].with_name("rollback.json").exists())
 
+    def test_overlay_marker_points_at_home_relative_overlay_path(self) -> None:
+        target = self.temp_path / "skills/frontend-design/SKILL.md"
+        overlay_path = self.temp_path / "overlay.md"
+        atomic_write(target, skill())
+        atomic_write(overlay_path, overlay())
+        args = ("overlay", "apply", "--workspace", str(self.root), "--skill", str(target), "--overlay", str(overlay_path))
+
+        inside_home = self.cli(*args, env={**os.environ, "HOME": str(self.temp_path)})
+        self.assertEqual(0, inside_home.returncode, inside_home.stdout + inside_home.stderr)
+        self.assertIn("read `~/.marshmallow/overlays/frontend-design.md`", target.read_text())
+        self.assertNotIn(str(self.temp_path), target.read_text())
+
+        outside_home = self.cli(*args, env={**os.environ, "HOME": str(self.temp_path / "elsewhere")})
+        self.assertEqual(0, outside_home.returncode, outside_home.stdout + outside_home.stderr)
+        self.assertIn(f"read `{(self.root / 'overlays/frontend-design.md').resolve()}`", target.read_text())
+
     def test_overlay_refuses_plugin_cache_edits_and_blocks_unsafe_guidance(self) -> None:
         cached = self.temp_path / ".claude/plugins/cache/vendor/frontend-design/SKILL.md"
         overlay_path = self.temp_path / "overlay.md"

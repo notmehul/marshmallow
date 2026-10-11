@@ -259,7 +259,9 @@ required only when an ID is ambiguous across record types.
 
 Base skills stay intact. Marshmallow inserts one marker block that points to an
 overlay file in `~/.marshmallow/overlays/`. The overlay carries the personal
-alignment layer; the base skill keeps its domain procedure.
+alignment layer; the base skill keeps its domain procedure. The marker names the
+overlay as a `~/` path whenever it sits under the home directory, so a skill
+that is shared or published never carries the account name.
 
 Skills are one output surface, not the whole product. Skills contain a pointer,
 not the whole graph. This keeps runtime context small and makes rollback simple.
